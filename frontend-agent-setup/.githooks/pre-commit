@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Pre-commit hook (plain Git hook, no hook manager): LINT, plus optional SNYK checks (off by default).
+# Turn it on once per clone:   git config core.hooksPath .githooks
+# Run it by hand:              bash .githooks/pre-commit          (files staged for commit)
+#                              bash .githooks/pre-commit --all    (all tracked files)
+# Lint always runs. Snyk runs only if turned on (.githooks/snyk.conf or git config hooks.snyk true).
+# Tests do not run here, because TDD commits failing tests on purpose.
+# Never bypass it (no --no-verify or -n): fix what it reports.
+# Note: files are linted as they are in the working tree.
+
+files=()
+if [ "${1:-}" = "--all" ]; then
+  while IFS= read -r f; do files+=("$f"); done < <(git ls-files)
+else
+  while IFS= read -r f; do files+=("$f"); done < <(git diff --cached --name-only --diff-filter=ACMR)
+fi
+[ "${#files[@]}" -eq 0 ] && exit 0
+
+code=(); yaml=(); docker=()
+for f in "${files[@]}"; do
+  case "$f" in
+    src/services/api/generated/*) ;;                 # generated code is not linted by hand
+    *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs) code+=("$f") ;;
+    *.yml|*.yaml) yaml+=("$f") ;;
+    *Dockerfile*) docker+=("$f") ;;
+  esac
+done
+
+status=0
+
+# TypeScript/JavaScript: ESLint with the repo's config (typescript-eslint, jsx-a11y). No warnings allowed.
+if [ "${#code[@]}" -gt 0 ]; then
+  if [ -x node_modules/.bin/eslint ]; then
+    echo "• Code lint (ESLint)"
+    node_modules/.bin/eslint --max-warnings=0 -- "${code[@]}" || status=1
+  else
+    echo "• Code lint skipped: ESLint is not installed yet (run npm install)."
+  fi
+fi
+
+# YAML (deploy/ manifests, workflows): yamllint, if installed.
+if [ "${#yaml[@]}" -gt 0 ]; then
+  if command -v yamllint >/dev/null 2>&1; then
+    echo "• YAML lint (yamllint)"
+    yamllint -s "${yaml[@]}" || status=1
+  else
+    echo "• YAML lint skipped: yamllint not installed (it still runs in CI)."
+  fi
+fi
+
+# Dockerfiles: Hadolint, if installed.
+if [ "${#docker[@]}" -gt 0 ]; then
+  if command -v hadolint >/dev/null 2>&1; then
+    echo "• Dockerfile lint (Hadolint)"
+    hadolint "${docker[@]}" || status=1
+  else
+    echo "• Dockerfile lint skipped: hadolint not installed (it still runs in CI)."
+  fi
+fi
+
+# ---------- Snyk security checks (OFF by default; see .githooks/snyk.conf) ----------
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/snyk-lib.sh"
+deps=0; iac=()
+for f in "${files[@]}"; do
+  case "$f" in
+    package.json|package-lock.json) deps=1 ;;
+    deploy/*.yml|deploy/*.yaml|deploy/*/*.yml|deploy/*/*.yaml|deploy/*/*/*.yml|deploy/*/*/*.yaml) iac+=("$f") ;;
+  esac
+done
+if [ "$deps" -eq 1 ] || [ "${#iac[@]}" -gt 0 ]; then
+  if [ "$SNYK_ON" = true ]; then
+    if [ "$deps" -eq 1 ] && snyk_check_on dependencies; then
+      snyk_run "dependency check" test || status=1
+    fi
+    if [ "${#iac[@]}" -gt 0 ] && snyk_check_on iac; then
+      snyk_run "infrastructure check" iac test "${iac[@]}" || status=1
+    fi
+  else
+    snyk_off_note
+  fi
+fi
+
+if [ "$status" -ne 0 ]; then
+  echo "✖ Pre-commit checks failed. Fix the problems above (ESLint can fix many with: npx eslint --fix <file>), then git add and commit again." >&2
+fi
+exit $status

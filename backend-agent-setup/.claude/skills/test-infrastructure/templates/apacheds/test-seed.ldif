@@ -1,0 +1,25 @@
+# TEST-ONLY fake seed data (src/test/resources/ldap/test-seed.ldif).
+# The real base DN and structure are open questions; the application reads them from configuration.
+dn: ou=internal,dc=example,dc=com
+objectClass: organizationalUnit
+ou: internal
+
+dn: ou=external,dc=example,dc=com
+objectClass: organizationalUnit
+ou: external
+
+dn: ou=roles,dc=example,dc=com
+objectClass: organizationalUnit
+ou: roles
+
+dn: cn=example-reader,ou=roles,dc=example,dc=com
+objectClass: groupOfUniqueNames
+cn: example-reader
+uniqueMember: uid=seed-user,ou=internal,dc=example,dc=com
+
+dn: uid=seed-user,ou=internal,dc=example,dc=com
+objectClass: inetOrgPerson
+uid: seed-user
+cn: Seed User
+sn: User
+mail: seed.user@example.test
