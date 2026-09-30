@@ -1,0 +1,27 @@
+// The Scottish Government Design System. Keep overrides to a minimum and use its tokens.
+@use "@scottish-government/design-system/src/design-system";
+@use "@scottish-government/design-system/src/base/settings";
+
+// The Design System's notification banner has no error variant, so this adds a red one
+// using its own "negative" state colour. Used for "Access provisioning failed".
+.app_notification--error {
+  background-color: settings.$ds_colour__state--negative;
+  color: settings.$ds_colour__white;
+}
+
+// The operator's role, at the right-hand end of the site header.
+.ds_site-header__content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app_site-header__role {
+  margin: 0 0 0 auto;
+}
+
+// A page heading shown inside a ribbon takes the ribbon's text colour.
+.ds_notification .ds_page-header__title {
+  color: inherit;
+  margin: 0;
+}
