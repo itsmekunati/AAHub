@@ -786,7 +786,7 @@ These come from `CLAUDE.md` and the agent files. They apply to people as much as
 1. **Test first.** No production code without a failing test that needs it.
 2. **Never guess the API.** If it is not in `openapi/openapi.json`, ask the backend team.
 3. **Never hand-edit generated files** (`openapi/openapi.json`, `src/services/api/generated/`).
-4. **The UI never decides the user type.** It shows what the server returns.
+4. **The UI never decides internal or external.** The backend decides it from the email domain, and it applies only to User Role Management. User Provisioning is for internal users only; the operator chooses the user type (Government, Forestry or Nature).
 5. **The UI is not a security boundary.** Hiding a button is for usability; the backend enforces permissions.
 6. **Tokens stay in memory** and are never logged. No personal data or full API payloads in the console.
 7. **Accessibility is mandatory:** WCAG 2.2 AA, Design System markup, plain English.

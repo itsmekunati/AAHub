@@ -6,7 +6,7 @@ This file holds only what applies to **every** task. Detailed rules live in `.cl
 
 ## Project overview
 
-Internal application for **user role management and user provisioning** for both **internal and external users**.
+Internal application for **user provisioning** (internal users only) and **user role management** (internal and external users).
 
 An administrator enters user details in the React UI. This backend then:
 
@@ -41,7 +41,9 @@ React UI (separate repo) ──HTTPS──►  This API ──►  Apache Direct
 - Layers: controller → service → repository/gateway. Controllers contain no business logic. DTOs at the API boundary; never expose entities or LDAP objects.
 - Two separate, clearly named configurations: Oracle and LDAP. Never mix repositories across them. The audit log is a file, not a datasource.
 - **ApacheDS and Oracle writes cannot share one transaction.** Provisioning is an explicit ordered flow with compensation or a recorded failed state, and every step is audited.
-- **User type (internal/external) is decided server-side only**, from the email domain, against a configured list. Never accept a user type from the client.
+- **User type and internal/external are different things** (see `.claude/rules/user-classification.md`):
+  - **User Provisioning applies to internal users only.** The operator chooses the **user type** (`government`, `forestry` or `nature`) in the UI; the server validates it (only those three values, otherwise `400`) and audits it. The user type does not decide internal or external.
+  - **Internal/external classification is used only in User Role Management** (not built yet). It is decided **server-side only** from the email domain against a configured list: gov.uk, Forestry and Nature domains are internal, everything else is external. Never accept a classification from the client.
 - **Two kinds of roles:** operator roles (`admin`, `editor`) come from Keycloak and control who may use this API; provisioned user roles are what this API assigns, stored in ApacheDS. Do not confuse them.
 
 ## Non-negotiable rules
@@ -134,7 +136,7 @@ Rules load automatically when you work on files matching their paths. Read them 
 |---|---|---|
 | Test-driven development (red → green → refactor) | `.claude/rules/tdd.md` | all production and test code |
 | Java and Spring Boot 4 conventions | `.claude/rules/code-style.md` | `**/*.java`, `pom.xml` |
-| Email-domain user classification | `.claude/rules/user-classification.md` | `service/`, `api/` |
+| User type (provisioning) and email-domain classification (role management) | `.claude/rules/user-classification.md` | `service/`, `api/` |
 | Provisioning flow across ApacheDS and Oracle | `.claude/rules/provisioning.md` | `service/`, `ldap/`, `oracle/` |
 | Keycloak authentication and authorisation | `.claude/rules/security-keycloak.md` | `security/`, `api/`, `config/` |
 | Audit events, fields, format, MDC, correlation IDs | `.claude/rules/audit-logging.md` | all production Java, `logback*.xml` |

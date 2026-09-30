@@ -71,7 +71,7 @@ The project rules are split into layers, so each agent reads only what the curre
 |---|---|---|
 | `tdd.md` | Test-first rules: red → green → refactor, commits, evidence | all production and test code, `src/main/resources/` |
 | `code-style.md` | Java 25 and Spring Boot 4 conventions | any `.java` file, `pom.xml` |
-| `user-classification.md` | Internal/external classification by email domain | `service/`, `api/` |
+| `user-classification.md` | User type (provisioning) and internal/external classification by email domain (role management) | `service/`, `api/` |
 | `provisioning.md` | Ordered ApacheDS + Oracle writes, compensation | `service/`, `ldap/`, `oracle/` |
 | `security-keycloak.md` | Resource server, roles, `401`/`403`, auth auditing, CORS | `security/`, `api/`, `config/` |
 | `audit-logging.md` | Auditable events, fields, JSON format, MDC, correlation IDs | all production Java, `logback*.xml`, `application*.yml` |
@@ -447,7 +447,7 @@ Always start this way. Running the Planner as the main session is what allows it
 
 Type a short request. Focus on the outcome, not the implementation. For example:
 
-> Add an endpoint that lets an operator provision a new user. Classify the user as internal or external from their email domain, store their details in Oracle, assign their roles in ApacheDS, and audit every step including failures.
+> Add an endpoint that lets an operator provision a new internal user of the user type they chose (Government, Forestry or Nature), store their details in Oracle, assign their roles in ApacheDS, and audit every step including failures.
 
 ### Step 6.3: Review the spec and answer the open questions
 
@@ -556,7 +556,7 @@ Every breaking change to the contract must be flagged. The agents do this in the
 
    > Add an endpoint to list provisioned users for admins and editors, with name, email, user type and roles. Editors must not see disabled users. Audit access denials.
 
-   > Add an endpoint for admins to provision a new user: classify internal or external from the email domain, store the details in Oracle, assign roles in ApacheDS, compensate if the second write fails, and audit every step.
+   > Add an endpoint for admins to provision a new internal user of the chosen user type (Government, Forestry or Nature): store the details in Oracle, assign roles in ApacheDS, compensate if the second write fails, and audit every step.
 
 3. **The Planner:**
    - writes the spec and contract, including test scenarios, audit events and API contract impact;

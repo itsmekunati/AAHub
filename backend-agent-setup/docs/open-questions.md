@@ -6,7 +6,7 @@ When a question is answered: record the decision in the matching rule file under
 
 | # | Question | Affects | Rule file to update |
 |---|---|---|---|
-| 1 | Which email domains count as internal, and do subdomains count? Is the list the same in every environment? Which domains are internal in the test environment? | Classification, tests | `user-classification.md` |
+| 1 | Internal email domains (User Role Management): gov.uk, Forestry and Nature domains are internal. What are the exact Forestry and Nature domains, do subdomains count (e.g. any `*.gov.uk`), and is the list the same in every environment? Which domains are internal in the test environment? | Classification, tests | `user-classification.md` |
 | 2 | ApacheDS schema: how are internal vs external users and roles modelled (OUs, groups, custom object classes)? Is it accessed over LDAPS? | LDAP gateway | `ldap.md` |
 | 3 | What does the Oracle schema for user details and provisioning look like? | Entities, migrations | `oracle-jpa.md` |
 | 4 | Which S3 bucket/prefix, and which AWS account? | Shipping job | `log-shipping.md` |
@@ -21,3 +21,4 @@ When a question is answered: record the decision in the matching rule file under
 | 13 | Java code style, formatter and linter: e.g. Spotless with Palantir or Google Java Format, and Checkstyle (the pre-commit lint hook runs Checkstyle once it is configured in `pom.xml`)? | Formatting, lint hook, CI | `code-style.md` |
 | 14 | **Decided:** a pre-commit lint hook (`.githooks/pre-commit`, plain Git hooks). **Still open:** any other checks before commit or push (secrets scanning, blocking `.env`/keys/log files, commit message format, formatting, tests before push; not before commit, because TDD commits failing tests), whether to adopt a hook manager (e.g. Lefthook, pre-commit, Husky), and whether agents get Claude Code hooks that block bypassing the checks and `git push`. | Every commit, the Generator and Evaluator, CI | `.githooks/`, `CLAUDE.md`, the guide |
 | 15 | Snyk: the checks are built in but **off by default**. Which Snyk organisation and plan will the team use, should the team default be switched on later, and is the Snyk code check (which uploads source code to Snyk) approved? | Snyk hooks, CI | `.githooks/snyk.conf`, the guide |
+| 16 | User Provisioning is for internal users only. Should the backend also reject a provisioning request whose email address is not on an internal domain, or is the user type (Government, Forestry, Nature) enough? | Provisioning validation | `user-classification.md` |

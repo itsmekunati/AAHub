@@ -18,4 +18,5 @@ Rules:
 - Keep Keycloak-specific code in `src/auth/` behind a **small interface** (current user, roles, login, logout, get token), so the rest of the UI does not depend on Keycloak directly.
 - The UI may read the operator's roles from the token **only to decide what to show** (e.g. hiding an action an `editor` cannot use). This is usability, not security. The backend enforces every permission; handle `401` and `403` properly.
 - What `admin` and `editor` may each do is **TBC**. Ask for the permission matrix rather than guessing.
+- **Until Keycloak sign-in is built**, `src/auth/operator.ts` returns `editor` for everyone and the site header shows **EDITOR**. Replace it with the real role from the token when the Keycloak work starts; nothing else may depend on it.
 - Keycloak URL, realm and client ID come from configuration per environment, never from code.

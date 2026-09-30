@@ -20,6 +20,8 @@ Reference for `.claude/rules/audit-logging.md`. Every audit record is a single-l
 | `performedBy.username` | Acting operator's username (from the validated token) | Always, where available |
 | `performedBy.subjectId` | Acting operator's subject ID (from the validated token) | Always, where available |
 | `targetUser.username` | User account affected by the action | Where applicable |
+| `targetUser.userType` | User type chosen by the operator: `government`, `forestry` or `nature` | User Provisioning events |
+| `targetUser.classification` | `INTERNAL` or `EXTERNAL`, decided from the email domain | User Role Management events |
 | `source.hostname`, `source.ipAddress` | Source host and IP | Always |
 | `source.port` | Source port | Where applicable |
 | `destination.hostname`, `destination.ipAddress`, `destination.port` | Destination host, IP and port | Where applicable |

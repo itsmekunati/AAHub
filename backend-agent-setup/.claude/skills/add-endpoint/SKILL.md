@@ -22,7 +22,7 @@ Write these before any production code (add compiling stubs for the controller, 
 Run them, confirm they fail for the right reason, record the red evidence, and commit `test(sprint-NN): ACn failing tests`.
 
 ## 3. Green: implement the minimum
-- **DTOs:** Java records in `api/`, with Bean Validation on every request field that needs it. Never expose JPA entities or LDAP objects. Never accept a user type, operator identity or operator role from the request body.
+- **DTOs:** Java records in `api/`, with Bean Validation on every request field that needs it. Never expose JPA entities or LDAP objects. Never accept an internal/external classification, operator identity or operator role from the request body. Provisioning requests carry a `userType` that is validated as `user-classification.md` describes.
 - **Controller:** thin. Validate (`@Valid`), call one service method, map to a response DTO. Method security on the method, e.g. `@PreAuthorize("hasRole('ADMIN')")`. Errors go through the global exception handler, with no stack traces.
 - **Service and gateways:** business logic in `service/`; ApacheDS only through `ldap/`, Oracle only through `oracle/`. If the endpoint writes to both, use the `provisioning-flow` skill. The acting operator comes from the validated JWT via the security layer.
 - **Audit:** emit records for success and failure (`add-audit-event` skill).

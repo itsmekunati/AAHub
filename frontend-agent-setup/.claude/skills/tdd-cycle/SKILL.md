@@ -7,7 +7,7 @@ description: The red-green-refactor loop for implementing one acceptance criteri
 
 Rule: `.claude/rules/tdd.md`. Work through this loop **once per acceptance criterion**, in the order the contract lists them.
 
-> The exact test commands depend on the build tooling, which is still being chosen (`docs/open-questions.md` #3). Use the scripts in `package.json`; the examples below assume `npm test -- <path>` runs a single test file.
+> Tests run with Vitest. `npm test -- <path>` runs a single test file; `npm run test:watch` runs in watch mode.
 
 ## 1. Pick the scenarios
 - Take the AC's `testScenarios` from `sprints/sprint-NN/contract.json` (given / when / then, with a suggested level).

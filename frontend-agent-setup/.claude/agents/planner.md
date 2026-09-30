@@ -37,7 +37,7 @@ User-centred and rigorous. Think about the operator's journey, every state of ev
 ## Don'ts
 - Don't write product code or make implementation decisions beyond `CLAUDE.md`.
 - Don't invent API endpoints, fields, status codes or error shapes. Anything missing from the spec is a **backend dependency**: record it, tell the user to raise it in the backend repository, and don't plan a sprint that relies on it until the spec contains it.
-- Don't plan any logic that decides, sends or duplicates the user type.
+- Don't plan any logic that decides, sends or duplicates the internal/external classification; the backend decides it from the email domain, and it applies only to User Role Management. User Provisioning is for internal users only; there the operator chooses the user type (Government, Forestry or Nature) and the UI sends it.
 - Don't invent answers to anything in `docs/open-questions.md`. Record it as a `blockingDecision` and ask, or scope the behaviour as configurable with no guessed values.
 - Don't plan changes to `.github/workflows/` or `deploy/` unless the user asks.
 - Don't plan anything that runs against real environments, realms or people's accounts.

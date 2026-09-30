@@ -5,7 +5,7 @@ description: Procedure for building and using the UI's shared test infrastructur
 
 # Test infrastructure (frontend)
 
-Rules: `.claude/rules/testing.md`, `tdd.md`, `api-client.md`, `auth.md`. Templates are in `templates/`. They are **starting points**: the build tooling and test runner are still being chosen (`docs/open-questions.md` #3), and the mock API library is open question #7 (proposed: Mock Service Worker, MSW). If either is unresolved, return `NEEDS-DECISION` before adding dependencies. Verify library APIs against current documentation and replace every `VERIFY`.
+Rules: `.claude/rules/testing.md`, `tdd.md`, `api-client.md`, `auth.md`. Templates are in `templates/`. They are **starting points**. Decided: Vite, Vitest (jsdom) with Testing Library and axe-core, and Mock Service Worker (MSW). The infrastructure already exists in `src/mocks/` and `src/test/` (helper: `renderApp({ scenario, route })`); extend it rather than starting again. Mock auth and personas are added with the Keycloak work. Verify library APIs against current documentation and replace every `VERIFY`.
 
 ## What to build
 
@@ -34,7 +34,7 @@ Rules: `.claude/rules/testing.md`, `tdd.md`, `api-client.md`, `auth.md`. Templat
    Commit them as `test(sprint-NN): test infrastructure`.
 2. **Green:** add the files from `templates/`, adapting imports and environment variable names to the chosen tooling.
 3. **Handlers follow the contract:** every path, method, request and response shape comes from `openapi/openapi.json` via the generated types. A handler never invents an endpoint, field or status code; error bodies use the documented error shape.
-4. **Fake data only:** `example.test` emails and obviously fake names. The mock returns the user type as the backend would; UI code only displays it.
+4. **Fake data only:** `example.test` emails and obviously fake names. Cover all three user types (Government, Forestry, Nature).
 5. **Development server mode:** the development server can start the mock worker and mock auth when a development-only flag is set, with persona and scenario selectable (query parameter or a development-only switcher). Record the chosen flag and how to switch in `CLAUDE.md` "Commands".
 6. **Never in production:** mock auth, the mock API library, its worker script, mock data and scenarios must not appear in a production build. Build a production bundle and search it to prove this.
 7. **Use it everywhere:** every component and page test renders through `renderPage`, uses role and label queries and `user`, and calls `expectNoAxeViolations` where it renders UI. Services in `src/services/` are tested against the mock server too.

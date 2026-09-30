@@ -14,7 +14,7 @@ Relevant rules: `.claude/rules/tdd.md`, `forms-accessibility.md`, `design-system
 ## 2. Red: write the failing page tests first
 Using `renderPage(<Page />, { persona, scenario, route })`:
 - **Loading:** a loading message is shown and announced to screen readers; no blank screen.
-- **Success:** the expected rows or details are shown with the right headings and values, including the user type exactly as the server returned it.
+- **Success:** the expected rows or details are shown with the right headings and values, including the internal/external classification exactly as the server returned it (User Role Management).
 - **Empty (`empty` scenario):** a clear, plain-English empty state with a next step if there is one.
 - **Error (`serverError`, `offline`):** a clear error message in a Design System notification, never raw server text, with a way to try again.
 - **`401` (`unauthorised`):** the user is sent back to sign in.

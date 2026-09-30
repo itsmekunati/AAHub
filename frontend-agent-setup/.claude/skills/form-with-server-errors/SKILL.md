@@ -8,7 +8,7 @@ description: Test-first procedure for building a form page that follows Scottish
 Relevant rules: `.claude/rules/tdd.md`, `forms-accessibility.md`, `design-system.md`, `api-client.md`, `auth.md`. Checklist: `docs/reference/accessibility-checklist.md`. Follow the `tdd-cycle` skill.
 
 ## 1. Check the contract
-- Only ask for what the API operation needs (check `openapi/openapi.json`). Never add a user type field.
+- Only ask for what the API operation needs (check `openapi/openapi.json`). The user type is chosen once, as radio buttons (Government, Forestry, Nature), at the start of the journey.
 
 ## 2. Red: write the failing page tests first
 Render the page with a mocked auth interface and a mocked service (generated types), and write tests for:
@@ -25,7 +25,7 @@ Run them, confirm they fail for the right reason, record the red evidence, and c
 
 ## 3. Green: build the form
 - Build fields from Design System components (`sg-design-system-component` skill).
-- Client-side checks are for convenience only; never re-implement server rules such as the internal/external domain logic.
+- Client-side checks are for convenience only; never re-implement server rules such as the internal/external email domain logic.
 - Submit through `src/services/` (`add-api-call` skill).
 - Map client and server errors to one list of `{ fieldId, message }`, rendering the error summary and inline errors from it.
 - Implement focus management, page title prefix, loading, `401`/`403` and success as the tests require.

@@ -11,6 +11,7 @@ paths:
 - Cover the `admin` and `editor` paths, including an action the `editor` must not be able to do.
 - Prefer role/label-based locators (`getByRole`, `getByLabel`), which also check accessibility. Avoid brittle CSS/XPath selectors.
 - Tests are independent and create their own test data. Never rely on test order.
-- Cover both an internal and an external email domain. Take the test domains from configuration, not hard-coded values (the domains are still TBC: see `docs/open-questions.md`).
+- User Provisioning: cover all three user types (Government, Forestry, Nature); all are internal users. Take test user numbers from configuration, not hard-coded values.
+- User Role Management: cover both an internal and an external email domain. Take the test domains from configuration, not hard-coded values (still TBC: see `docs/open-questions.md`).
 - Run only against a **deployed test environment** whose backend uses test LDAP/Oracle targets and a test S3 bucket/prefix. Never against production data or real user accounts.
 - Include automated accessibility checks on key pages.

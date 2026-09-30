@@ -13,7 +13,7 @@ The Generator uses this for its self-check; the Evaluator uses it to grade. Both
 |---|---|
 | **Functionality** | All acceptance criteria met; loading, empty, error and success states present; server errors, `401` and `403` handled; type check, lint, tests and build pass. |
 | **Accessibility & Design System** | WCAG 2.2 AA in practice (keyboard, focus, labels, error summary, structure, reflow); zero axe violations; documented Design System markup; no copied or modified Design System files; plain-English, sentence-case content. |
-| **Security** | Token in memory only and never logged; PKCE flow; no secrets or environment URLs in the bundle; no unsafe HTML; UI not treated as a security boundary; user type from the server only. |
+| **Security** | Token in memory only and never logged; PKCE flow; no secrets or environment URLs in the bundle; no unsafe HTML; UI not treated as a security boundary; internal/external classification from the server only. |
 | **Craft & TDD** | Test-first evidence for every AC; tests fail when the behaviour is broken; user-centred tests with role/label queries; strict typing with generated types only; API calls in `src/services/`; small focused components; no dead code; E2E updated; no hard-coded configuration. |
 
 ## Pass threshold

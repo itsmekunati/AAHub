@@ -8,7 +8,8 @@ Shared test support (containers, mock operators, audit capture, outages) is buil
 
 - JUnit 5 + Mockito for unit tests.
 - Test the **failure path** of the ApacheDS + Oracle flow, not only the happy path.
-- Unit-test email-domain classification thoroughly: mixed case, surrounding whitespace, look-alike domains, subdomains, multiple `@` characters, invalid addresses.
+- Unit-test email-domain classification (User Role Management) thoroughly: mixed case, surrounding whitespace, look-alike domains, subdomains, multiple `@` characters, invalid addresses.
+- Unit-test `userType` validation (User Provisioning): `government`, `forestry` and `nature` accepted; missing, empty, unknown or wrongly cased values rejected.
 - Unit-test the daily rotation boundary (entry just before vs just after cutover goes to the correct file) for both production (00:00 Europe/London) and non-production (19:00 Europe/London) cutovers.
 - Test the S3 shipping job (uploads the right file, does not touch the file still being written, retries on failure, keeps the local copy until upload is confirmed) against a mocked S3 client or LocalStack (LocalStack now needs an account token: see `docs/open-questions.md` #12), never a real bucket.
 - Use a local or containerised ApacheDS with test data, never the shared or real directory.

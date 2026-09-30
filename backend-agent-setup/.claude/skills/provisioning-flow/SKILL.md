@@ -16,7 +16,7 @@ ApacheDS and Oracle **cannot share a transaction**. Every multi-system operation
 ## 2. Red: write the failing tests first
 Using mocks for the LDAP and Oracle gateways at unit level (and containerised ApacheDS/Oracle at integration level), write tests for:
 - **Happy path:** both writes happen in the agreed order; overall `SUCCESS` audited.
-- **Invalid input (create flows):** invalid or missing email → validation error before any write; a client-supplied user type is ignored.
+- **Invalid input (create flows):** invalid or missing email, or a missing or unknown `userType` → validation error before any write.
 - **First write fails:** nothing is written to the second system; the failure is audited.
 - **Second write fails:** compensation or failed state occurs; each step is audited; the response is correct.
 - **Compensation fails** (where compensation is used): a failed state is recorded and audited.
@@ -26,8 +26,8 @@ Run them, confirm they fail for the right reason, record the red evidence, and c
 
 ## 3. Green: implement the flow
 Keep each step a separate method on the orchestrating service in `service/`, so the order is easy to change:
-1. Classify internal/external with the dedicated classification service (create flows).
-2. Audit the **request** with the target user, email and classification.
+1. Validate the operator-chosen `userType` (provisioning is for internal users only; internal/external classification is not used here).
+2. Audit the **request** with the target user, email and `userType`.
 3. Perform the first write and audit its outcome.
 4. Perform the second write and audit its outcome.
 5. On success, mark the provisioning record complete and audit the overall `SUCCESS`.
