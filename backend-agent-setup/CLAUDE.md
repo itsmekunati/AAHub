@@ -1,152 +1,67 @@
 # CLAUDE.md: Backend (Spring Boot API)
 
-This is the **backend repository**. The React UI lives in a separate **frontend repository** (`<frontend-repo>`, name TBC). Claude cannot see the frontend repo from here.
+The **backend repository** of an internal application for **user provisioning** (internal users only) and **user role management** (internal and external users). The React UI is in a separate frontend repository that Claude cannot see from here.
 
-This file holds only what applies to **every** task. Detailed rules live in `.claude/rules/` and load automatically when you work on matching files. See "Where to find more" at the end.
+This file holds only what applies to **every** task. Keep it short: a fact that only matters for some files goes in the matching rule file in `.claude/rules/` or a code comment, not here.
 
-## Project overview
+**Status: early development.** Write production-quality code from the start. Where a decision is still open (`docs/open-questions.md`), ask rather than assume, and keep the choice easy to change.
 
-Internal application for **user provisioning** (internal users only) and **user role management** (internal and external users).
+## Stack
 
-An administrator enters user details in the React UI. This backend then:
+Java 25 (LTS), Spring Boot 4.1.x and Maven (via the committed wrapper). This API is called by the UI and writes to three places:
 
-1. Manages the user's **roles** in **Apache Directory Server (LDAP)**, the system of record for roles
-2. Stores **user details and provisioning records** in **Oracle DB** (running in ROSA), the system of record for user details and provisioning
-3. Writes a structured **audit record** for every action to a local log file, rotated daily and shipped to **AWS S3**
+- **Apache Directory Server (LDAP)**, through Spring LDAP: the system of record for user **roles**.
+- **Oracle DB** (in ROSA), through Spring Data JPA: the system of record for **user details and provisioning records**.
+- **The audit log:** single-line JSON in a local file, rotated daily and shipped to AWS S3. It is never a source of truth for user state.
 
-**Status: early development.** Build tooling and some structure decisions are still being finalised (see `docs/open-questions.md`). Write production-quality code from the start: secure, tested, observable and maintainable. Where a decision is still open, ask rather than assume, and keep the choice easy to change.
-
-## Tech stack
-
-| Area | Technology |
-|---|---|
-| Language / framework | Java 25 (LTS), Spring Boot 4.1.x (latest stable 4.1 patch), Maven |
-| Role management | LDAP, Apache Directory Server (ApacheDS), via Spring LDAP |
-| User details and provisioning | Oracle DB (deployed in ROSA), Spring Data JPA/Hibernate |
-| Audit / logs | SLF4J + Logback + Logstash Logback Encoder; local daily file shipped to AWS S3; S3 lifecycle expires logs after 90 days |
-| Authentication | Keycloak (OIDC). This API is an OAuth2 resource server using Spring Security |
-| API contract | OpenAPI, generated from code with springdoc-openapi 3.x |
-| CI / hosting / CD | GitHub Actions, ROSA (Red Hat OpenShift Service on AWS), Argo CD (GitOps) |
+Authentication is Keycloak (OIDC); this API is an OAuth2 resource server. The OpenAPI contract is generated from the code with springdoc-openapi 3.x. Delivery is GitHub Actions, ROSA (OpenShift) and Argo CD.
 
 ## Architecture
 
-```
-React UI (separate repo) ──HTTPS──►  This API ──►  Apache Directory Server (LDAP)  (user roles)
-                                               ├─►  Oracle DB, in ROSA             (user details + provisioning)
-                                               └─►  Local log file ──(daily)──► AWS S3  (audit log)
-```
-
-- The UI never talks to LDAP or a database directly. All access goes through this API.
-- **Data ownership:** roles live in ApacheDS; user details and provisioning records live in Oracle. Do not duplicate one system's data into the other unless explicitly required. The audit log is never a source of truth for user state.
-- Layers: controller → service → repository/gateway. Controllers contain no business logic. DTOs at the API boundary; never expose entities or LDAP objects.
-- Two separate, clearly named configurations: Oracle and LDAP. Never mix repositories across them. The audit log is a file, not a datasource.
-- **ApacheDS and Oracle writes cannot share one transaction.** Provisioning is an explicit ordered flow with compensation or a recorded failed state, and every step is audited.
-- **User type and internal/external are different things** (see `.claude/rules/user-classification.md`):
-  - **User Provisioning applies to internal users only.** The operator chooses the **user type** (`government`, `forestry` or `nature`) in the UI; the server validates it (only those three values, otherwise `400`) and audits it. The user type does not decide internal or external.
-  - **Internal/external classification is used only in User Role Management** (not built yet). It is decided **server-side only** from the email domain against a configured list: gov.uk, Forestry and Nature domains are internal, everything else is external. Never accept a classification from the client.
-- **Two kinds of roles:** operator roles (`admin`, `editor`) come from Keycloak and control who may use this API; provisioned user roles are what this API assigns, stored in ApacheDS. Do not confuse them.
+- **The UI never talks to LDAP or a database directly.** All access goes through this API.
+- **Layers:** controller → service → repository/gateway. No business logic in controllers. DTOs at the API boundary; never expose entities or LDAP objects.
+- **Packages:** `api/`, `service/`, `ldap/`, `oracle/`, `audit/`, `security/`, `config/`, `exception/`. The rule files load by these names, so keep to them.
+- **Do not duplicate one system's data into the other,** and never mix the Oracle and LDAP configurations.
+- **ApacheDS and Oracle writes cannot share one transaction.** Provisioning is an explicit ordered flow with compensation or a recorded failed state.
+- **Internal or external is decided server-side only,** from the email domain. Never accept it from the client. User type is a different thing.
+- **Two kinds of roles:** operator roles (`admin`, `editor`) come from Keycloak; provisioned user roles are what this API assigns in ApacheDS.
 
 ## Non-negotiable rules
 
-These apply to every change, whichever files you touch.
-
-- **Work test-first (TDD).** No production code without a failing test that needs it: red → green → refactor, one acceptance criterion at a time. See `.claude/rules/tdd.md`.
-- **Never commit secrets** (passwords, bind credentials, DB URLs with credentials, tokens). Use environment variables / OpenShift Secrets.
+- **Work test-first (TDD):** no production code without a failing test that needs it.
+- **Never commit secrets** (passwords, bind credentials, DB URLs with credentials, tokens). Use environment variables and OpenShift Secrets.
+- **No hard-coded hosts, credentials, DNs, internal email domains or bucket names,** even as examples.
 - **Never log** passwords, tokens, secrets or unnecessary personal data.
-- **Deny by default.** Every endpoint requires authentication and declares its allowed role(s). Return `401` for missing/invalid tokens and `403` for the wrong role. No privilege escalation.
-- **The acting operator's identity comes only from the validated Keycloak token**, never from the request body or a client-settable header.
-- **Every auditable action produces an audit record, for success and failure alike**, as single-line JSON with all mandatory fields and the request's correlation ID.
-- **No injection:** parameterised LDAP filters with library escaping; JPA/parameterised queries only for Oracle. Never build filters or SQL by string concatenation.
-- Validate on the server regardless of any client-side validation.
-- Least-privilege credentials for LDAP, Oracle and the S3 job (IRSA, no static AWS keys).
-- No hard-coded hosts, credentials, DNs, internal email domains or bucket names, even as examples.
-- Do not add dependencies without a clear reason; prefer well-maintained libraries with no known vulnerabilities.
-
-## Repository structure
-
-```
-/
-├── CLAUDE.md                     # this file (always loaded)
-├── .githooks/
-│   ├── pre-commit                # lint hook (Checkstyle once configured, yamllint, Hadolint)
-│   ├── pre-push                  # Snyk code check (off by default)
-│   └── snyk.conf, snyk-lib.sh    # Snyk switches (off by default) and helpers
-├── .claude/
-│   ├── settings.json            # permissions and hooks (protected files)
-│   ├── hooks/protect-files.sh
-│   ├── rules/                    # detailed, path-scoped rules (load when matching files are touched)
-│   ├── skills/                   # step-by-step procedures (load when relevant)
-│   └── agents/                   # planner, generator, evaluator
-├── docs/
-│   ├── open-questions.md         # decisions still to be made
-│   └── reference/                # long reference material (read on demand)
-├── pom.xml
-├── Dockerfile
-├── deploy/                       # OpenShift/Kubernetes manifests for Argo CD (this service only)
-├── .github/workflows/            # GitHub Actions
-└── src/
-    ├── main/java/.../
-    │   ├── api/                  # REST controllers + request/response DTOs
-    │   ├── service/              # Business logic / provisioning orchestration
-    │   ├── ldap/                 # ApacheDS gateway
-    │   ├── oracle/               # Oracle repositories/entities
-    │   ├── audit/                # Audit logging + S3 shipping job
-    │   ├── security/             # Keycloak JWT -> roles mapping, method security
-    │   ├── config/               # Datasource, LDAP, security config
-    │   └── exception/            # Error types + global handler
-    ├── main/resources/
-    │   ├── application.yml
-    │   └── db/migration/         # Oracle schema migrations
-    └── test/java/...
-```
+- **Deny by default.** Every endpoint requires authentication and declares its allowed roles: `401` for a missing or invalid token, `403` for the wrong role.
+- **The acting operator's identity comes only from the validated Keycloak token,** never from the request body or a client-settable header.
+- **Every auditable action produces an audit record, for success and failure alike,** with all mandatory fields and the request's correlation ID.
+- **No injection:** parameterised LDAP filters and JPA queries only. Never build filters or SQL by string concatenation.
+- **Validate on the server,** whatever the client validates.
+- **Least-privilege credentials** for LDAP, Oracle and the S3 job (IRSA, no static AWS keys).
+- **Never delete, disable or weaken a test,** or weaken validation, security or audit logging, to make something pass.
 
 ## Commands
 
-Build tool is **Maven** via the committed wrapper.
-
 ```bash
-git config core.hooksPath .githooks   # once per clone: turn on the pre-commit lint hook
-./mvnw clean verify        # build + tests (springdoc plugin generates openapi.json during integration-test)
-./mvnw test                # unit + slice tests only (fast, no containers)
-./mvnw spring-boot:run     # run locally
-./mvnw spring-boot:test-run  # run locally against Testcontainers (once the test-infrastructure skill has created TestApplication)
+git config core.hooksPath .githooks   # once per clone: turn on the Git hooks
+./mvnw test                  # unit and slice tests only (fast, no containers)
+./mvnw clean verify          # build and all tests; must pass before a task is done
+./mvnw spring-boot:run       # run locally
+./mvnw spring-boot:test-run  # run locally against Testcontainers
 ```
-
-Before saying a task is done: build passes, relevant tests pass, and every change was driven by a test that was seen to fail first.
 
 ## Rules for Claude
 
-- **Protected files** are enforced by `.claude/settings.json` and `.claude/hooks/protect-files.sh`: secrets are never read; CI, deployment, build-wrapper, merged migrations, Git hooks and Claude settings are never edited; project guidance and configuration need your approval. If a tool call is blocked or needs approval, don't work around it (no shell writes, copies or renames): stop and say what is needed. Real environments (`oc`, `kubectl`, cloud CLIs) and network calls beyond `localhost` are blocked too.
-- **Snyk security checks** are optional and **off by default** (`.githooks/snyk.conf`); a person can turn them on for their own clone with `git config hooks.snyk true`. Agents never turn Snyk on or off, never sign in to Snyk, and never add ignores to `.snyk`. If Snyk blocks a commit, report the issue; upgrading a dependency needs approval.
-- A pre-commit **lint hook** (`.githooks/pre-commit`) runs on every commit. Never bypass it (no `--no-verify` or `-n`) and never weaken it or the lint configuration to get a commit through: fix what it reports.
-- Ask before making architectural changes, adding major dependencies, or changing the datasource/LDAP design.
-- Do not touch real LDAP, Oracle, Keycloak or S3 environments. Work against local/mock/test targets only (Testcontainers and mocks: see the `test-infrastructure` skill).
-- Do not modify CI/CD pipelines or deployment manifests unless asked.
-- Do not weaken validation, security or audit logging to make a test pass, and never delete, disable or weaken a test to make the build pass.
+- **If a tool call is blocked or needs approval, do not work around it.** Stop and say what is needed.
+- **Never touch real LDAP, Oracle, Keycloak or S3 environments.** Use local, mock and test targets only.
+- **Never bypass or weaken the Git hooks or lint configuration** (no `--no-verify`). Fix what they report.
+- **Never turn Snyk on or off,** sign in to it or add ignores. If it blocks a commit, report it.
+- Ask before architectural changes, new dependencies, or changes to CI/CD and deployment files.
 - Flag any API contract change that could break the frontend.
-- Keep changes small and explain what changed and why. State clearly what you could not verify.
-- When something is TBC (see `docs/open-questions.md`), ask rather than guess.
-- Before working in an area, check the matching rule file below if it has not already loaded.
+- Keep changes small, explain what changed and why, and state what you could not verify.
 
 ## Where to find more
 
-Rules load automatically when you work on files matching their paths. Read them directly when planning or reviewing work in that area.
-
-| Topic | File | Loads when you touch |
-|---|---|---|
-| Test-driven development (red → green → refactor) | `.claude/rules/tdd.md` | all production and test code |
-| Java and Spring Boot 4 conventions | `.claude/rules/code-style.md` | `**/*.java`, `pom.xml` |
-| User type (provisioning) and email-domain classification (role management) | `.claude/rules/user-classification.md` | `service/`, `api/` |
-| Provisioning flow across ApacheDS and Oracle | `.claude/rules/provisioning.md` | `service/`, `ldap/`, `oracle/` |
-| Keycloak authentication and authorisation | `.claude/rules/security-keycloak.md` | `security/`, `api/`, `config/` |
-| Audit events, fields, format, MDC, correlation IDs | `.claude/rules/audit-logging.md` | all production Java, `logback*.xml` |
-| Daily rotation, S3 shipping, retention | `.claude/rules/log-shipping.md` | `audit/`, `logback*.xml` |
-| ApacheDS / Spring LDAP | `.claude/rules/ldap.md` | `ldap/` |
-| Oracle / JPA / migrations | `.claude/rules/oracle-jpa.md` | `oracle/`, `db/migration/` |
-| API contract, springdoc, frontend impact | `.claude/rules/api-contract.md` | `api/`, `exception/` |
-| Testing | `.claude/rules/testing.md` | `src/test/` |
-| CI/CD and OpenShift deployment | `.claude/rules/deploy.md` | `deploy/`, `Dockerfile`, `.github/workflows/` |
-| Audit record schema and example | `docs/reference/audit-record-schema.md` | read on demand |
-| Open questions | `docs/open-questions.md` | read on demand |
-
-Step-by-step procedures live in `.claude/skills/`: `tdd-cycle`, `test-infrastructure`, `add-endpoint`, `provisioning-flow`, `add-audit-event`, `ldap-gateway`, `oracle-persistence`, `sprint-rubric`.
+- **Rules** (`.claude/rules/`, one file per area) load automatically when you edit matching files. When planning or reviewing without editing, list that folder and read the ones for the area.
+- **Skills** (`.claude/skills/`) are step-by-step procedures; each description says when to use it.
+- **Docs:** `docs/open-questions.md`, `docs/reference/audit-record-schema.md`, and `docs/AGENT-WORKFLOW-GUIDE.md` (agents, hooks, Snyk).
