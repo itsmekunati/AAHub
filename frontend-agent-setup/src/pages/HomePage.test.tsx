@@ -4,20 +4,43 @@ import { renderApp } from "../test/render";
 import { findHeading, headings } from "./provision/testJourney";
 
 describe("Home page", () => {
-  it("AC1: offers the three tasks as links", async () => {
+  it("AC1: offers the three tasks as links with a summary of each", async () => {
     renderApp();
 
     await findHeading("What do you want to do?");
-    expect(screen.getByRole("link", { name: "Provision user access" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "User role manager" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Check a user's existing access" })).toBeInTheDocument();
+    const main = within(screen.getByRole("main"));
+    const tasks = [
+      ["Provision user access to RP&S", "Provision a new user with access to RP&S"],
+      ["User Role Manager", "Manage an existing user's LDAP group membership"],
+      ["Check user's existing RP&S access", "Check a user's existing RP&S access using u/z number or email address"],
+    ];
+    for (const [name, summary] of tasks) {
+      const link = main.getByRole("link", { name });
+      expect(link.closest(".ds_category-item")).toHaveTextContent(summary ?? "");
+    }
     expect(document.title).toBe("What do you want to do? - User access management");
+  });
+
+  it("AC1: says which instance this is and which environments it manages, from the configuration", async () => {
+    renderApp();
+    await findHeading("What do you want to do?");
+
+    const inset = screen
+      .getByText(/instance of Application Access Hub/)
+      .closest(".ds_inset-text");
+    expect(inset).toHaveTextContent(
+      "You are viewing the Test environment instance of Application Access Hub which allows you to provision and manage users in the following environments only: UAT, OAT.",
+    );
+    expect(within(inset as HTMLElement).getByText("Test environment", { selector: "strong" })).toBeInTheDocument();
+    expect(
+      within(inset as HTMLElement).getByRole("link", { name: "Go to the Production instance" }),
+    ).toHaveAttribute("href", "https://prod.example.test/");
   });
 
   it("AC1: starts the provisioning journey", async () => {
     const { user } = renderApp();
 
-    await user.click(await screen.findByRole("link", { name: "Provision user access" }));
+    await user.click(await screen.findByRole("link", { name: "Provision user access to RP&S" }));
 
     expect(await findHeading(headings.userType)).toBeInTheDocument();
   });
@@ -25,7 +48,7 @@ describe("Home page", () => {
   it("AC1: says the other tasks are not available yet", async () => {
     const { user } = renderApp();
 
-    await user.click(await screen.findByRole("link", { name: "User role manager" }));
+    await user.click(within(await screen.findByRole("main")).getByRole("link", { name: "User Role Manager" }));
 
     expect(await findHeading("This part of the service is not available yet")).toBeInTheDocument();
   });
@@ -50,6 +73,32 @@ describe("Home page", () => {
       expect(title.closest(".ds_site-header")).not.toBeNull();
     },
   );
+
+  it.each(["/", "/provision/user-type", "/role-manager", "/no-such-page"])(
+    "shows the site navigation under the header on %s",
+    async (route) => {
+      renderApp({ route });
+      await screen.findByRole("heading", { level: 1 });
+
+      const nav = screen.getByRole("navigation");
+      expect(nav.closest(".ds_site-header")).not.toBeNull();
+      expect(within(nav).getAllByRole("link").map((link) => [link.textContent, link.getAttribute("href")])).toEqual([
+        ["User provisioning", "/provision/user-type"],
+        ["User Role Manager", "/role-manager"],
+        ["Check existing access to RP&S", "/check-access"],
+      ]);
+    },
+  );
+
+  it("marks the current section in the site navigation", async () => {
+    renderApp({ route: "/provision/user-type" });
+    await screen.findByRole("heading", { level: 1 });
+
+    const nav = within(screen.getByRole("navigation"));
+    expect(nav.getByRole("link", { name: "User provisioning" })).toHaveAttribute("aria-current", "page");
+    expect(nav.getByRole("link", { name: "User provisioning" })).toHaveClass("ds_current");
+    expect(nav.getByRole("link", { name: "User Role Manager" })).not.toHaveAttribute("aria-current");
+  });
 
   it.each(["/", "/provision/user-type", "/role-manager", "/no-such-page"])(
     "shows the Scottish Government footer with working links on %s",

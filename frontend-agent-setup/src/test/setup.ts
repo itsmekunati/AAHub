@@ -4,13 +4,11 @@ import { http, HttpResponse } from "msw";
 import { loadConfig } from "../config";
 import { server } from "../mocks/node";
 
-const testConfig = http.get("*/config.json", () =>
-  HttpResponse.json({ apiBaseUrl: "/api", environmentName: "Test environment" }),
-);
+import { testConfig } from "./testConfig";
 
 beforeAll(async () => {
   server.listen({ onUnhandledRequest: "error" });
-  server.use(testConfig);
+  server.use(http.get("*/config.json", () => HttpResponse.json(testConfig)));
   await loadConfig();
 });
 afterEach(() => {

@@ -1,4 +1,9 @@
 {
   "apiBaseUrl": "/api",
-  "environmentName": "Local development"
+  "environmentName": "Local development",
+  "managedEnvironments": ["Local development"],
+  "otherInstance": {
+    "label": "Go to the Test instance (for UAT, OAT and Pre-Production)",
+    "url": "http://localhost:5174/"
+  }
 }

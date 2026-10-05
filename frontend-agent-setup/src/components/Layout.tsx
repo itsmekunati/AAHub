@@ -3,6 +3,7 @@ import scottishGovernmentLogo from "../assets/scottish-government.svg";
 import { currentOperatorRole } from "../auth/operator";
 import { serviceName } from "./Page";
 import { SiteFooter } from "./SiteFooter";
+import { SiteNavigation } from "./SiteNavigation";
 
 export function Layout() {
   return (
@@ -38,6 +39,7 @@ export function Layout() {
               </p>
             </div>
           </div>
+          <SiteNavigation />
         </header>
       </div>
       <div className="ds_page__middle">

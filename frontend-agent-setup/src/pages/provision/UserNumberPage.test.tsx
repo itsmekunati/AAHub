@@ -151,7 +151,7 @@ describe("Check this is the right user", () => {
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     await findHeading("What do you want to do?");
-    await user.click(screen.getByRole("link", { name: "Provision user access" }));
+    await user.click(screen.getByRole("link", { name: "Provision user access to RP&S" }));
 
     await findHeading(headings.userType);
     expect(screen.getByRole("radio", { name: "Government" })).not.toBeChecked();

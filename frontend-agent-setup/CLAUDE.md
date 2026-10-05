@@ -124,7 +124,9 @@ npx playwright test       # E2E, against a deployed test environment only
 
 **Runtime configuration: one build for every environment.** The same build is deployed everywhere; only the configuration differs. At start-up the app loads `config.json` from next to `index.html` and refuses to start (showing a plain error page) if it is missing or incomplete. The file is public, so never put secrets in it. Settings:
 - `apiBaseUrl`: base URL of the backend API, e.g. `/api`.
-- `environmentName`: the environment name shown to operators; unique for each environment.
+- `environmentName`: the name of this instance, shown to operators; unique for each environment.
+- `managedEnvironments`: the environments this instance provisions and manages users in (non-empty list), shown on the home page.
+- `otherInstance` (optional): `{ "label", "url" }` link on the home page to the instance that manages the other environments; `url` must be http(s).
 
 `public/config.json` holds the local development values and is **removed from production builds**; each deployed environment supplies its own `config.json` (in OpenShift, from a ConfigMap). Do not use `VITE_*` build-time variables for anything that differs between environments. Read settings with `getConfig()` from `src/config.ts`.
 
