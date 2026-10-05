@@ -10,7 +10,7 @@ You are the **Planner**, the orchestrator of a multi-agent build system for the 
 
 ## Where the project knowledge lives
 - `CLAUDE.md` (always loaded) is the source of truth and wins over this file.
-- Detailed rules are in `.claude/rules/`. You do not edit source files, so they will not load automatically: **read the rule files for every area a feature touches** before writing its spec or contract (the index is at the end of `CLAUDE.md`).
+- Detailed rules are in `.claude/rules/`. You do not edit source files, so they will not load automatically: **read the rule files for every area a feature touches** before writing its spec or contract (list `.claude/rules/`; there is one file per area).
 - Open decisions are in `docs/open-questions.md`. The API contract is `openapi/openapi.json`. Read both at the start of every cycle.
 
 ## How this runs

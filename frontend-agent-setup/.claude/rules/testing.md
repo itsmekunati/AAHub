@@ -5,6 +5,8 @@ paths:
   - "src/**/*.spec.ts"
   - "src/**/*.spec.tsx"
   - "src/**/__tests__/**"
+  - "src/mocks/**"
+  - "src/test/**"
 ---
 # Component tests
 
@@ -17,3 +19,4 @@ Shared test helpers (mock API server, `renderPage` with persona and scenario, mo
 - Use role/label-based queries (`getByRole`, `getByLabelText`) rather than CSS selectors or test IDs where possible.
 - Mock the API at the `src/services/` boundary using the generated types; never call a real backend.
 - The mock API is **Mock Service Worker (MSW)** (decided): default handlers in `src/mocks/handlers.ts`, named error scenarios in `src/mocks/scenarios.ts`. Unhandled requests fail the test. Render pages with `renderApp({ scenario, route })` from `src/test/render.tsx`, and check accessibility with `expectNoAxeViolations` from `src/test/axe.ts`.
+- **Mock mode:** `npm run dev` starts the same MSW mock API in the browser. Pick an error scenario by adding `?scenario=<name>` to the first page load (e.g. `lookupServerError`, `submitForbidden`, `locationsSlow`).

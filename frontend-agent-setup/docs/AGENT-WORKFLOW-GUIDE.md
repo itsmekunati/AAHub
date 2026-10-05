@@ -64,7 +64,7 @@ The project rules are split into layers, so each agent reads only what the curre
 
 | Layer | Where | When it is loaded | What goes there |
 |---|---|---|---|
-| 1. Core rules | `CLAUDE.md` (repository root) | Always, in every session and every agent | Overview, stack, key principles, non-negotiable rules (accessibility, tokens, secrets, API contract), commands, rules for Claude, and an index of everything below |
+| 1. Core rules | `CLAUDE.md` (repository root) | Always, in every session and every agent | Overview, stack, key principles, non-negotiable rules (accessibility, tokens, secrets, API contract), commands, rules for Claude, and where to find the layers below |
 | 2. Area rules | `.claude/rules/*.md` | Automatically, when an agent works on a file matching the rule's `paths:` | Detailed rules for one area: Design System, forms and accessibility, auth, API client, tests, E2E, deployment |
 | 3. Procedures | `.claude/skills/<name>/SKILL.md` | When the task needs it, or preloaded into an agent | Step-by-step how-tos: `tdd-cycle`, `test-infrastructure`, `auth-integration`, `data-page`, `sg-design-system-component`, `form-with-server-errors`, `add-api-call`, `assess-spec-sync-pr`, `sprint-rubric` |
 | 4. Reference | `docs/reference/`, `docs/open-questions.md` | Only when an agent opens the file | The accessibility checklist, and decisions still to be made |
@@ -79,7 +79,8 @@ The project rules are split into layers, so each agent reads only what the curre
 | `forms-accessibility.md` | WCAG 2.2 AA, forms, error summary, screen states, content | `src/components/`, `src/pages/` |
 | `auth.md` | Keycloak PKCE, tokens in memory, roles for visibility only | `src/auth/`, `src/services/` |
 | `api-client.md` | OpenAPI contract, generated client, spec-sync, user type | `src/services/`, `openapi/` |
-| `testing.md` | Component tests, mocked auth, axe | `*.test.*`, `*.spec.*` and `__tests__/` in `src/` |
+| `runtime-config.md` | `config.json` settings, one build for every environment | `src/config*.ts`, `src/main.tsx`, `public/config.json`, `vite.config.*` |
+| `testing.md` | Component tests, mocked auth, axe, mock API scenarios | `*.test.*`, `*.spec.*` and `__tests__/` in `src/`, `src/mocks/`, `src/test/` |
 | `e2e.md` | Playwright against the test environment only | `e2e/`, `playwright.config.*` |
 | `deploy.md` | GitHub Actions, Argo CD, OpenShift | `deploy/`, `Dockerfile`, `.github/workflows/` |
 
@@ -106,7 +107,7 @@ The project rules are split into layers, so each agent reads only what the curre
 ### Keeping the layers healthy
 
 - **If breaking a rule would be an accessibility, security or contract problem, it stays in `CLAUDE.md`.** A path-scoped rule only loads when a matching file is touched.
-- **Keep `CLAUDE.md` under about 150 lines.** When it grows, move detail into a rule file and leave a line in the index.
+- **Keep `CLAUDE.md` under 100 lines.** It is loaded into every session, so every line must apply to every task. When it grows, move detail into a rule file. Do not describe what Claude can read from the code (folder layout, `package.json` scripts) or what the settings and hooks already enforce.
 - **Use plain Markdown links, not `@path` imports,** to point at reference docs. Imports load at startup and defeat the purpose.
 - **One topic per rule file,** named for the area, with `paths:` that match where that code lives. If the source layout changes, update the `paths:` globs.
 - **Check what is loaded** by running `/context` in a Claude Code session.
@@ -141,7 +142,7 @@ Use these procedures whenever the rules change. Make the change on a branch and 
    ```
 
 3. Keep it to one topic. Link to long reference material in `docs/reference/` with a normal Markdown link, not `@path`.
-4. Add a row to the "Where to find more" table at the end of `CLAUDE.md`.
+4. Add a row to the "Rule files and when they load" table in this section. `CLAUDE.md` does not list rule files.
 5. Verify it loads (procedure E).
 
 **C. Adding a new skill (procedure)**
@@ -149,14 +150,14 @@ Use these procedures whenever the rules change. Make the change on a branch and 
 1. Create the folder `.claude/skills/<skill-name>/` and a file called exactly `SKILL.md` inside it.
 2. Start the file with frontmatter: `name` (the same as the folder name) and a `description` that says clearly **when** to use it, for example "Use this whenever you build or change ...".
 3. Write the steps in order, and name the rule files it relies on.
-4. Mention it in the list of skills at the end of `CLAUDE.md`.
+4. Add it to the skills table in this section. It does not need listing in `CLAUDE.md`: Claude sees every skill's description automatically.
 5. If an agent should always have it, add it to that agent's `skills:` list; otherwise the Planner names it in sprint contracts under `relevantSkills`.
 
 **D. `CLAUDE.md` is getting long**
 
 1. Find the section that only matters for part of the codebase.
 2. Move it into the matching rule file (or create one, procedure B).
-3. Leave a one-line entry in the "Where to find more" table.
+3. Do not leave an index entry behind: rules load by their `paths:`, not from `CLAUDE.md`.
 4. Keep anything whose breach would be an accessibility, security or contract problem in `CLAUDE.md`.
 
 **E. Checking that a rule actually loads**
