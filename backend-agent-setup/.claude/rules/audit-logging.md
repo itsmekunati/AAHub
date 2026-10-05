@@ -33,6 +33,17 @@ Also generate audit records for: application exceptions; LDAP, Futures Database 
 
 Generate audit events for suspicious behaviour, including repeated failed authentication attempts, repeated authorisation failures, unusual administrative activity, excessive provisioning operations, unexpected configuration modifications, and access attempts from unauthorised users. **Detection thresholds are configurable and environment specific.**
 
+## Events reported by the UI
+
+The UI reports things this API cannot see for itself (a journey started or cancelled, a client-side check that stopped the operator, a failure shown on screen) to `POST /audit-events`. Write each one to the same audit log, in the base schema.
+
+- Mark them as client-reported: `eventCategory` is `UI` and `component` is `ui`. They are supplementary and best-effort; never treat one as proof that something did or did not happen.
+- Accept only the event types on a fixed allow-list (`JOURNEY_STARTED`, `JOURNEY_CANCELLED`, `VALIDATION_BLOCKED`, `SCREEN_ERROR`) and only the expected fields (`eventType`, `journey`, `step`, `reasonCode`, `fields`, `userType`, `transactionId`). Anything else is a `400`. Drop unexpected fields; never log the raw body.
+- Take the operator identity, timestamp, source IP and correlation ID from the request and the validated token, never from the body.
+- The endpoint requires authentication and is open to `admin`, `editor` and `viewer`. It is not a transaction: no JSM/Jira ticket is required and no transaction ID is generated.
+- Limit the body size, strip line breaks so the record stays on one line, and rate-limit per operator so the log cannot be flooded.
+- UI events must not carry personal data. Reject or drop it if it arrives.
+
 ## Implementation standards
 
 - Use **SLF4J** for the logging API, **Logback** (Spring Boot's native integration) as the framework, **Logstash Logback Encoder** for JSON, and **MDC** for correlation and contextual fields. Prefer these over custom logging implementations.

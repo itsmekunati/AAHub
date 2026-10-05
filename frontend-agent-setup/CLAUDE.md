@@ -39,7 +39,7 @@ React, strict TypeScript, Vite and React Router (versions and scripts are in `pa
 
 ```bash
 git config core.hooksPath .githooks   # once per clone: turn on the Git hooks
-npm run dev        # local, against the MOCK API
+npm run dev        # local, against the MOCK API; UI audit events go to logs/ui-audit.log
 npm run dev:api    # local, against a real backend
 npm run typecheck && npm run lint && npm test && npm run build   # all must pass before a task is done
 ```

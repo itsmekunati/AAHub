@@ -8,7 +8,7 @@ Reference for `.claude/rules/audit-logging.md`. Every audit record is a single-l
 |---|---|---|
 | `timestamp` | ISO-8601 with timezone | Always |
 | `activityType` | What happened, e.g. `USER_ROLE_ASSIGNMENT` | Always |
-| `eventCategory` | e.g. `AUDIT`, `SECURITY`, `ERROR` | Always |
+| `eventCategory` | e.g. `AUDIT`, `SECURITY`, `ERROR`, or `UI` for an event reported by the UI | Always |
 | `outcome` | `ALLOWED`, `DENIED`, `SUCCESS` or `FAILURE` | Always |
 | `description` | Short human-readable description | Always |
 | `reasonCode` | Reason code or failure reason | Where applicable, otherwise `null` |
@@ -28,6 +28,7 @@ Reference for `.claude/rules/audit-logging.md`. Every audit record is a single-l
 | `source.port` | Source port | Where applicable |
 | `destination.hostname`, `destination.ipAddress`, `destination.port` | Destination host, IP and port | Where applicable |
 | `network.protocol` | Network protocol, e.g. `HTTPS`, `LDAPS` | Where applicable |
+| `ui.journey`, `ui.step`, `ui.fields` | The journey, the step and the names of the fields involved, as reported by the UI | `UI` events |
 
 Never include passwords, credentials, secrets, access tokens or unnecessary personal data.
 

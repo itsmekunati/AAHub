@@ -6,6 +6,12 @@ import { mandatoryDetails } from "./userSummary";
  * The retrieved details cannot be edited here, so a missing one blocks the request until
  * it is added to the user's record. The location is the only thing the operator chooses.
  */
+/** The names (never the values) of what is missing, for the UI audit event. */
+export function missingFieldNames(user: DirectoryUser, location: string): string[] {
+  const missing: string[] = mandatoryDetails.filter(({ field }) => !user[field].trim()).map(({ field }) => field);
+  return location ? missing : [...missing, "location"];
+}
+
 export function validateDetails(user: DirectoryUser, location: string): FormError[] {
   const errors: FormError[] = mandatoryDetails
     .filter(({ field }) => !user[field].trim())

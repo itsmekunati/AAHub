@@ -5,6 +5,7 @@ import { FormButtons } from "../../components/FormButtons";
 import { Page } from "../../components/Page";
 import { RadioGroup } from "../../components/RadioGroup";
 import type { UserType } from "../../services/provisioning";
+import { useCancelJourney, validationBlocked } from "./journeyAudit";
 import { paths, userTypeOptions } from "./options";
 import { useProvision } from "./ProvisionContext";
 
@@ -13,11 +14,13 @@ export function UserTypePage() {
   const { state, chooseUserType } = useProvision();
   const [selected, setSelected] = useState<UserType | undefined>(state.userType);
   const [errors, setErrors] = useState<FormError[]>([]);
+  const cancel = useCancelJourney("user-type");
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selected) {
       setErrors([{ fieldId: `user-type-${userTypeOptions[0]?.value ?? ""}`, message: "Select a user type" }]);
+      validationBlocked("user-type", ["user-type"]);
       return;
     }
     chooseUserType(selected);
@@ -36,7 +39,7 @@ export function UserTypePage() {
           onChange={setSelected}
           error={errors[0]?.message}
         />
-        <FormButtons submitLabel="Next" onCancel={() => void navigate("/")} />
+        <FormButtons submitLabel="Next" onCancel={cancel} />
       </form>
     </Page>
   );

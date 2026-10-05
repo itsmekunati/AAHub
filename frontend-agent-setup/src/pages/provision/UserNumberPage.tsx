@@ -7,6 +7,7 @@ import { SummaryList } from "../../components/SummaryList";
 import { TextInput } from "../../components/TextInput";
 import { problemMessage } from "../../services/problemMessage";
 import { lookUpUser } from "../../services/provisioning";
+import { screenError, useCancelJourney, validationBlocked } from "./journeyAudit";
 import { paths, userTypeLabel } from "./options";
 import { useProvision } from "./ProvisionContext";
 
@@ -18,6 +19,7 @@ export function UserNumberPage() {
   const [userIdentifier, setUserIdentifier] = useState(state.userIdentifier);
   const [errors, setErrors] = useState<FormError[]>([]);
   const [checking, setChecking] = useState(false);
+  const cancel = useCancelJourney("user-identifier");
 
   if (!state.userType) {
     return <Navigate to={paths.userType} replace />;
@@ -32,6 +34,7 @@ export function UserNumberPage() {
     const trimmed = userIdentifier.trim();
     if (!trimmed) {
       setErrors([{ fieldId, message: "Enter a user identifier" }]);
+      validationBlocked("user-identifier", [fieldId], userType);
       return;
     }
     setChecking(true);
@@ -45,6 +48,7 @@ export function UserNumberPage() {
       void navigate(paths.confirmUser);
     } catch (error) {
       setErrors([{ message: problemMessage(error) }]);
+      screenError("user-identifier", error, userType);
     } finally {
       setChecking(false);
     }
@@ -69,7 +73,7 @@ export function UserNumberPage() {
           submitLabel="Validate"
           busy={checking}
           busyLabel="Validating"
-          onCancel={() => void navigate("/")}
+          onCancel={cancel}
         />
         <div className="visually-hidden" role="status">
           {checking ? "Checking the user identifier" : ""}

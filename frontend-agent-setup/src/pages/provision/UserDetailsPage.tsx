@@ -5,11 +5,12 @@ import { FormButtons } from "../../components/FormButtons";
 import { Page } from "../../components/Page";
 import { Select } from "../../components/Select";
 import { SummaryList } from "../../components/SummaryList";
+import { useCancelJourney, validationBlocked } from "./journeyAudit";
 import { paths } from "./options";
 import { useProvision } from "./ProvisionContext";
 import { useLocations } from "./useLocations";
 import { requestSummary, userDetailsSummary } from "./userSummary";
-import { validateDetails } from "./validateDetails";
+import { missingFieldNames, validateDetails } from "./validateDetails";
 
 const locationsFailedMessage = "Sorry, the list of locations could not be loaded. Try again later.";
 
@@ -19,6 +20,7 @@ export function UserDetailsPage() {
   const locations = useLocations();
   const [location, setLocation] = useState(state.location ?? "");
   const [formErrors, setFormErrors] = useState<FormError[]>([]);
+  const cancel = useCancelJourney("user-details");
 
   const errors = useMemo(
     () => (locations.status === "failed" ? [{ message: locationsFailedMessage }, ...formErrors] : formErrors),
@@ -40,6 +42,8 @@ export function UserDetailsPage() {
     if (found.length === 0) {
       chooseLocation(location);
       void navigate(paths.ticket);
+    } else {
+      validationBlocked("user-details", missingFieldNames(user, location), userType);
     }
   }
 
@@ -68,7 +72,7 @@ export function UserDetailsPage() {
         <div className="visually-hidden" role="status">
           {locations.status === "loading" ? "Loading locations" : ""}
         </div>
-        <FormButtons submitLabel="Next" onCancel={() => void navigate("/")} />
+        <FormButtons submitLabel="Next" onCancel={cancel} />
       </form>
     </Page>
   );

@@ -2,6 +2,7 @@ import { rmSync } from "node:fs";
 import { resolve } from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vitest/config";
+import { uiAuditLogPlugin } from "./dev/uiAuditLog";
 
 // public/ holds files the development server needs but a production build must not ship:
 // the MSW worker (mock code) and the local config.json (each environment supplies its own).
@@ -24,7 +25,7 @@ function removeDevelopmentOnlyFilesFromBuild(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), removeDevelopmentOnlyFilesFromBuild()],
+  plugins: [react(), removeDevelopmentOnlyFilesFromBuild(), uiAuditLogPlugin()],
   // The Design System's own Sass raises deprecation warnings we cannot fix here.
   css: { preprocessorOptions: { scss: { quietDeps: true } } },
   test: {

@@ -80,6 +80,7 @@ The project rules are split into layers, so each agent reads only what the curre
 | `auth.md` | Okta PKCE, tokens in memory, roles for visibility only | `src/auth/`, `src/services/` |
 | `api-client.md` | OpenAPI contract, generated client, spec-sync, user type | `src/services/`, `openapi/` |
 | `transactions.md` | Mandatory JSM/Jira ticket, separate transaction ID, mandatory provisioning fields, external users in URM | `src/pages/`, `src/services/`, `src/mocks/` |
+| `ui-audit.md` | Events the UI reports, no personal data, the local `logs/ui-audit.log` | `src/pages/`, `src/services/`, `src/mocks/`, `dev/` |
 | `runtime-config.md` | `config.json` settings, one build for every environment | `src/config*.ts`, `src/main.tsx`, `public/config.json`, `vite.config.*` |
 | `testing.md` | Component tests, mocked auth, axe, mock API scenarios | `*.test.*`, `*.spec.*` and `__tests__/` in `src/`, `src/mocks/`, `src/test/` |
 | `e2e.md` | Playwright against the test environment only | `e2e/`, `playwright.config.*` |

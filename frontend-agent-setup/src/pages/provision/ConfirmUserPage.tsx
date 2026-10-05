@@ -3,12 +3,14 @@ import { Navigate, useNavigate } from "react-router";
 import { FormButtons } from "../../components/FormButtons";
 import { Page } from "../../components/Page";
 import { SummaryList } from "../../components/SummaryList";
+import { useCancelJourney } from "./journeyAudit";
 import { paths } from "./options";
 import { useProvision } from "./ProvisionContext";
 
 export function ConfirmUserPage() {
   const navigate = useNavigate();
   const { state } = useProvision();
+  const cancel = useCancelJourney("confirm-user");
 
   if (!state.user) {
     return <Navigate to={paths.userType} replace />;
@@ -24,7 +26,7 @@ export function ConfirmUserPage() {
     <Page title="Check this is the right user">
       <SummaryList items={[{ key: "Full name", value: `${firstName} ${surname}`.trim() }]} />
       <form noValidate onSubmit={handleSubmit}>
-        <FormButtons submitLabel="Next" onCancel={() => void navigate("/")} />
+        <FormButtons submitLabel="Next" onCancel={cancel} />
       </form>
     </Page>
   );

@@ -9,6 +9,7 @@ When a question is answered: record the decision in the matching rule file under
 | 1 | What may `admin` and what may `editor` each do (permission matrix)? Which parts of the UI should each role see? (`viewer` is decided: read-only, see `auth.md`.) | Every page, role visibility, E2E | `auth.md` |
 | 2 | Okta details: issuer URL (org and authorization server) and client ID per environment, and which claim carries the roles. Which OIDC library: `@okta/okta-auth-js` or a standard OIDC client? | `src/auth/` | `auth.md` |
 | 3 | Transactions: what are the exact formats of the JSM/Jira ticket (the UI currently checks `ITS-` and five digits) and of the U, Z, GAKWO and X identifiers? Is the manager X number retrieved with the user's record (as now) or typed in by the operator? | Provisioning journey, mocks | `transactions.md` |
+| 7 | UI audit events: is the list right (journey started, cancelled, validation blocked, screen error), and should any other journey or event be covered? The local `logs/ui-audit.log` is a development convenience until the backend records them. | Every journey | `ui-audit.md` |
 | 4 | Who reviews the backend's spec-sync PRs in this repo, and does a breaking change block deployment until it's addressed? | Spec-sync process | `api-client.md` |
 | 5 | How is the built app served in ROSA, and do the UI and API share an origin through OpenShift routes? | Deployment, API base URL, CORS | `deploy.md` |
 | 6 | User Role Management E2E: which email domains should the tests treat as internal and external in the test environment? | E2E | `e2e.md` |

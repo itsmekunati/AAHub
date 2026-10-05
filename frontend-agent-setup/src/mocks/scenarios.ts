@@ -1,6 +1,7 @@
 // TESTS AND DEVELOPMENT ONLY. Named overrides for outcomes the UI must handle.
 // In the development server, pick one with ?scenario=<name> on the first page load.
 import { http, HttpResponse, delay } from "msw";
+import { auditEventsPath } from "../services/auditEvents";
 import { locationsPath, provisioningRequestsPath, userLookupPath } from "../services/provisioning";
 
 const lookup = `*${userLookupPath}`;
@@ -9,6 +10,7 @@ const locations = `*${locationsPath}`;
 
 export const scenarios = {
   success: [],
+  auditUnavailable: [http.post(`*${auditEventsPath}`, () => new HttpResponse(null, { status: 500 }))],
   lookupForbidden: [http.get(lookup, () => new HttpResponse(null, { status: 403 }))],
   lookupServerError: [http.get(lookup, () => new HttpResponse(null, { status: 500 }))],
   lookupOffline: [http.get(lookup, () => HttpResponse.error())],
