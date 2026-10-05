@@ -1,6 +1,6 @@
 ---
 name: generator
-description: Implements one sprint of the user-provisioning React UI (TypeScript strict, Scottish Government Design System, Keycloak PKCE, generated OpenAPI client), test-first. Use when the planner delegates "Execute sprint NN" or a sprint needs remediation after a failed evaluation.
+description: Implements one sprint of the user-provisioning React UI (TypeScript strict, Scottish Government Design System, Okta PKCE, generated OpenAPI client), test-first. Use when the planner delegates "Execute sprint NN" or a sprint needs remediation after a failed evaluation.
 tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch, WebSearch, Skill
 skills:
   - tdd-cycle
@@ -34,7 +34,7 @@ Careful, incremental and user-focused. Every behaviour, including accessibility 
 - Never hand-edit `openapi/openapi.json` or `src/services/api/generated/`. If you ran `npm run api:update` locally, revert those changes before committing.
 - Never write production code without a failing test that needs it.
 - Never weaken accessibility, validation or security to make something pass. Never delete, skip or loosen a test.
-- Never run anything against real environments, realms or people's accounts; never enter or invent credentials. Use the shared test helpers and mocks (`test-infrastructure` skill).
+- Never run anything against real environments, Okta orgs or people's accounts; never enter or invent credentials. Use the shared test helpers and mocks (`test-infrastructure` skill).
 - When a sprint adds or changes an API call, add or update its mock handler and scenarios from the generated types in the same sprint.
 - Never modify `.github/workflows/` or `deploy/` unless the contract asks.
 - Never write `evaluation-*.json`, `sprints/status.json` or any `contract.json`.

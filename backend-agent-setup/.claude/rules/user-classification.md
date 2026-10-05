@@ -20,7 +20,8 @@ Two different things. Do not confuse them.
 
 - `userType` is **required** on provisioning requests and user look-ups. Accept only these three values; anything else (missing, empty, different case, unknown value) is a `400` validation error. Never default it.
 - Model it as an enum (e.g. `UserType`), not with ad-hoc string checks.
-- The user type does **not** decide internal or external. All provisioned users are internal.
+- The user type does **not** decide internal or external. All provisioned users are internal. **External user flows live in User Role Management only.**
+- The other mandatory fields of a provisioning request are listed in `.claude/rules/transactions.md`.
 - Record the chosen `userType` in the audit log for every provisioning action.
 
 ## 2. Internal/external classification (User Role Management only)

@@ -16,18 +16,19 @@ async function openTicket(scenario?: ScenarioName) {
   return rendered;
 }
 
-describe("Add the JIRA ticket ID", () => {
+describe("Add the JSM/Jira ticket ID", () => {
   it("AC10: shows everything from the previous step, including the chosen location", async () => {
     await openTicket();
 
     const summary = screen.getByRole("list", { name: "Request details" });
     for (const value of [
       "Government",
-      "100001",
+      "U100001",
       "Test environment",
       "Alex",
       "Example",
       "alex.example@example.test",
+      "X000001",
       "Policy officer",
       "Perth",
     ]) {
@@ -35,17 +36,17 @@ describe("Add the JIRA ticket ID", () => {
     }
   });
 
-  it("AC10: only user type and user number can be changed; the user details are read-only", async () => {
+  it("AC10: only user type and user identifier can be changed; the user details are read-only", async () => {
     await openTicket();
 
     const summary = screen.getByRole("list", { name: "Request details" });
     expect(within(summary).getAllByRole("link").map((link) => link.textContent)).toEqual([
       "Change user type",
-      "Change user number",
+      "Change user identifier",
     ]);
   });
 
-  it("AC10: has a JIRA ticket field that explains the format, with Cancel and Submit", async () => {
+  it("AC10: has a JSM/Jira ticket field that explains the format, with Cancel and Submit", async () => {
     await openTicket();
 
     expect(screen.getByRole("textbox", { name: ticketLabel })).toHaveAccessibleDescription(
@@ -62,7 +63,7 @@ describe("Add the JIRA ticket ID", () => {
 
     const summary = screen.getByRole("alert");
     expect(summary).toHaveFocus();
-    expect(within(summary).getByRole("link", { name: "Enter the JIRA ticket ID" })).toHaveAttribute(
+    expect(within(summary).getByRole("link", { name: "Enter the JSM/Jira ticket ID" })).toHaveAttribute(
       "href",
       "#jira-ticket-id",
     );
@@ -77,17 +78,17 @@ describe("Add the JIRA ticket ID", () => {
       await user.click(screen.getByRole("button", { name: "Submit" }));
 
       expect(screen.getByRole("alert")).toHaveTextContent(
-        "Enter the JIRA ticket ID in the correct format: ITS- followed by five digits, like ITS-12345",
+        "Enter the JSM/Jira ticket ID in the correct format: ITS- followed by five digits, like ITS-12345",
       );
     },
   );
 
-  it("AC12: submits the request and shows a green success ribbon with the reference", async () => {
+  it("AC12: submits the request and shows a green success ribbon with the transaction ID, separate from the ticket", async () => {
     let sent: unknown;
     server.use(
       http.post("*/provisioning-requests", async ({ request }) => {
         sent = await request.json();
-        return HttpResponse.json({ requestId: "PR-000999" }, { status: 201 });
+        return HttpResponse.json({ transactionId: "TXN-000999" }, { status: 201 });
       }),
     );
     const { user } = await openTicket();
@@ -97,13 +98,16 @@ describe("Add the JIRA ticket ID", () => {
 
     const heading = await findHeading(headings.success);
     expect(heading.closest(".ds_notification")).toHaveClass("ds_notification--success");
-    expect(screen.getByText("PR-000999")).toBeInTheDocument();
+    const result = screen.getByRole("list", { name: "Request reference" });
+    expect(within(result).getByText("Transaction ID").closest("li")).toHaveTextContent("TXN-000999");
+    expect(within(result).getByText("JSM/Jira ticket ID").closest("li")).toHaveTextContent("ITS-12345");
     const expected: ProvisioningRequest = {
       userType: "government",
-      userNumber: "100001",
+      userIdentifier: "U100001",
       firstName: "Alex",
-      lastName: "Example",
+      surname: "Example",
       email: "alex.example@example.test",
+      managerXNumber: "X000001",
       jobTitle: "Policy officer",
       location: "Perth",
       jiraTicketId: "ITS-12345",
@@ -119,7 +123,7 @@ describe("Add the JIRA ticket ID", () => {
 
     await user.click(screen.getByRole("link", { name: "Return to the start" }));
 
-    expect(await findHeading("What do you want to do?")).toBeInTheDocument();
+    expect(await findHeading("Home")).toBeInTheDocument();
   });
 
   it("AC13: shows a red failure ribbon with a plain-English reason when submission fails", async () => {

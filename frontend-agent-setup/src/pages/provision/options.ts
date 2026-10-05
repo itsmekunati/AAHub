@@ -15,7 +15,7 @@ export function userTypeLabel(userType: UserType): string {
 
 export const paths = {
   userType: "/provision/user-type",
-  userNumber: "/provision/user-number",
+  userIdentifier: "/provision/user-number",
   confirmUser: "/provision/confirm-user",
   userDetails: "/provision/user-details",
   ticket: "/provision/ticket",

@@ -15,7 +15,7 @@ Rule: `.claude/rules/tdd.md`. Work through this loop **once per acceptance crite
 - Choose the fastest level that proves the behaviour:
   - **Unit** (JUnit 5 + Mockito): services, classification, audit record building.
   - **Slice** (`@WebMvcTest` or equivalent + Spring Security test mock JWTs): endpoints, validation, `401`/`403`.
-  - **Integration** (containerised ApacheDS/Oracle; S3 via LocalStack or a mocked client, see open question #12): gateways, migrations, full flows.
+  - **Integration** (containerised OpenDJ/Futures Database; S3 via LocalStack or a mocked client, see open question #12): gateways, migrations, full flows.
 - Name each test with the AC id and the behaviour: `@DisplayName("AC2: editor gets 403 when creating a user")`.
 - If the production type does not exist yet, add the **smallest compiling stub** (signature only, returning a placeholder or throwing `UnsupportedOperationException`).
 - Run only these tests, for example:

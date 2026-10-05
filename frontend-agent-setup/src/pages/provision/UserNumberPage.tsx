@@ -15,7 +15,7 @@ const fieldId = "user-number";
 export function UserNumberPage() {
   const navigate = useNavigate();
   const { state, userValidated } = useProvision();
-  const [userNumber, setUserNumber] = useState(state.userNumber);
+  const [userIdentifier, setUserIdentifier] = useState(state.userIdentifier);
   const [errors, setErrors] = useState<FormError[]>([]);
   const [checking, setChecking] = useState(false);
 
@@ -29,16 +29,16 @@ export function UserNumberPage() {
     if (checking) {
       return;
     }
-    const trimmed = userNumber.trim();
+    const trimmed = userIdentifier.trim();
     if (!trimmed) {
-      setErrors([{ fieldId, message: "Enter a user number" }]);
+      setErrors([{ fieldId, message: "Enter a user identifier" }]);
       return;
     }
     setChecking(true);
     try {
       const result = await lookUpUser(userType, trimmed);
       if (!result.found) {
-        setErrors([{ fieldId, message: "User not found. Check the user number and user type." }]);
+        setErrors([{ fieldId, message: "User not found. Check the user identifier and user type." }]);
         return;
       }
       userValidated(trimmed, result.user);
@@ -53,15 +53,15 @@ export function UserNumberPage() {
   const fieldError = errors.find((error) => error.fieldId === fieldId)?.message;
 
   return (
-    <Page title="Enter the user number" hasErrors={errors.length > 0}>
+    <Page title="Enter the user identifier" hasErrors={errors.length > 0}>
       <ErrorSummary errors={errors} />
       <SummaryList items={[{ key: "User type", value: userTypeLabel(userType) }]} />
       <form noValidate onSubmit={(event) => void handleSubmit(event)}>
         <TextInput
           id={fieldId}
-          label="User number"
-          value={userNumber}
-          onChange={setUserNumber}
+          label="User identifier"
+          value={userIdentifier}
+          onChange={setUserIdentifier}
           error={fieldError}
           width="fixed-20"
         />
@@ -72,7 +72,7 @@ export function UserNumberPage() {
           onCancel={() => void navigate("/")}
         />
         <div className="visually-hidden" role="status">
-          {checking ? "Checking the user number" : ""}
+          {checking ? "Checking the user identifier" : ""}
         </div>
       </form>
     </Page>

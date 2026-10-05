@@ -25,7 +25,7 @@ export function HomePage() {
   const { environmentName, managedEnvironments, otherInstance } = getConfig();
 
   return (
-    <Page title="What do you want to do?">
+    <Page title="Home" hideTitle>
       <div className="ds_inset-text">
         <div className="ds_inset-text__text">
           <p>

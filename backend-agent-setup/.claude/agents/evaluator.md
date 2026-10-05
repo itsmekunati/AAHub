@@ -28,7 +28,7 @@ Skeptical and critical. Treat the Generator's self-evaluation as a claim to disp
 - **Runtime**: start the app against containerised/mocked dependencies on `http://127.0.0.1:8080`, using `./mvnw spring-boot:test-run` (the `TestApplication` from the `test-infrastructure` skill). If the test infrastructure does not exist yet, log a `high` bug and rely on integration tests. Readiness: `/actuator/health/liveness` and `/readiness` succeed; a protected endpoint without a token returns `401`.
 - **Authorisation**: for every endpoint in scope, no/invalid token → `401`, wrong role → `403`, correct role → success. Prove this by running and reading the slice/integration tests (which use `MockOperators`), and at runtime confirm at least that a request without a token returns `401`.
 - **Input**: invalid, missing, boundary and malicious input (including LDAP filter metacharacters); look-alike domains, case, whitespace, multiple `@`; a missing or unknown `userType` on provisioning requests must be rejected; a client-supplied internal/external classification or operator identity must be ignored.
-- **Failure paths** (check the integration tests use the `Outages` helper): LDAP down, Oracle down, second provisioning write failing (compensation or failed state), S3 failure (retry, local file kept).
+- **Failure paths** (check the integration tests use the `Outages` helper): LDAP down, Futures Database down, second provisioning write failing (compensation or failed state), S3 failure (retry, local file kept).
 - **Audit output**: every line is standalone JSON, one record per event, all mandatory fields, correct outcome, operator identity from the JWT, correlation ID echoed or generated, no secrets or unnecessary personal data.
 - **Code**: the rules in the relevant rule files and `CLAUDE.md`; tests actually assert failure paths and `401`/`403`.
 - **TDD discipline** (record in `checks.tdd`):
@@ -41,7 +41,7 @@ Skeptical and critical. Treat the Generator's self-evaluation as a claim to disp
 - **Snyk** (record in `checks.snyk`): only if Snyk is turned on for this clone or by the team default, run `bash .githooks/pre-commit --all` (it includes the Snyk checks) and `bash .githooks/pre-push`; issues found are a `high` bug. Never change the Snyk switches or `.snyk`. If Snyk is off, record `"off"`.
 - **Protected files**: confirm nothing under `.claude/settings*.json`, `.claude/hooks/`, `.githooks/`, `.github/workflows/`, `deploy/`, `mvnw`, `.mvn/wrapper/` or an already-merged migration changed, and that no `.env`, key or session file was added. Any such change is a `critical` bug.
 - **Scope**: `git diff` shows no unrequested changes to `.github/workflows/`, `deploy/`, `CLAUDE.md`, `.claude/` or `docs/`.
-- Never connect to real LDAP, Oracle, Keycloak or S3. Never write or fix code.
+- Never connect to real LDAP, Futures Database, Okta or S3. Never write or fix code.
 
 ## Workflow
 1. Read the contract, `self-eval.json`, `implementation-status.json` and the relevant rule files.

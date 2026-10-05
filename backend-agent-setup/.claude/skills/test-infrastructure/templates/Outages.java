@@ -4,7 +4,7 @@ import org.testcontainers.containers.GenericContainer;
 
 /**
  * Simulates an external service outage in an integration test, and always restores it.
- * Usage: try (var outage = Outages.pause(apacheds)) { ...act and assert failure handling... }
+ * Usage: try (var outage = Outages.pause(opendj)) { ...act and assert failure handling... }
  * Set short connect/read timeouts in the test configuration, because paused services hang rather than refuse.
  */
 public final class Outages implements AutoCloseable {

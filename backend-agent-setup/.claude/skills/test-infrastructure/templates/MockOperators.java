@@ -21,6 +21,11 @@ public final class MockOperators {
         return operator("test-editor-subject", "test.editor", "ROLE_EDITOR");
     }
 
+    /** Read-only operator: must get 403 on every create, change or delete. */
+    public static JwtRequestPostProcessor viewer() {
+        return operator("test-viewer-subject", "test.viewer", "ROLE_VIEWER");
+    }
+
     public static JwtRequestPostProcessor noRoles() {
         return jwt().jwt(j -> j.subject("test-noroles-subject").claim("preferred_username", "test.noroles"));
     }

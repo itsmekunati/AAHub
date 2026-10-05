@@ -17,6 +17,8 @@ Reference for `.claude/rules/audit-logging.md`. Every audit record is a single-l
 | `environment` | Environment identifier | Always |
 | `instanceId` | Application instance or pod identifier | Always |
 | `correlationId` | Request correlation identifier | Always |
+| `transactionId` | Unique ID this API generates for the transaction. Never the ticket | Every transaction (create, change, remove) |
+| `ticketId` | The mandatory JSM/Jira ticket supplied with the transaction | Every transaction (create, change, remove) |
 | `performedBy.username` | Acting operator's username (from the validated token) | Always, where available |
 | `performedBy.subjectId` | Acting operator's subject ID (from the validated token) | Always, where available |
 | `targetUser.username` | User account affected by the action | Where applicable |
@@ -46,6 +48,8 @@ Shown formatted for readability; in the log file it is a single line.
   "environment": "production",
   "instanceId": "pod-7a4d5f",
   "correlationId": "9c76d6e3-21c1-49c1-b1d5-2543fa0b9abc",
+  "transactionId": "example-transaction-id",
+  "ticketId": "example-ticket-id",
   "performedBy": { "username": "admin.user", "subjectId": "7f2c3a14" },
   "targetUser": { "username": "external.user@example.com" },
   "source": { "hostname": "rps-api-01", "ipAddress": "10.10.1.25", "port": 51820 },
@@ -54,4 +58,4 @@ Shown formatted for readability; in the log file it is a single line.
 }
 ```
 
-The hostnames and addresses above are illustrative only. Never copy them into code or configuration.
+The hostnames, addresses and IDs above are illustrative only. Never copy them into code or configuration.

@@ -1,6 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 
-export const serviceName = "User access management";
+export const serviceName = "Application Access Hub";
 
 const ribbonClasses = {
   success: "ds_notification ds_notification--success",
@@ -10,13 +10,15 @@ const ribbonClasses = {
 interface PageProps {
   title: string;
   hasErrors?: boolean;
+  /** Keeps the h1 for screen readers and the browser title, but does not show it. */
+  hideTitle?: boolean;
   /** Shows the heading inside a green (success) or red (error) notification ribbon. */
   ribbon?: keyof typeof ribbonClasses;
   children: ReactNode;
 }
 
 /** Sets the browser title, renders the page's only h1, and moves focus to it when the page opens. */
-export function Page({ title, hasErrors = false, ribbon, children }: PageProps) {
+export function Page({ title, hasErrors = false, hideTitle = false, ribbon, children }: PageProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export function Page({ title, hasErrors = false, ribbon, children }: PageProps) 
   }, [title]);
 
   const heading = (
-    <h1 className="ds_page-header__title" tabIndex={-1} ref={headingRef}>
+    <h1 className={hideTitle ? "visually-hidden" : "ds_page-header__title"} tabIndex={-1} ref={headingRef}>
       {title}
     </h1>
   );

@@ -1,5 +1,5 @@
 // src/auth/AuthClient.ts: the only auth API the rest of the UI may use.
-export type OperatorRole = "admin" | "editor";
+export type OperatorRole = "admin" | "editor" | "viewer";
 
 export interface Operator {
   username: string;

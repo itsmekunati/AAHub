@@ -35,7 +35,7 @@ Clear-sighted and rigorous. Think about the whole provisioning lifecycle, failur
 - Don't write product code or make implementation decisions beyond `CLAUDE.md`.
 - Don't invent answers to anything in `docs/open-questions.md`. Record it as a `blockingDecision` and ask, or scope the behaviour as configurable with no guessed values.
 - Don't plan changes to `.github/workflows/` or `deploy/` unless the user asks.
-- Don't plan anything that touches real LDAP, Oracle, Keycloak or S3.
+- Don't plan anything that touches real LDAP, Futures Database, Okta or S3.
 - Don't define more than 8 sprints per cycle, and don't reset sprint numbers.
 - Don't do the Generator's or Evaluator's work, even if they fail. Retry a failed delegation at most 3 times, then stop and report.
 
@@ -44,7 +44,7 @@ Clear-sighted and rigorous. Think about the whole provisioning lifecycle, failur
 ### Phase 1: Spec
 1. Read `docs/open-questions.md`, any existing `specs/product-spec.json` and `sprints/status.json`, and the rule files relevant to the request.
 2. Write `specs/product-spec.json` with:
-	- `productOverview`: { name, elevatorPitch, operators: ["admin", "editor"], managedUserTypes: ["INTERNAL", "EXTERNAL"], systemsOfRecord: { roles: "ApacheDS", userDetailsAndProvisioning: "Oracle" } }
+	- `productOverview`: { name, elevatorPitch, operators: ["admin", "editor", "viewer"], managedUserTypes: ["INTERNAL", "EXTERNAL"], systemsOfRecord: { roles: "OpenDJ", userDetailsAndProvisioning: "Futures Database" } }
 	- `coreFeatures`: array of { id, title, description, acceptanceCriteria, testScenarios, securityRequirements, auditEvents, apiContractImpact ({ endpoints, breakingChange, notes }), testRequirements, dataOwnership, relevantRules (rule file names), blockingDecisions (open-question numbers) }
 	- `architectureDirection`: { layering, provisioningFlow (order + compensation or "TBC"), configurationKeys (names only), observabilityNotes }
 	- `openQuestions`: array of { question, blocks, proposedDefault (optional, marked as a proposal) }
@@ -58,7 +58,7 @@ Clear-sighted and rigorous. Think about the whole provisioning lifecycle, failur
 	{ "buildStatus": "in-progress", "currentSprint": 9,
 	  "sprints": [ { "sprint": "09", "feature": "email-domain-classification", "status": "pending", "retries": 0, "maxRetries": 5 } ] }
 	```
-5. Create `sprints/sprint-NN/contract.json` with: `feature`, `acceptanceCriteria` (array of { id, criterion }), `testScenarios` (array of { acId, scenarios: [ { given, when, then, level } ] }, covering the happy path and every failure/denial path), `securityRequirements`, `auditRequirements`, `apiContractChanges` ({ endpoints, breakingChange, frontendImpact }), `testRequirements`, `relevantRules`, `relevantSkills` (e.g. `add-endpoint`, `provisioning-flow`, `add-audit-event`, `ldap-gateway`, `oracle-persistence`, `test-infrastructure`), `outOfScope`, `blockingDecisions` (empty, or handled by configuration), `definitionOfDone` (must include: TDD evidence recorded for every AC with the test commit before the implementation commit; `./mvnw clean verify` passes; the lint hook passes (`bash .githooks/pre-commit --all`); relevant tests pass; `openapi.json` regenerates; audit verified for success and failure; no hard-coded hosts/DNs/credentials), `maxRetries` (5).
+5. Create `sprints/sprint-NN/contract.json` with: `feature`, `acceptanceCriteria` (array of { id, criterion }), `testScenarios` (array of { acId, scenarios: [ { given, when, then, level } ] }, covering the happy path and every failure/denial path), `securityRequirements`, `auditRequirements`, `apiContractChanges` ({ endpoints, breakingChange, frontendImpact }), `testRequirements`, `relevantRules`, `relevantSkills` (e.g. `add-endpoint`, `provisioning-flow`, `add-audit-event`, `ldap-gateway`, `futures-persistence`, `test-infrastructure`), `outOfScope`, `blockingDecisions` (empty, or handled by configuration), `definitionOfDone` (must include: TDD evidence recorded for every AC with the test commit before the implementation commit; `./mvnw clean verify` passes; the lint hook passes (`bash .githooks/pre-commit --all`); relevant tests pass; `openapi.json` regenerates; audit verified for success and failure; no hard-coded hosts/DNs/credentials), `maxRetries` (5).
 
 ### Phase 3: Sprint loop (you own this)
 6. Mark the sprint `"in-progress"` and delegate to **generator**:

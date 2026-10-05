@@ -16,6 +16,7 @@ paths:
 - **User type** (User Provisioning, internal users only): chosen by the operator and sent as `government`, `forestry` or `nature`. It does not decide internal or external.
 - **Internal/external** (User Role Management only): **decided by the backend** from the email domain (gov.uk, Forestry and Nature domains are internal). Never decide it, send it, or duplicate the domain rules. Display what the server returns.
 - **Temporary contract:** until the backend publishes its spec, `src/services/provisioning.ts` holds hand-written, clearly marked TEMPORARY request/response types and paths, and `src/mocks/` implements them. This is the only exception to "never write API types by hand". When the first spec-sync PR arrives, replace them with the generated types and delete this exception.
+- Every transaction sends the mandatory JSM/Jira ticket and gets back a separate `transactionId`: see `.claude/rules/transactions.md`.
 - Do not use `as` to force API data into a shape; use the generated types and narrow `unknown`.
 
 For the step-by-step procedures, use the `add-api-call` and `assess-spec-sync-pr` skills.

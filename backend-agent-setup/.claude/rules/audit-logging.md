@@ -12,7 +12,7 @@ Audit logs must provide enough detail to support security investigations, incide
 
 At minimum, generate audit records for:
 
-- Authentication-related events this application owns (see `.claude/rules/security-keycloak.md`: token validation failures, `401`, `403`, authorisation failures)
+- Authentication-related events this application owns (see `.claude/rules/security-okta.md`: token validation failures, `401`, `403`, authorisation failures)
 - Privileged user activity, including elevated administrative operations
 - User account lifecycle changes: creation, deletion, enablement, disablement, role assignment, role removal, permission changes
 - Changes to security-related configuration
@@ -23,11 +23,11 @@ At minimum, generate audit records for:
 - LDAP operations affecting user roles
 - Administrative actions performed through the application
 
-Account lockouts and password resets are exposed by Keycloak and are not duplicated here.
+Account lockouts and password resets are exposed by Okta and are not duplicated here.
 
 ## Error and failure events
 
-Also generate audit records for: application exceptions; LDAP, Oracle and AWS S3 connectivity failures; authentication and authorisation failures; configuration validation failures; scheduled job failures; unexpected application errors. Include enough to troubleshoot, but never passwords, credentials, secrets, access tokens or sensitive personal information.
+Also generate audit records for: application exceptions; LDAP, Futures Database and AWS S3 connectivity failures; authentication and authorisation failures; configuration validation failures; scheduled job failures; unexpected application errors. Include enough to troubleshoot, but never passwords, credentials, secrets, access tokens or sensitive personal information.
 
 ## Anomalous activity
 
@@ -40,11 +40,11 @@ Generate audit events for suspicious behaviour, including repeated failed authen
 - Logs are **single-line JSON records** (JSON Lines / NDJSON). One event produces exactly one record. Records never span multiple lines and are machine-parseable without transformation, suitable for SIEM and log aggregation.
 - All events share **one base schema**. Event-specific fields may be added, but the mandatory fields must always be present.
 - Audit log writes are thread-safe and reliable. Audit logs are not written to a database.
-- Do not duplicate authentication auditing that already exists in Keycloak.
+- Do not duplicate authentication auditing that already exists in Okta.
 
 ## Mandatory fields
 
-Every record includes: activity type; event category; outcome (Allowed, Denied, Success, Failure); description; reason code or failure reason where applicable; ISO-8601 timestamp with timezone; application/service name; process or component; correlation identifier; operator username; operator identifier (subject ID from the validated token); source hostname and IP; destination hostname, IP, source port, destination port and network protocol where applicable; affected user account; environment identifier; application instance or pod identifier.
+Every record includes: activity type; event category; outcome (Allowed, Denied, Success, Failure); description; reason code or failure reason where applicable; ISO-8601 timestamp with timezone; application/service name; process or component; correlation identifier; transaction ID and JSM/Jira ticket for every transaction (see `.claude/rules/transactions.md`); operator username; operator identifier (subject ID from the validated token); source hostname and IP; destination hostname, IP, source port, destination port and network protocol where applicable; affected user account; environment identifier; application instance or pod identifier.
 
 For the full schema and an example record, read `docs/reference/audit-record-schema.md`.
 

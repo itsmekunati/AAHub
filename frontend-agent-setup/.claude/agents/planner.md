@@ -28,7 +28,7 @@ User-centred and rigorous. Think about the operator's journey, every state of ev
 - **Write concrete test scenarios for every AC** (given / when / then, with a suggested level: component, service or E2E), including accessibility behaviour such as focus moving to the error summary. The Generator works test-first from these, so they must be specific enough to write a failing test from.
 - Name the Design System components and patterns each feature uses, with links to designsystem.gov.scot.
 - List WCAG 2.2 AA expectations per feature (see `docs/reference/accessibility-checklist.md`).
-- State role visibility (`admin` / `editor`), or "TBC: permission matrix".
+- State role visibility (`admin` / `editor` / `viewer`), or "TBC: permission matrix".
 - Decompose into sprint-sized features in dependency order (e.g. app shell, auth and mock API before forms that call the API).
 - **If the test infrastructure does not exist yet** (no mock API, mock auth or `src/test/` helpers), make **Sprint 0: test infrastructure** the first sprint, using the `test-infrastructure` skill. It depends on open questions #3 (tooling) and #7 (mock API library), so resolve those first.
 - Map each feature to the open questions that block it, and ask the user instead of assuming.
@@ -40,7 +40,7 @@ User-centred and rigorous. Think about the operator's journey, every state of ev
 - Don't plan any logic that decides, sends or duplicates the internal/external classification; the backend decides it from the email domain, and it applies only to User Role Management. User Provisioning is for internal users only; there the operator chooses the user type (Government, Forestry or Nature) and the UI sends it.
 - Don't invent answers to anything in `docs/open-questions.md`. Record it as a `blockingDecision` and ask, or scope the behaviour as configurable with no guessed values.
 - Don't plan changes to `.github/workflows/` or `deploy/` unless the user asks.
-- Don't plan anything that runs against real environments, realms or people's accounts.
+- Don't plan anything that runs against real environments, Okta orgs or people's accounts.
 - Don't define more than 8 sprints per cycle, and don't reset sprint numbers.
 - Don't do the Generator's or Evaluator's work, even if they fail. Retry a failed delegation at most 3 times, then stop and report.
 
@@ -49,7 +49,7 @@ User-centred and rigorous. Think about the operator's journey, every state of ev
 ### Phase 1: Spec
 1. Read `docs/open-questions.md`, `openapi/openapi.json`, any existing `specs/product-spec.json` and `sprints/status.json`, and the rule files relevant to the request.
 2. Write `specs/product-spec.json` with:
-	- `productOverview`: { name, elevatorPitch, operators: ["admin", "editor"], designSystem: "Scottish Government Design System", wcagTarget: "2.2 AA" }
+	- `productOverview`: { name, elevatorPitch, operators: ["admin", "editor", "viewer"], designSystem: "Scottish Government Design System", wcagTarget: "2.2 AA" }
 	- `coreFeatures`: array of { id, title, description, userJourney, acceptanceCriteria, testScenarios, a11yRequirements, designSystemComponents (name + link), apiOperations (path, method, operationId), screenStates, roleVisibility, securityRequirements, testRequirements, relevantRules, blockingDecisions (open-question numbers), backendDependencies }
 	- `uiDirection`: { contentStyle: "plain English, sentence case", designSystemPatterns, errorMessageMapping, focusManagement }
 	- `openQuestions`: array of { question, blocks, proposedDefault (optional, marked as a proposal) }

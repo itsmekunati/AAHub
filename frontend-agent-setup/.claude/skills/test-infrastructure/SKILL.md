@@ -5,14 +5,14 @@ description: Procedure for building and using the UI's shared test infrastructur
 
 # Test infrastructure (frontend)
 
-Rules: `.claude/rules/testing.md`, `tdd.md`, `api-client.md`, `auth.md`. Templates are in `templates/`. They are **starting points**. Decided: Vite, Vitest (jsdom) with Testing Library and axe-core, and Mock Service Worker (MSW). The infrastructure already exists in `src/mocks/` and `src/test/` (helper: `renderApp({ scenario, route })`); extend it rather than starting again. Mock auth and personas are added with the Keycloak work. Verify library APIs against current documentation and replace every `VERIFY`.
+Rules: `.claude/rules/testing.md`, `tdd.md`, `api-client.md`, `auth.md`. Templates are in `templates/`. They are **starting points**. Decided: Vite, Vitest (jsdom) with Testing Library and axe-core, and Mock Service Worker (MSW). The infrastructure already exists in `src/mocks/` and `src/test/` (helper: `renderApp({ scenario, route })`); extend it rather than starting again. Mock auth and personas are added with the Okta work. Verify library APIs against current documentation and replace every `VERIFY`.
 
 ## What to build
 
 | File | Purpose |
 |---|---|
 | `src/auth/AuthClient.ts` | The small auth interface the whole UI depends on (if it does not exist yet). |
-| `src/auth/mockAuth.ts` | Mock implementation with personas: `admin`, `editor`, `signed-out`, `session-expiring`. |
+| `src/auth/mockAuth.ts` | Mock implementation with personas: `admin`, `editor`, `viewer`, `signed-out`, `session-expiring`. |
 | `src/mocks/data.ts` | Typed fake data builders (from the generated API types). |
 | `src/mocks/handlers.ts` | Default mock handlers, one per API operation the UI uses, typed from the generated types. |
 | `src/mocks/scenarios.ts` | Named overrides: `success`, `empty`, `validationError`, `unauthorised`, `forbidden`, `conflict`, `serverError`, `slow`, `offline`. |

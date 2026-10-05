@@ -7,7 +7,7 @@ describe("Home page", () => {
   it("AC1: offers the three tasks as links with a summary of each", async () => {
     renderApp();
 
-    await findHeading("What do you want to do?");
+    await findHeading("Home");
     const main = within(screen.getByRole("main"));
     const tasks = [
       ["Provision user access to RP&S", "Provision a new user with access to RP&S"],
@@ -18,12 +18,20 @@ describe("Home page", () => {
       const link = main.getByRole("link", { name });
       expect(link.closest(".ds_category-item")).toHaveTextContent(summary ?? "");
     }
-    expect(document.title).toBe("What do you want to do? - User access management");
+    expect(document.title).toBe("Home - Application Access Hub");
+  });
+
+  it("AC1: has no visible page heading, but keeps one for screen readers", async () => {
+    renderApp();
+
+    const heading = await findHeading("Home");
+    expect(heading).toHaveClass("visually-hidden");
+    expect(screen.queryByText("What do you want to do?")).not.toBeInTheDocument();
   });
 
   it("AC1: says which instance this is and which environments it manages, from the configuration", async () => {
     renderApp();
-    await findHeading("What do you want to do?");
+    await findHeading("Home");
 
     const inset = screen
       .getByText(/instance of Application Access Hub/)
@@ -55,7 +63,7 @@ describe("Home page", () => {
 
   it("AC1: has no accessibility violations", async () => {
     const { container } = renderApp();
-    await findHeading("What do you want to do?");
+    await findHeading("Home");
 
     await expectNoAxeViolations(container);
   });
@@ -69,7 +77,7 @@ describe("Home page", () => {
       const logo = screen.getByRole("img", { name: "The Scottish Government" });
       expect(logo).toHaveClass("ds_site-branding__logo-image");
       expect(logo.closest("a")).toHaveAttribute("href", "/");
-      const title = screen.getByText("User access management", { selector: ".ds_site-branding__title" });
+      const title = screen.getByText("Application Access Hub", { selector: ".ds_site-branding__title" });
       expect(title.closest(".ds_site-header")).not.toBeNull();
     },
   );
@@ -125,7 +133,7 @@ describe("Home page", () => {
 
   it("shows the operator's role as EDITOR in the header until sign-in is built", async () => {
     renderApp();
-    await findHeading("What do you want to do?");
+    await findHeading("Home");
 
     const role = screen.getByText("EDITOR");
     expect(role.closest(".ds_site-header")).not.toBeNull();

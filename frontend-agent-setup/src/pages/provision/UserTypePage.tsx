@@ -21,7 +21,7 @@ export function UserTypePage() {
       return;
     }
     chooseUserType(selected);
-    void navigate(paths.userNumber);
+    void navigate(paths.userIdentifier);
   }
 
   return (

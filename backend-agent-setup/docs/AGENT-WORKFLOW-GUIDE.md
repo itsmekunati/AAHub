@@ -61,8 +61,8 @@ The project rules are split into layers, so each agent reads only what the curre
 | Layer | Where | When it is loaded | What goes there |
 |---|---|---|---|
 | 1. Core rules | `CLAUDE.md` (repository root) | Always, in every session and every agent | Overview, stack, architecture, data ownership, non-negotiable security rules, commands, rules for Claude, and where to find the layers below |
-| 2. Area rules | `.claude/rules/*.md` | Automatically, when an agent works on a file matching the rule's `paths:` | Detailed rules for one area: audit logging, LDAP, Oracle, Keycloak, testing, deployment and so on |
-| 3. Procedures | `.claude/skills/<name>/SKILL.md` | When the task needs it, or preloaded into an agent | Step-by-step how-tos: `tdd-cycle`, `test-infrastructure`, `add-endpoint`, `provisioning-flow`, `add-audit-event`, `ldap-gateway`, `oracle-persistence`, `sprint-rubric` |
+| 2. Area rules | `.claude/rules/*.md` | Automatically, when an agent works on a file matching the rule's `paths:` | Detailed rules for one area: audit logging, LDAP, Futures Database, Okta, testing, deployment and so on |
+| 3. Procedures | `.claude/skills/<name>/SKILL.md` | When the task needs it, or preloaded into an agent | Step-by-step how-tos: `tdd-cycle`, `test-infrastructure`, `add-endpoint`, `provisioning-flow`, `add-audit-event`, `ldap-gateway`, `futures-persistence`, `sprint-rubric` |
 | 4. Reference | `docs/reference/`, `docs/open-questions.md` | Only when an agent opens the file | Long reference material (the audit record schema) and decisions still to be made |
 
 ### Rule files and when they load
@@ -72,12 +72,13 @@ The project rules are split into layers, so each agent reads only what the curre
 | `tdd.md` | Test-first rules: red → green → refactor, commits, evidence | all production and test code, `src/main/resources/` |
 | `code-style.md` | Java 25 and Spring Boot 4 conventions | any `.java` file, `pom.xml` |
 | `user-classification.md` | User type (provisioning) and internal/external classification by email domain (role management) | `service/`, `api/` |
-| `provisioning.md` | Ordered ApacheDS + Oracle writes, compensation | `service/`, `ldap/`, `oracle/` |
-| `security-keycloak.md` | Resource server, roles, `401`/`403`, auth auditing, CORS | `security/`, `api/`, `config/` |
+| `transactions.md` | Mandatory JSM/Jira ticket, separate transaction ID, mandatory provisioning fields, external users in URM | `api/`, `service/`, `audit/`, `futures/`, tests |
+| `provisioning.md` | Ordered OpenDJ + Futures Database writes, compensation | `service/`, `ldap/`, `futures/` |
+| `security-okta.md` | Resource server, roles, `401`/`403`, auth auditing, CORS | `security/`, `api/`, `config/` |
 | `audit-logging.md` | Auditable events, fields, JSON format, MDC, correlation IDs | all production Java, `logback*.xml`, `application*.yml` |
 | `log-shipping.md` | Daily rotation, S3 shipping, retention | `audit/`, `logback*.xml` |
 | `ldap.md` | Spring LDAP, injection prevention | `ldap/` |
-| `oracle-jpa.md` | JPA, migrations | `oracle/`, `db/migration/` |
+| `futures-db.md` | JPA, migrations | `futures/`, `db/migration/` |
 | `api-contract.md` | springdoc, spec-sync, breaking changes | `api/`, `exception/` |
 | `testing.md` | Unit, authorisation, audit and failure-path tests | `src/test/` |
 | `deploy.md` | GitHub Actions, Argo CD, OpenShift | `deploy/`, `Dockerfile`, `.github/workflows/` |
@@ -87,12 +88,12 @@ The project rules are split into layers, so each agent reads only what the curre
 | Skill | Use it when | Covers |
 |---|---|---|
 | `tdd-cycle` | Every acceptance criterion (preloaded into the Generator) | Red → green → refactor, commits, evidence |
-| `test-infrastructure` | Sprint 0, and any test needing containers, mock operators, audit capture or outages | Testcontainers (Oracle, ApacheDS, S3), `TestApplication`, `MockOperators`, `AuditLogCapture`, `Outages` |
+| `test-infrastructure` | Sprint 0, and any test needing containers, mock operators, audit capture or outages | Testcontainers (Futures Database, OpenDJ, S3), `TestApplication`, `MockOperators`, `AuditLogCapture`, `Outages` |
 | `add-endpoint` | Adding or changing a REST endpoint | Tests for `401`/`403`/validation/audit first, then DTOs, controller, OpenAPI |
-| `provisioning-flow` | Anything writing to both ApacheDS and Oracle | Ordered steps, compensation, failure-path tests |
+| `provisioning-flow` | Anything writing to both OpenDJ and the Futures Database | Ordered steps, compensation, failure-path tests |
 | `add-audit-event` | Adding or changing an audited action | Audit record tests first, then emitting the record |
-| `ldap-gateway` | Reading or writing LDAP entries, groups or role memberships | Config-driven DNs, injection-safe filters, error mapping, ApacheDS container tests |
-| `oracle-persistence` | Adding or changing a table, entity, repository or query | Migration first, explicit mapping with `ddl-auto: validate`, constraint and query tests |
+| `ldap-gateway` | Reading or writing LDAP entries, groups or role memberships | Config-driven DNs, injection-safe filters, error mapping, OpenDJ container tests |
+| `futures-persistence` | Adding or changing a table, entity, repository or query | Migration first, explicit mapping with `ddl-auto: validate`, constraint and query tests |
 | `sprint-rubric` | Self-check and grading (preloaded into Generator and Evaluator) | Scores, pass threshold, severity guide |
 
 ### How the agents use the layers
@@ -117,7 +118,7 @@ Use these procedures whenever the rules change. Make the change on a branch and 
 
 1. Open `docs/open-questions.md` and find the question. The last column names the rule file to update.
 2. Add the decision to that rule file in `.claude/rules/`, replacing any "still open" line. Write it as a rule, for example "Subdomains of an internal domain are internal".
-3. If the answer is a value that differs by environment (domains, bucket names, realms), write the rule as "comes from configuration key `x.y.z`". Never put the value itself in the rule file.
+3. If the answer is a value that differs by environment (domains, bucket names, issuer URLs), write the rule as "comes from configuration key `x.y.z`". Never put the value itself in the rule file.
 4. Delete the row from `docs/open-questions.md`.
 5. Only touch `CLAUDE.md` if the decision affects every task.
 6. Commit: `docs(rules): record decision on <topic>`.
@@ -245,7 +246,7 @@ A rare genuine exemption (for example, adding a dependency) is recorded as `"tdd
 |---|---|---|---|
 | Unit | JUnit 5 + Mockito | Services, email classification, audit record building, compensation logic | Yes |
 | Slice | `@WebMvcTest` (or equivalent) + Spring Security test mock JWTs | Endpoints, validation, `401`/`403`/success | Yes |
-| Integration | Containerised ApacheDS and Oracle (Testcontainers); S3 via LocalStack or a mocked client (open question #12) | LDAP and Oracle gateways, migrations, full provisioning flows, S3 shipping | Written first, run at the end of each AC |
+| Integration | Containerised OpenDJ and Futures Database (Testcontainers); S3 via LocalStack or a mocked client (open question #12) | LDAP and Futures Database gateways, migrations, full provisioning flows, S3 shipping | Written first, run at the end of each AC |
 
 ### How the Evaluator checks TDD
 
@@ -270,13 +271,13 @@ Make sure you have the following before you start:
 1. **Claude Code** installed and signed in. See https://code.claude.com/docs/en/overview.
 2. **The backend repository** cloned locally, with `CLAUDE.md` at the repository root.
 3. **Java 25** and the committed **Maven wrapper** (`./mvnw`) working. Check with `./mvnw -v`.
-4. **Docker** (or a compatible container runtime) running. The Generator and Evaluator start local ApacheDS and Oracle containers for tests (Testcontainers); S3 uses LocalStack or a mocked client (open question #12). They are never allowed to use real environments.
+4. **Docker** (or a compatible container runtime) running. The Generator and Evaluator start local OpenDJ and Futures Database containers for tests (Testcontainers); S3 uses LocalStack or a mocked client (open question #12). They are never allowed to use real environments.
 5. **Git** configured with your name and email. The Generator commits its work on your local branch.
 6. **jq** (or `python3`), used by the Claude Code hook that protects files (Step 5.3). For example: `brew install jq`.
 7. **Optional:** yamllint and Hadolint, used by the pre-commit lint hook for YAML and Dockerfiles. Without them those checks are skipped locally and still run in CI.
 8. **Optional:** the Snyk CLI, only if you want to turn on the Snyk security checks (section 9).
 
-> **Important:** Never point the local profile at real LDAP, Oracle, Keycloak or S3. The agents are instructed not to, but your local configuration should make it impossible.
+> **Important:** Never point the local profile at real LDAP, Futures Database, Okta or S3. The agents are instructed not to, but your local configuration should make it impossible.
 
 ---
 
@@ -318,9 +319,9 @@ Copy the three agent files into the repository so the folder looks like this:
 │   │   ├── deploy.md
 │   │   ├── ldap.md
 │   │   ├── log-shipping.md
-│   │   ├── oracle-jpa.md
+│   │   ├── futures-db.md
 │   │   ├── provisioning.md
-│   │   ├── security-keycloak.md
+│   │   ├── security-okta.md
 │   │   ├── tdd.md
 │   │   ├── testing.md
 │   │   └── user-classification.md
@@ -330,7 +331,7 @@ Copy the three agent files into the repository so the folder looks like this:
 │       ├── add-audit-event/SKILL.md
 │       ├── add-endpoint/SKILL.md
 │       ├── ldap-gateway/SKILL.md
-│       ├── oracle-persistence/SKILL.md
+│       ├── futures-persistence/SKILL.md
 │       ├── provisioning-flow/SKILL.md
 │       └── sprint-rubric/SKILL.md
 ├── docs/
@@ -447,14 +448,14 @@ Always start this way. Running the Planner as the main session is what allows it
 
 Type a short request. Focus on the outcome, not the implementation. For example:
 
-> Add an endpoint that lets an operator provision a new internal user of the user type they chose (Government, Forestry or Nature), store their details in Oracle, assign their roles in ApacheDS, and audit every step including failures.
+> Add an endpoint that lets an operator provision a new internal user of the user type they chose (Government, Forestry or Nature), store their details in the Futures Database, assign their roles in OpenDJ, and audit every step including failures.
 
 ### Step 6.3: Review the spec and answer the open questions
 
 The Planner writes `specs/product-spec.json` and replies with:
 
 - a short summary of the features and how they are split into sprints (up to 8), and
-- a list of **open questions** that block the work. These come from `docs/open-questions.md`: the admin/editor permission matrix, internal email domains, LDAP and Oracle schemas, Keycloak claim path, ApacheDS/Oracle write order, and so on.
+- a list of **open questions** that block the work. These come from `docs/open-questions.md`: the admin/editor permission matrix, internal email domains, LDAP and Futures Database schemas, Okta claim path, OpenDJ/Futures Database write order, and so on.
 
 What to do:
 
@@ -527,15 +528,15 @@ This section is the practical walkthrough: how to start the backend, hand the fi
 1. **Set up** as in sections 4 and 5: install the prerequisites, add the files on a branch.
 2. **Settle the blocking open questions** in `docs/open-questions.md`, or be ready to answer them when the Planner asks. The most urgent are:
    - #7: the permission matrix;
-   - #8: Keycloak roles in the token;
+   - #8: Okta roles in the token;
    - #1: internal email domains;
-   - #2 and #3: the LDAP and Oracle schemas;
-   - #9: the write order between ApacheDS and Oracle;
+   - #2 and #3: the LDAP and Futures Database schemas;
+   - #9: the write order between OpenDJ and the Futures Database;
    - #12: S3 in tests;
    - #13: the Java code style.
 3. **Start the Planner** with `claude --agent planner` and ask for the foundation, for example:
 
-   > Set up the backend foundation: the shared test infrastructure, Keycloak resource-server security with admin and editor roles, correlation IDs and structured audit logging, and a health endpoint.
+   > Set up the backend foundation: the shared test infrastructure, Okta resource-server security with admin, editor and read-only viewer roles, correlation IDs and structured audit logging, and a health endpoint.
 
 4. The Planner makes **Sprint 0: test infrastructure** the first sprint. Review the summary, answer its questions, and reply `good to go`.
 5. **Review each passed sprint** (Step 6.7) and finish the cycle (Step 6.8).
@@ -556,18 +557,18 @@ Every breaking change to the contract must be flagged. The agents do this in the
 
    > Add an endpoint to list provisioned users for admins and editors, with name, email, user type and roles. Editors must not see disabled users. Audit access denials.
 
-   > Add an endpoint for admins to provision a new internal user of the chosen user type (Government, Forestry or Nature): store the details in Oracle, assign roles in ApacheDS, compensate if the second write fails, and audit every step.
+   > Add an endpoint for admins to provision a new internal user of the chosen user type (Government, Forestry or Nature): store the details in the Futures Database, assign roles in OpenDJ, compensate if the second write fails, and audit every step.
 
 3. **The Planner:**
    - writes the spec and contract, including test scenarios, audit events and API contract impact;
-   - picks the skills (`add-endpoint`, `provisioning-flow`, `ldap-gateway`, `oracle-persistence`, `add-audit-event`).
+   - picks the skills (`add-endpoint`, `provisioning-flow`, `ldap-gateway`, `futures-persistence`, `add-audit-event`).
 4. **Reply `good to go`.** The Generator and Evaluator build it test-first.
 5. **Push the branch and open a pull request.** Once merged, the spec reaches the UI through the spec-sync route above.
 
 ### Tips
 
-- **One endpoint or flow per sprint.** Provisioning flows that touch both ApacheDS and Oracle are usually a sprint on their own.
-- **Always say who may call it** (`admin`, `editor`) until the permission matrix is agreed.
+- **One endpoint or flow per sprint.** Provisioning flows that touch both OpenDJ and the Futures Database are usually a sprint on their own.
+- **Always say who may call it** (`admin`, `editor`, `viewer`; a `viewer` may only read) until the permission matrix is agreed.
 - **Build what the UI needs first.** When the UI Planner reports a backend dependency, it tells you exactly which operation and fields are missing; use that as your request here.
 
 ---

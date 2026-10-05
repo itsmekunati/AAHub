@@ -29,6 +29,6 @@ A scheduled process uploads completed log files to the configured S3 bucket and 
 
 ## Retention
 
-The application does not delete audit logs. Logs older than 90 days are removed by S3 lifecycle policies managed outside this repository.
+The application does not delete audit logs. Logs are kept for a maximum of 6 months: anything older is removed by S3 lifecycle policies managed outside this repository. Never assume or build for a longer retention period.
 
 Bucket, prefix, AWS account, scheduler frequency and whether the log directory needs a persistent volume are still open: see `docs/open-questions.md`.

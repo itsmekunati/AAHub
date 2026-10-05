@@ -10,35 +10,39 @@ export const fakeDirectory: FakeDirectoryEntry[] = [
   {
     userType: "government",
     user: {
-      userNumber: "100001",
+      userIdentifier: "U100001",
       firstName: "Alex",
-      lastName: "Example",
+      surname: "Example",
       email: "alex.example@example.test",
+      managerXNumber: "X000001",
       jobTitle: "Policy officer",
     },
   },
   {
     userType: "forestry",
     user: {
-      userNumber: "200002",
+      userIdentifier: "Z200002",
       firstName: "Sam",
-      lastName: "Sample",
+      surname: "Sample",
       email: "sam.sample@example.test",
+      managerXNumber: "X000002",
       jobTitle: "",
     },
   },
   {
     userType: "nature",
     user: {
-      userNumber: "300003",
+      userIdentifier: "GAKWO300003",
       firstName: "Jo",
-      lastName: "Test",
+      surname: "Test",
       email: "jo.test@example.test",
+      managerXNumber: "X000003",
       jobTitle: "Ecologist",
     },
   },
 ];
 
-export const fakeRequestId = "PR-000123";
+// The transaction ID is the backend's own reference. It is separate from the JSM/Jira ticket.
+export const fakeTransactionId = "TXN-000123";
 
 export const fakeLocations = ["Perth", "SASA", "House", "Inverness"];

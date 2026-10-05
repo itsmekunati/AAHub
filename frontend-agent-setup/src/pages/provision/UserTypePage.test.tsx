@@ -37,17 +37,17 @@ describe("Select the user type", () => {
     expect(screen.getByRole("group", { name: "User type" })).toHaveAccessibleDescription(
       "Error: Select a user type",
     );
-    expect(document.title).toBe("Error: Select the user type - User access management");
+    expect(document.title).toBe("Error: Select the user type - Application Access Hub");
   });
 
-  it("AC2: moves to the user number step with the chosen type", async () => {
+  it("AC2: moves to the user identifier step with the chosen type", async () => {
     const { user } = renderApp({ route });
     await findHeading(headings.userType);
 
     await user.click(screen.getByRole("radio", { name: "Forestry" }));
     await user.click(screen.getByRole("button", { name: "Next" }));
 
-    await findHeading(headings.userNumber);
+    await findHeading(headings.userIdentifier);
     expect(screen.getByText("Forestry")).toBeInTheDocument();
   });
 
@@ -57,7 +57,7 @@ describe("Select the user type", () => {
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 
-    expect(await findHeading("What do you want to do?")).toBeInTheDocument();
+    expect(await findHeading("Home")).toBeInTheDocument();
   });
 
   it("AC2: has no accessibility violations, with and without errors", async () => {

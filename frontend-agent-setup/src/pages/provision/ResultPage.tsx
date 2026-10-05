@@ -1,5 +1,6 @@
 import { Link, Navigate } from "react-router";
 import { Page } from "../../components/Page";
+import { SummaryList } from "../../components/SummaryList";
 import { paths } from "./options";
 import { useProvision } from "./ProvisionContext";
 
@@ -14,9 +15,13 @@ export function ResultPage() {
   if (outcome.succeeded) {
     return (
       <Page title="Access provisioning success" ribbon="success">
-        <p>
-          Your reference is <strong>{outcome.requestId}</strong>
-        </p>
+        <SummaryList
+          label="Request reference"
+          items={[
+            { key: "Transaction ID", value: outcome.transactionId },
+            { key: "JSM/Jira ticket ID", value: state.ticketId },
+          ]}
+        />
         <p>
           <Link className="ds_link" to="/">
             Return to the start

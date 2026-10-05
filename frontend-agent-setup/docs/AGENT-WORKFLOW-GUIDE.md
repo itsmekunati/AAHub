@@ -77,8 +77,9 @@ The project rules are split into layers, so each agent reads only what the curre
 | `code-style.md` | Strict TypeScript and React conventions | `.ts`/`.tsx` files, `package.json`, ESLint and `tsconfig` files |
 | `design-system.md` | Using `@scottish-government/design-system`, markup, Sass, JS initialisation | `src/components/`, `src/pages/`, `src/styles/` |
 | `forms-accessibility.md` | WCAG 2.2 AA, forms, error summary, screen states, content | `src/components/`, `src/pages/` |
-| `auth.md` | Keycloak PKCE, tokens in memory, roles for visibility only | `src/auth/`, `src/services/` |
+| `auth.md` | Okta PKCE, tokens in memory, roles for visibility only | `src/auth/`, `src/services/` |
 | `api-client.md` | OpenAPI contract, generated client, spec-sync, user type | `src/services/`, `openapi/` |
+| `transactions.md` | Mandatory JSM/Jira ticket, separate transaction ID, mandatory provisioning fields, external users in URM | `src/pages/`, `src/services/`, `src/mocks/` |
 | `runtime-config.md` | `config.json` settings, one build for every environment | `src/config*.ts`, `src/main.tsx`, `public/config.json`, `vite.config.*` |
 | `testing.md` | Component tests, mocked auth, axe, mock API scenarios | `*.test.*`, `*.spec.*` and `__tests__/` in `src/`, `src/mocks/`, `src/test/` |
 | `e2e.md` | Playwright against the test environment only | `e2e/`, `playwright.config.*` |
@@ -120,7 +121,7 @@ Use these procedures whenever the rules change. Make the change on a branch and 
 
 1. Open `docs/open-questions.md` and find the question. The last column names where to record the answer.
 2. Add the decision to that rule file in `.claude/rules/` (or the "Commands" section of `CLAUDE.md` for tooling), replacing any "TBC" line. Write it as a rule, for example "`editor` cannot assign roles; hide the roles section for editors".
-3. If the answer is a value that differs by environment (Keycloak URL, realm, client ID, test domains), write the rule as "comes from configuration key `x`". Never put the value itself in the rule file.
+3. If the answer is a value that differs by environment (Okta issuer URL, client ID, test domains), write the rule as "comes from configuration key `x`". Never put the value itself in the rule file.
 4. Delete the row from `docs/open-questions.md`.
 5. Only touch `CLAUDE.md` if the decision affects every task.
 6. Commit: `docs(rules): record decision on <topic>`.
@@ -250,7 +251,7 @@ A rare genuine exemption (for example, adding a dependency) is recorded as `"tdd
 | Component / page | Testing Library + axe, with a mocked auth interface and mocked services | Rendering, forms, validation, error summary focus, role visibility, `401`/`403` handling, screen states | Yes |
 | Service | Test runner with the generated client mocked | Mapping each API response to a typed result | Yes |
 | Browser (Evaluator) | Playwright MCP against the local app | Visual Design System fidelity, keyboard use, reflow | No: checked by the Evaluator |
-| E2E | Playwright against the deployed test environment | Full journeys for `admin` and `editor` | No: written with the feature, run in CI |
+| E2E | Playwright against the deployed test environment | Full journeys for `admin`, `editor` and `viewer` | No: written with the feature, run in CI |
 
 ### How the Evaluator checks TDD
 
@@ -282,7 +283,7 @@ Make sure you have the following before you start:
 8. **Optional:** yamllint and Hadolint, used by the pre-commit lint hook for YAML and Dockerfiles. Without them those checks are skipped locally and still run in CI.
 9. **Optional:** the Snyk CLI, only if you want to turn on the Snyk security checks (section 9).
 
-> **Important:** The agents never use real environments, real Keycloak realms or real people's accounts. Local work uses a **mock API and mocked sign-in**. E2E tests only run against a deployed **test** environment with dedicated **test** users, and only when you have set those details yourself as environment variables.
+> **Important:** The agents never use real environments, real Okta orgs or real people's accounts. Local work uses a **mock API and mocked sign-in**. E2E tests only run against a deployed **test** environment with dedicated **test** users, and only when you have set those details yourself as environment variables.
 
 > **Build tooling is not finalised yet.** The commands in `CLAUDE.md` are placeholders. The first sprint will probably ask you to choose tooling (for example the build tool and test runner). Answer those questions, then update the "Commands" section of `CLAUDE.md` and remove question 3 from `docs/open-questions.md`.
 
@@ -466,7 +467,7 @@ Type a short request. Focus on what the operator needs to do, not on the impleme
 The Planner reads `openapi/openapi.json`, writes `specs/product-spec.json`, and replies with:
 
 - a short summary of the features, the Design System components each uses, and how they are split into sprints (up to 8);
-- **open questions** that block the work, from `docs/open-questions.md`: the `admin`/`editor` permission matrix, Keycloak details and OIDC library, build tooling, how the app is served, E2E test domains;
+- **open questions** that block the work, from `docs/open-questions.md`: the `admin`/`editor` permission matrix, Okta details and OIDC library, build tooling, how the app is served, E2E test domains;
 - **backend dependencies**: anything the UI needs that is **not** in the API spec yet (a missing endpoint, field or error code).
 
 What to do:
@@ -539,7 +540,7 @@ The UI can only use API operations that exist in the backend's `openapi.json`, a
 
 | Can start straight away | Needs the backend first |
 |---|---|
-| Build tooling, test infrastructure, the app shell (Design System header, footer, home page), sign-in with Keycloak | Any page that shows or sends data (user lists, forms, detail pages) |
+| Build tooling, test infrastructure, the app shell (Design System header, footer, home page), sign-in with Okta | Any page that shows or sends data (user lists, forms, detail pages) |
 
 The simplest plan is to run both repositories in parallel. The backend builds its Sprint 0 and first endpoints while the UI builds its foundation.
 
@@ -553,15 +554,15 @@ The simplest plan is to run both repositories in parallel. The backend builds it
    | 3 | Build tooling (build tool, test runner, npm scripts) | Nothing can be built without it |
    | 7 | Mock API library (proposed: MSW) | Needed by the test infrastructure |
    | 8 | Formatter (Prettier or not) | Decides the formatting hook |
-   | 2 | OIDC library and Keycloak details | Needed for sign-in |
+   | 2 | OIDC library and Okta details | Needed for sign-in |
    | 1 | What `admin` and `editor` may each do | Decides what each role sees |
 
 3. **Start the Planner** with `claude --agent planner` and ask for the foundation, for example:
 
-   > Set up the UI foundation: the chosen build tooling, the Scottish Government Design System package, an app shell with the Design System header, footer and a home page, sign-in with Keycloak for admin and editor operators, and the shared test infrastructure.
+   > Set up the UI foundation: the chosen build tooling, the Scottish Government Design System package, an app shell with the Design System header, footer and a home page, sign-in with Okta for admin, editor and read-only viewer operators, and the shared test infrastructure.
 
 4. The Planner makes **Sprint 0: test infrastructure** the first sprint, followed by sprints such as "app shell" and "sign-in". Review the summary, answer its questions, and reply `good to go`.
-5. **Review each passed sprint** (Step 6.7). Then run the app with the mock API and try it as the `admin` and `editor` personas. The command is recorded in `CLAUDE.md` after Sprint 0.
+5. **Review each passed sprint** (Step 6.7). Then run the app with the mock API and try it as the `admin`, `editor` and `viewer` personas. The command is recorded in `CLAUDE.md` after Sprint 0.
 6. **Finish the cycle** (Step 6.8): record the answered questions in their rule files, then push the branch and open a pull request yourself.
 
 ### Getting the first API contract into the UI
@@ -613,7 +614,7 @@ Open a pull request for it, and merge it before starting data pages.
 
 - **One page per sprint.** You can ask for several pages at once; the Planner still gives each its own sprint.
 - **Describe journeys, not components.** Say "an admin creates a user and sees confirmation", not "use a text input". The Planner maps journeys to Design System patterns.
-- **Always say who can do what** (`admin`, `editor`) until the permission matrix is agreed.
+- **Always say who can do what** (`admin`, `editor`, `viewer`; a `viewer` can only read) until the permission matrix is agreed.
 - **Check the accessibility yourself as well.** Automated checks catch a lot, but not everything. A keyboard-only run-through of each new page takes a minute.
 
 ---
@@ -792,7 +793,7 @@ These come from `CLAUDE.md` and the agent files. They apply to people as much as
 6. **Tokens stay in memory** and are never logged. No personal data or full API payloads in the console.
 7. **Accessibility is mandatory:** WCAG 2.2 AA, Design System markup, plain English.
 8. **Never weaken accessibility, validation or security to pass a test, and never delete, skip or weaken a test to pass a build.**
-9. **No real environments, realms or people's accounts** in any test.
+9. **No real environments, Okta orgs or people's accounts** in any test.
 10. **No secrets, hostnames or environment URLs** in code or committed files. Build-time variables end up in the public bundle.
 11. **No changes to `.github/workflows/` or `deploy/`** unless explicitly asked for in the sprint contract.
 12. **Only the Evaluator writes evaluation files.** A verdict mentioned in chat does not count.

@@ -12,7 +12,7 @@ React, strict TypeScript, Vite and React Router (versions and scripts are in `pa
 
 - **UI:** the Scottish Government Design System, which is plain HTML/CSS/JS wrapped in our own React components.
 - **Mock API:** Mock Service Worker (MSW), for tests and for local development.
-- **Not built yet:** Keycloak sign-in (OIDC with PKCE, operator roles `admin` and `editor`), the generated OpenAPI client, Playwright E2E, CI and deployment.
+- **Not built yet:** Okta sign-in (OIDC with PKCE, operator roles `admin`, `editor` and read-only `viewer`), the generated OpenAPI client, Playwright E2E, CI and deployment.
 - **One build for every environment**, configured at run time by a public `config.json`.
 
 ## Key principles
@@ -27,8 +27,8 @@ React, strict TypeScript, Vite and React Router (versions and scripts are in `pa
 
 - **Work test-first (TDD):** no production code without a failing test that needs it.
 - **Accessibility is mandatory:** WCAG 2.2 AA, the Design System's documented markup, plain English, sentence case.
-- **No secrets in the frontend:** the bundle and `config.json` are public. No hard-coded credentials, hostnames, environment URLs, realms or test domains, even as examples.
-- **Tokens stay in memory only:** never in `localStorage` or `sessionStorage`, and no personal data there either. Never weaken the Keycloak sign-in flow.
+- **No secrets in the frontend:** the bundle and `config.json` are public. No hard-coded credentials, hostnames, environment URLs, issuers or test domains, even as examples.
+- **Tokens stay in memory only:** never in `localStorage` or `sessionStorage`, and no personal data there either. Never weaken the Okta sign-in flow.
 - **Never log** personal data, tokens or full API payloads, and never show users raw server messages or stack traces.
 - **Never render unsanitised HTML** (`dangerouslySetInnerHTML` with API data or user input).
 - **The server result is authoritative;** client-side validation is a convenience only.

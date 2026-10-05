@@ -38,14 +38,14 @@ export function TicketPage() {
     }
     const jiraTicketId = ticketId.trim().toUpperCase();
     if (!jiraTicketId) {
-      setErrors([{ fieldId, message: "Enter the JIRA ticket ID" }]);
+      setErrors([{ fieldId, message: "Enter the JSM/Jira ticket ID" }]);
       return;
     }
     if (!ticketPattern.test(jiraTicketId)) {
       setErrors([
         {
           fieldId,
-          message: "Enter the JIRA ticket ID in the correct format: ITS- followed by five digits, like ITS-12345",
+          message: "Enter the JSM/Jira ticket ID in the correct format: ITS- followed by five digits, like ITS-12345",
         },
       ]);
       return;
@@ -54,15 +54,16 @@ export function TicketPage() {
     try {
       const created = await submitProvisioningRequest({
         userType,
-        userNumber: state.userNumber,
+        userIdentifier: state.userIdentifier,
         firstName: user.firstName,
-        lastName: user.lastName,
+        surname: user.surname,
         email: user.email,
+        managerXNumber: user.managerXNumber,
         jobTitle: user.jobTitle,
         location,
         jiraTicketId,
       });
-      submissionFinished(jiraTicketId, { succeeded: true, requestId: created.requestId });
+      submissionFinished(jiraTicketId, { succeeded: true, transactionId: created.transactionId });
     } catch (error) {
       submissionFinished(jiraTicketId, { succeeded: false, reason: problemMessage(error) });
     } finally {
@@ -72,12 +73,12 @@ export function TicketPage() {
   }
 
   return (
-    <Page title="Add the JIRA ticket ID" hasErrors={errors.length > 0}>
+    <Page title="Add the JSM/Jira ticket ID" hasErrors={errors.length > 0}>
       <ErrorSummary errors={errors} />
       <SummaryList
         label="Request details"
         items={[
-          ...requestSummary(userType, state.userNumber),
+          ...requestSummary(userType, state.userIdentifier),
           ...userDetailsSummary(user),
           { key: "Location", value: location },
         ]}
@@ -85,7 +86,7 @@ export function TicketPage() {
       <form noValidate onSubmit={(event) => void handleSubmit(event)}>
         <TextInput
           id={fieldId}
-          label="Enter the JIRA ticket ID associated with this request"
+          label="Enter the JSM/Jira ticket ID associated with this request"
           hint="This must be ITS- followed by five digits, for example ITS-12345"
           value={ticketId}
           onChange={setTicketId}

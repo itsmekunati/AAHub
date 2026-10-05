@@ -5,20 +5,20 @@ import { chooseUserType, findHeading, headings, validateUserNumber } from "./tes
 
 const start = "/provision/user-type";
 
-describe("Enter the user number", () => {
-  it("AC3: shows the chosen user type, a user number field, and Cancel and Validate", async () => {
+describe("Enter the user identifier", () => {
+  it("AC3: shows the chosen user type, a user identifier field, and Cancel and Validate", async () => {
     const { user } = renderApp({ route: start });
     await findHeading(headings.userType);
     await chooseUserType(user, "Nature");
 
     expect(screen.getByText("User type")).toBeInTheDocument();
     expect(screen.getByText("Nature")).toBeInTheDocument();
-    expect(screen.getByRole("textbox", { name: "User number" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "User identifier" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Validate" })).toBeInTheDocument();
   });
 
-  it("AC3: asks for a user number when the field is empty", async () => {
+  it("AC3: asks for a user identifier when the field is empty", async () => {
     const { user } = renderApp({ route: start });
     await findHeading(headings.userType);
     await chooseUserType(user);
@@ -27,12 +27,12 @@ describe("Enter the user number", () => {
 
     const summary = screen.getByRole("alert");
     expect(summary).toHaveFocus();
-    expect(within(summary).getByRole("link", { name: "Enter a user number" })).toHaveAttribute(
+    expect(within(summary).getByRole("link", { name: "Enter a user identifier" })).toHaveAttribute(
       "href",
       "#user-number",
     );
-    expect(screen.getByRole("textbox", { name: "User number" })).toHaveAccessibleDescription(
-      "Error: Enter a user number",
+    expect(screen.getByRole("textbox", { name: "User identifier" })).toHaveAccessibleDescription(
+      "Error: Enter a user identifier",
     );
   });
 
@@ -41,15 +41,15 @@ describe("Enter the user number", () => {
     await findHeading(headings.userType);
     await chooseUserType(user);
 
-    await user.type(screen.getByRole("textbox", { name: "User number" }), "999999");
+    await user.type(screen.getByRole("textbox", { name: "User identifier" }), "999999");
     await user.click(screen.getByRole("button", { name: "Validate" }));
 
     const summary = await screen.findByRole("alert");
     expect(
-      within(summary).getByRole("link", { name: "User not found. Check the user number and user type." }),
+      within(summary).getByRole("link", { name: "User not found. Check the user identifier and user type." }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 1, name: headings.userNumber })).toBeInTheDocument();
-    expect(screen.getByRole("textbox", { name: "User number" })).toHaveValue("999999");
+    expect(screen.getByRole("heading", { level: 1, name: headings.userIdentifier })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "User identifier" })).toHaveValue("999999");
   });
 
   it("AC4: does not find a user registered under a different user type", async () => {
@@ -57,7 +57,7 @@ describe("Enter the user number", () => {
     await findHeading(headings.userType);
     await chooseUserType(user, "Forestry");
 
-    await user.type(screen.getByRole("textbox", { name: "User number" }), "100001");
+    await user.type(screen.getByRole("textbox", { name: "User identifier" }), "U100001");
     await user.click(screen.getByRole("button", { name: "Validate" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("User not found");
@@ -68,11 +68,11 @@ describe("Enter the user number", () => {
     await findHeading(headings.userType);
     await chooseUserType(user);
 
-    await user.type(screen.getByRole("textbox", { name: "User number" }), "100001");
+    await user.type(screen.getByRole("textbox", { name: "User identifier" }), "U100001");
     await user.click(screen.getByRole("button", { name: "Validate" }));
 
     expect(await screen.findByRole("button", { name: "Validating" })).toBeDisabled();
-    expect(screen.getByRole("status")).toHaveTextContent("Checking the user number");
+    expect(screen.getByRole("status")).toHaveTextContent("Checking the user identifier");
   });
 
   it("AC5: shows a permission message on 403", async () => {
@@ -80,7 +80,7 @@ describe("Enter the user number", () => {
     await findHeading(headings.userType);
     await chooseUserType(user);
 
-    await user.type(screen.getByRole("textbox", { name: "User number" }), "100001");
+    await user.type(screen.getByRole("textbox", { name: "User identifier" }), "U100001");
     await user.click(screen.getByRole("button", { name: "Validate" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
@@ -93,7 +93,7 @@ describe("Enter the user number", () => {
     await findHeading(headings.userType);
     await chooseUserType(user);
 
-    await user.type(screen.getByRole("textbox", { name: "User number" }), "100001");
+    await user.type(screen.getByRole("textbox", { name: "User identifier" }), "U100001");
     await user.click(screen.getByRole("button", { name: "Validate" }));
 
     const summary = await screen.findByRole("alert");
@@ -106,7 +106,7 @@ describe("Enter the user number", () => {
     await findHeading(headings.userType);
     await chooseUserType(user);
 
-    await user.type(screen.getByRole("textbox", { name: "User number" }), "100001");
+    await user.type(screen.getByRole("textbox", { name: "User identifier" }), "U100001");
     await user.click(screen.getByRole("button", { name: "Validate" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
@@ -136,7 +136,7 @@ describe("Check this is the right user", () => {
     const { user } = renderApp({ route: start });
     await findHeading(headings.userType);
     await chooseUserType(user);
-    await validateUserNumber(user, "100001");
+    await validateUserNumber(user, "U100001");
 
     expect(screen.getByText("Alex Example")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
@@ -147,10 +147,10 @@ describe("Check this is the right user", () => {
     const { user } = renderApp({ route: start });
     await findHeading(headings.userType);
     await chooseUserType(user);
-    await validateUserNumber(user, "100001");
+    await validateUserNumber(user, "U100001");
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
-    await findHeading("What do you want to do?");
+    await findHeading("Home");
     await user.click(screen.getByRole("link", { name: "Provision user access to RP&S" }));
 
     await findHeading(headings.userType);
@@ -161,7 +161,7 @@ describe("Check this is the right user", () => {
     const { container, user } = renderApp({ route: start });
     await findHeading(headings.userType);
     await chooseUserType(user);
-    await validateUserNumber(user, "100001");
+    await validateUserNumber(user, "U100001");
 
     await expectNoAxeViolations(container);
   });

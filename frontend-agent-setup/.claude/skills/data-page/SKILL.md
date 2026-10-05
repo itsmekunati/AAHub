@@ -19,7 +19,7 @@ Using `renderPage(<Page />, { persona, scenario, route })`:
 - **Error (`serverError`, `offline`):** a clear error message in a Design System notification, never raw server text, with a way to try again.
 - **`401` (`unauthorised`):** the user is sent back to sign in.
 - **`403` (`forbidden`):** a "you do not have permission" message.
-- **Role-based actions:** as `admin`, admin-only actions (links or buttons) are shown; as `editor`, they are hidden (visibility only; the backend enforces it).
+- **Role-based actions:** as `admin`, admin-only actions (links or buttons) are shown; as `editor`, they are hidden; as `viewer`, every add, edit and remove action is hidden and the data is still shown (visibility only; the backend enforces it).
 - **Structure:** one `h1`; the page title matches the page; a table has a caption and column headers (`th` with `scope`); a summary list uses the documented markup.
 - **Navigation:** after arriving on the page, focus moves to the `h1`; links to detail pages have meaningful text (not "click here").
 - **axe:** no violations in the success, empty and error states.

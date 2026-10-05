@@ -1,4 +1,6 @@
 import { screen, within } from "@testing-library/react";
+import { http, HttpResponse } from "msw";
+import { server } from "../../mocks/node";
 import type { ScenarioName } from "../../mocks/scenarios";
 import { expectNoAxeViolations } from "../../test/axe";
 import { renderApp } from "../../test/render";
@@ -6,10 +8,10 @@ import { findHeading, headings, walkToUserDetails } from "./testJourney";
 
 const start = "/provision/user-type";
 
-async function openDetails(userType = "Government", userNumber = "100001", scenario?: ScenarioName) {
+async function openDetails(userType = "Government", userIdentifier = "U100001", scenario?: ScenarioName) {
   const rendered = renderApp({ route: start, scenario });
   await findHeading(headings.userType);
-  await walkToUserDetails(rendered.user, userType, userNumber);
+  await walkToUserDetails(rendered.user, userType, userIdentifier);
   return rendered;
 }
 
@@ -23,13 +25,13 @@ function summaryRow(key: string) {
 }
 
 describe("Check and complete the user details", () => {
-  it("AC7: shows user type, user number and environment, with Change links for the first two", async () => {
+  it("AC7: shows user type, user identifier and environment, with Change links for the first two", async () => {
     await openDetails();
 
     expect(summaryRow("User type")).toHaveTextContent("Government");
     expect(within(summaryRow("User type")).getByRole("link", { name: "Change user type" })).toBeInTheDocument();
-    expect(summaryRow("User number")).toHaveTextContent("100001");
-    expect(within(summaryRow("User number")).getByRole("link", { name: "Change user number" })).toBeInTheDocument();
+    expect(summaryRow("User identifier")).toHaveTextContent("U100001");
+    expect(within(summaryRow("User identifier")).getByRole("link", { name: "Change user identifier" })).toBeInTheDocument();
     expect(summaryRow("Environment")).toHaveTextContent("Test environment");
     expect(within(summaryRow("Environment")).queryByRole("link")).not.toBeInTheDocument();
   });
@@ -47,8 +49,9 @@ describe("Check and complete the user details", () => {
     await openDetails();
 
     expect(summaryRow("First name")).toHaveTextContent("Alex");
-    expect(summaryRow("Last name")).toHaveTextContent("Example");
+    expect(summaryRow("Surname")).toHaveTextContent("Example");
     expect(summaryRow("Email address")).toHaveTextContent("alex.example@example.test");
+    expect(summaryRow("Manager X number")).toHaveTextContent("X000001");
     expect(summaryRow("Job title")).toHaveTextContent("Policy officer");
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
     expect(within(summaryRow("First name")).queryByRole("link")).not.toBeInTheDocument();
@@ -70,14 +73,14 @@ describe("Check and complete the user details", () => {
   });
 
   it("AC7: says when the locations are loading", async () => {
-    await openDetails("Government", "100001", "locationsSlow");
+    await openDetails("Government", "U100001", "locationsSlow");
 
     expect(screen.getByRole("status")).toHaveTextContent("Loading locations");
     expect(screen.getByRole("combobox", { name: "Location" })).toBeDisabled();
   });
 
   it("AC7: says when the locations cannot be loaded", async () => {
-    await openDetails("Government", "100001", "locationsServerError");
+    await openDetails("Government", "U100001", "locationsServerError");
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Sorry, the list of locations could not be loaded. Try again later.",
@@ -97,7 +100,7 @@ describe("Check and complete the user details", () => {
   });
 
   it("AC8: will not continue when a retrieved mandatory detail is missing", async () => {
-    const { user } = await openDetails("Forestry", "200002");
+    const { user } = await openDetails("Forestry", "Z200002");
     await screen.findByRole("option", { name: "Perth" });
     await user.selectOptions(screen.getByRole("combobox", { name: "Location" }), "Perth");
     expect(summaryRow("Job title")).toHaveTextContent("Not provided");
@@ -111,8 +114,33 @@ describe("Check and complete the user details", () => {
     expect(screen.getByRole("heading", { level: 1, name: headings.userDetails })).toBeInTheDocument();
   });
 
+  it("AC8: will not continue when the manager X number is missing", async () => {
+    server.use(
+      http.get("*/users/:userIdentifier", () =>
+        HttpResponse.json({
+          userIdentifier: "U100001",
+          firstName: "Alex",
+          surname: "Example",
+          email: "alex.example@example.test",
+          jobTitle: "Policy officer",
+        }),
+      ),
+    );
+    const { user } = await openDetails();
+    await screen.findByRole("option", { name: "Perth" });
+    await user.selectOptions(screen.getByRole("combobox", { name: "Location" }), "Perth");
+    expect(summaryRow("Manager X number")).toHaveTextContent("Not provided");
+
+    await user.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "The user's manager X number is missing. It must be added to their record before you can continue.",
+    );
+    expect(screen.getByRole("heading", { level: 1, name: headings.userDetails })).toBeInTheDocument();
+  });
+
   it("AC9: Change user type goes back with the current choice kept", async () => {
-    const { user } = await openDetails("Nature", "300003");
+    const { user } = await openDetails("Nature", "GAKWO300003");
 
     await user.click(screen.getByRole("link", { name: "Change user type" }));
 
@@ -120,16 +148,16 @@ describe("Check and complete the user details", () => {
     expect(screen.getByRole("radio", { name: "Nature" })).toBeChecked();
   });
 
-  it("AC9: Change user number goes back with the current number kept", async () => {
+  it("AC9: Change user identifier goes back with the current number kept", async () => {
     const { user } = await openDetails();
 
-    await user.click(screen.getByRole("link", { name: "Change user number" }));
+    await user.click(screen.getByRole("link", { name: "Change user identifier" }));
 
-    await findHeading(headings.userNumber);
-    expect(screen.getByRole("textbox", { name: "User number" })).toHaveValue("100001");
+    await findHeading(headings.userIdentifier);
+    expect(screen.getByRole("textbox", { name: "User identifier" })).toHaveValue("U100001");
   });
 
-  it("AC7: moves to the JIRA ticket step once complete", async () => {
+  it("AC7: moves to the JSM/Jira ticket step once complete", async () => {
     const { user } = await openDetails();
 
     await screen.findByRole("option", { name: "Inverness" });

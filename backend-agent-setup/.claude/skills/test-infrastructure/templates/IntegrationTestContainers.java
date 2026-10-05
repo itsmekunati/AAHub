@@ -24,21 +24,21 @@ public class IntegrationTestContainers {
 
     @Bean
     @ServiceConnection
-    OracleContainer oracle() {
+    OracleContainer futuresDatabase() { // the Futures Database is an Oracle database
         return new OracleContainer("gvenzl/oracle-free:VERIFY-TAG");
     }
 
     @Bean
-    GenericContainer<?> apacheds() {
-        var image = new ImageFromDockerfile("test-apacheds", false)
-                .withFileFromPath(".", Path.of("src/test/docker/apacheds"))
-                .withBuildArg("APACHEDS_VERSION", "VERIFY-VERSION");
+    GenericContainer<?> opendj() {
+        var image = new ImageFromDockerfile("test-opendj", false)
+                .withFileFromPath(".", Path.of("src/test/docker/opendj"))
+                .withBuildArg("OPENDJ_IMAGE", "VERIFY-IMAGE:VERIFY-TAG");
         return new GenericContainer<>(image)
-                .withExposedPorts(10389)
+                .withExposedPorts(1389) // VERIFY: OpenDJ's default LDAP port
                 .withEnv("LDAP_ADMIN_PASSWORD", LDAP_ADMIN_PASSWORD)
                 .waitingFor(Wait.forListeningPort());
         // VERIFY: after start, load src/test/resources/ldap/test-seed.ldif (e.g. copy it in and run ldapadd),
-        // and replace the distribution's default admin password with LDAP_ADMIN_PASSWORD.
+        // and set the directory manager password to LDAP_ADMIN_PASSWORD (VERIFY the image's own setting for it).
     }
 
     // S3: see docs/open-questions.md #12. If LocalStack is approved, declare it here with
@@ -46,9 +46,9 @@ public class IntegrationTestContainers {
     // Until then, S3 tests use a mocked S3 client.
 
     @Bean
-    DynamicPropertyRegistrar externalServiceProperties(GenericContainer<?> apacheds) {
+    DynamicPropertyRegistrar externalServiceProperties(GenericContainer<?> opendj) {
         return registry -> {
-            registry.add("spring.ldap.urls", () -> "ldap://" + apacheds.getHost() + ":" + apacheds.getMappedPort(10389));
+            registry.add("spring.ldap.urls", () -> "ldap://" + opendj.getHost() + ":" + opendj.getMappedPort(1389));
             registry.add("app.audit.s3.bucket", () -> AUDIT_BUCKET);
             // VERIFY: property names match the application's configuration classes.
         };

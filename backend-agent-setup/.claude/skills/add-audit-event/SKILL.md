@@ -23,7 +23,7 @@ Relevant rules: `.claude/rules/tdd.md`, `audit-logging.md`. Full schema: `docs/r
 ## 3. Green: emit the record
 - Emit through the single audit component in `audit/` (create it in the first sprint that needs it, test-first). Never log audit events ad hoc with `log.info` in business code, and never write files directly.
 - Contextual fields come from MDC automatically: `correlationId`, `username`, `subjectId`, `environment`, `instanceId`, `requestPath`, `clientIp`. Do not pass them by hand.
-- Supply the event-specific fields: target user, component, destination host/port/protocol for outbound calls (LDAP, Oracle, S3).
+- Supply the event-specific fields: target user, component, destination host/port/protocol for outbound calls (LDAP, Futures Database, S3).
 - Emit on success **and** failure (including exceptions caught and rethrown); for multi-step flows, one record per step plus the overall outcome.
 - Outside a request (e.g. the S3 scheduled job), populate MDC with a generated correlation ID and clear it afterwards.
 

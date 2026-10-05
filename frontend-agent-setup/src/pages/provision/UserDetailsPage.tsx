@@ -46,7 +46,7 @@ export function UserDetailsPage() {
   return (
     <Page title="Check and complete the user details" hasErrors={errors.length > 0}>
       <ErrorSummary errors={errors} />
-      <SummaryList items={requestSummary(userType, state.userNumber)} />
+      <SummaryList items={requestSummary(userType, state.userIdentifier)} />
       <div className="ds_inset-text">
         <div className="ds_inset-text__text">
           <p>The fields below are mandatory in order to create a user provisioning request.</p>

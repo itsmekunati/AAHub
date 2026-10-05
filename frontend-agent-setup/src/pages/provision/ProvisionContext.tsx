@@ -1,12 +1,12 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { DirectoryUser, UserType } from "../../services/provisioning";
 
-export type SubmissionOutcome = { succeeded: true; requestId: string } | { succeeded: false; reason: string };
+export type SubmissionOutcome = { succeeded: true; transactionId: string } | { succeeded: false; reason: string };
 
 export interface ProvisionState {
   userType?: UserType;
-  userNumber: string;
-  /** The user returned by the lookup; set only once the user number has been validated. */
+  userIdentifier: string;
+  /** The user returned by the lookup; set only once the user identifier has been validated. */
   user?: DirectoryUser;
   location?: string;
   ticketId: string;
@@ -16,14 +16,14 @@ export interface ProvisionState {
 interface ProvisionContextValue {
   state: ProvisionState;
   chooseUserType: (userType: UserType) => void;
-  userValidated: (userNumber: string, user: DirectoryUser) => void;
+  userValidated: (userIdentifier: string, user: DirectoryUser) => void;
   chooseLocation: (location: string) => void;
   submissionFinished: (ticketId: string, outcome: SubmissionOutcome) => void;
 }
 
 const ProvisionContext = createContext<ProvisionContextValue | undefined>(undefined);
 
-const initialState: ProvisionState = { userNumber: "", ticketId: "" };
+const initialState: ProvisionState = { userIdentifier: "", ticketId: "" };
 
 /** Holds the journey's answers. It lives only while the operator is inside /provision. */
 export function ProvisionProvider({ children }: { children: ReactNode }) {
@@ -34,14 +34,14 @@ export function ProvisionProvider({ children }: { children: ReactNode }) {
       state,
       chooseUserType: (userType) =>
         setState((current) =>
-          current.userType === userType ? current : { ...initialState, userNumber: current.userNumber, userType },
+          current.userType === userType ? current : { ...initialState, userIdentifier: current.userIdentifier, userType },
         ),
-      userValidated: (userNumber, user) =>
+      userValidated: (userIdentifier, user) =>
         setState((current) => ({
           ...current,
-          userNumber,
+          userIdentifier,
           user,
-          location: current.user?.userNumber === user.userNumber ? current.location : undefined,
+          location: current.user?.userIdentifier === user.userIdentifier ? current.location : undefined,
         })),
       chooseLocation: (location) => setState((current) => ({ ...current, location })),
       submissionFinished: (ticketId, outcome) => setState((current) => ({ ...current, ticketId, outcome })),

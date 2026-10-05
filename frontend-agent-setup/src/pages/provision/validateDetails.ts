@@ -9,8 +9,8 @@ import { mandatoryDetails } from "./userSummary";
 export function validateDetails(user: DirectoryUser, location: string): FormError[] {
   const errors: FormError[] = mandatoryDetails
     .filter(({ field }) => !user[field].trim())
-    .map(({ key }) => ({
-      message: `The user's ${key.toLowerCase()} is missing. It must be added to their record before you can continue.`,
+    .map(({ name }) => ({
+      message: `The user's ${name} is missing. It must be added to their record before you can continue.`,
     }));
   if (!location) {
     errors.push({ fieldId: "location", message: "Select a location" });

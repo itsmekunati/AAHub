@@ -1,11 +1,11 @@
 ---
 name: ldap-gateway
-description: Test-first procedure for building or changing the ApacheDS gateway in ldap/ with Spring LDAP - configuration-driven DNs and attributes, injection-safe filters and DNs, role assignment and removal, error mapping, and integration tests against a containerised ApacheDS. Use this whenever you add or change any code that reads or writes LDAP entries, groups or role memberships.
+description: Test-first procedure for building or changing the OpenDJ gateway in ldap/ with Spring LDAP - configuration-driven DNs and attributes, injection-safe filters and DNs, role assignment and removal, error mapping, and integration tests against a containerised OpenDJ. Use this whenever you add or change any code that reads or writes LDAP entries, groups or role memberships.
 ---
 
-# ApacheDS gateway (test-first)
+# OpenDJ gateway (test-first)
 
-Relevant rules: `.claude/rules/ldap.md`, `tdd.md`, `provisioning.md`, `audit-logging.md`, `code-style.md`. Use the `tdd-cycle` loop and the `test-infrastructure` skill (ApacheDS container, `Outages`, `AuditLogCapture`).
+Relevant rules: `.claude/rules/ldap.md`, `tdd.md`, `provisioning.md`, `audit-logging.md`, `code-style.md`. Use the `tdd-cycle` loop and the `test-infrastructure` skill (OpenDJ container, `Outages`, `AuditLogCapture`).
 
 ## 1. Check the open decisions
 - How internal and external users and their roles are modelled (OUs, groups, object classes) and whether LDAPS is used are open (`docs/open-questions.md` #2). If the contract does not settle what you need, **stop and ask**, or keep the choice in configuration with no guessed production values.
@@ -21,12 +21,12 @@ Relevant rules: `.claude/rules/ldap.md`, `tdd.md`, `provisioning.md`, `audit-log
 - Filters are built with the query builder, never by concatenation.
 - Spring LDAP exceptions map to the right gateway exceptions.
 
-**Integration tests** against the ApacheDS container (seeded with fake entries):
+**Integration tests** against the OpenDJ container (seeded with fake entries):
 - create a user in the internal and in the external OU; find it again;
 - assign a role, then read it back; remove it; assigning twice or removing a missing role behaves as the contract says;
 - **injection attempts** in uid, name and email values (for example `*`, `)(uid=*`, `\`, `,`, `+`, `=`) are stored or searched literally, never interpreted;
 - not found and already-exists cases map to the right gateway exceptions;
-- **outage**: with `Outages.pause(apacheds)` the call fails fast (short timeout) with the "unavailable" exception.
+- **outage**: with `Outages.pause(opendj)` the call fails fast (short timeout) with the "unavailable" exception.
 
 Run them, confirm they fail for the right reason, record the red evidence, and commit `test(sprint-NN): ACn failing tests`.
 

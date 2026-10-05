@@ -13,7 +13,7 @@ export function ConfirmUserPage() {
   if (!state.user) {
     return <Navigate to={paths.userType} replace />;
   }
-  const { firstName, lastName } = state.user;
+  const { firstName, surname } = state.user;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,7 +22,7 @@ export function ConfirmUserPage() {
 
   return (
     <Page title="Check this is the right user">
-      <SummaryList items={[{ key: "Full name", value: `${firstName} ${lastName}`.trim() }]} />
+      <SummaryList items={[{ key: "Full name", value: `${firstName} ${surname}`.trim() }]} />
       <form noValidate onSubmit={handleSubmit}>
         <FormButtons submitLabel="Next" onCancel={() => void navigate("/")} />
       </form>
