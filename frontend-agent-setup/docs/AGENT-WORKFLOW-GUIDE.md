@@ -66,7 +66,7 @@ The project rules are split into layers, so each agent reads only what the curre
 |---|---|---|---|
 | 1. Core rules | `CLAUDE.md` (repository root) | Always, in every session and every agent | Overview, stack, key principles, non-negotiable rules (accessibility, tokens, secrets, API contract), commands, rules for Claude, and where to find the layers below |
 | 2. Area rules | `.claude/rules/*.md` | Automatically, when an agent works on a file matching the rule's `paths:` | Detailed rules for one area: Design System, forms and accessibility, auth, API client, tests, E2E, deployment |
-| 3. Procedures | `.claude/skills/<name>/SKILL.md` | When the task needs it, or preloaded into an agent | Step-by-step how-tos: `tdd-cycle`, `test-infrastructure`, `auth-integration`, `data-page`, `sg-design-system-component`, `form-with-server-errors`, `add-api-call`, `assess-spec-sync-pr`, `sprint-rubric` |
+| 3. Procedures | `.claude/skills/<name>/SKILL.md` | When the task needs it, or preloaded into an agent | Step-by-step how-tos: `tdd-cycle`, `test-infrastructure`, `auth-integration`, `data-page`, `sg-design-system-component`, `form-with-server-errors`, `add-api-call`, `assess-spec-sync-pr`, `sprint-rubric`, `figma-to-react`, `review-code`, `commit`, `create-pr`, `release-ready`, `fix-bug`, `record-decision`, `changelog`, `a11y-audit`, `content-review` |
 | 4. Reference | `docs/reference/`, `docs/open-questions.md` | Only when an agent opens the file | The accessibility checklist, and decisions still to be made |
 
 ### Rule files and when they load
@@ -99,12 +99,22 @@ The project rules are split into layers, so each agent reads only what the curre
 | `auth-integration` | Sign-in, sign-out, tokens, session expiry, role-based visibility | PKCE, in-memory token, refresh, one place attaching the token |
 | `assess-spec-sync-pr` | A backend spec-sync pull request arrives | Diff, affected screens, breaking changes, remediation sprint |
 | `sprint-rubric` | Self-check and grading (preloaded into Generator and Evaluator) | Scores, pass threshold, severity guide |
+| `figma-to-react` | A design, mock-up or screenshot to build | Map to Design System components, confirm, build test-first, compare |
+| `review-code` | Reviewing a branch, diff or commit range, and before a pull request | The Evaluator's code-level checks and the rule files applied to a diff, findings by severity, read-only |
+| `commit` | You run `/commit` | Safe staging, fast checks, message in the repo's style, hook never bypassed |
+| `create-pr` | You run `/create-pr` | Review, checks, PR description file and the push commands for you to run; never pushes |
+| `release-ready` | You run `/release-ready` | Build, bundle scan, accessibility, open questions; READY / NOT READY report |
+| `fix-bug` | Fixing any bug, including evaluation bugs | Reproduce, failing test committed first, smallest fix, same bug elsewhere |
+| `record-decision` | An open question has been answered | Procedure A: rule updated, waiting steps updated, row removed, `docs(rules)` commit |
+| `changelog` | You run `/changelog` | Release notes grouped for readers; added to `CHANGELOG.md` only if you agree |
+| `a11y-audit` | Every sprint evaluation (preloaded into the Evaluator), and accessibility checks before a release | axe, keyboard, focus, structure and reflow in a real browser (Playwright or Chrome) for every route and scenario; read-only |
+| `content-review` | Checking wording, error messages and page titles | Plain English, sentence case, Design System patterns; suggested rewrites; read-only |
 
 ### How the agents use the layers
 
 - **Planner** does not edit source files, so rules would not load for it automatically. It reads the relevant rule files, `docs/open-questions.md` and `openapi/openapi.json` itself, and lists rules and skills in each sprint contract as `relevantRules` and `relevantSkills`. It uses the `assess-spec-sync-pr` skill for backend spec changes.
 - **Generator** reads the rules and skills named in the contract before it starts. Other rules load automatically as it edits matching files. The `tdd-cycle` skill (its working loop) and the `sprint-rubric` skill (its self-check) are preloaded.
-- **Evaluator** reads the rules named in the contract plus `forms-accessibility.md`, `testing.md` and `tdd.md`, and tests every item in `docs/reference/accessibility-checklist.md`. The same `sprint-rubric` skill is preloaded, so the Generator and Evaluator grade the same way.
+- **Evaluator** reads the rules named in the contract plus `forms-accessibility.md`, `testing.md` and `tdd.md`, and tests every item in `docs/reference/accessibility-checklist.md`. The same `sprint-rubric` skill is preloaded, so the Generator and Evaluator grade the same way, and so is the `a11y-audit` skill, which it uses for the accessibility checks in the browser.
 
 ### Keeping the layers healthy
 
@@ -340,7 +350,17 @@ Copy the three agent files into the repository so the folder looks like this:
 │       ├── data-page/SKILL.md
 │       ├── form-with-server-errors/SKILL.md
 │       ├── sg-design-system-component/SKILL.md
-│       └── sprint-rubric/SKILL.md
+│       ├── sprint-rubric/SKILL.md
+│       ├── figma-to-react/SKILL.md
+│       ├── fix-bug/SKILL.md
+│       ├── a11y-audit/SKILL.md
+│       ├── content-review/SKILL.md
+│       ├── review-code/SKILL.md
+│       ├── commit/SKILL.md
+│       ├── create-pr/SKILL.md
+│       ├── release-ready/SKILL.md
+│       ├── changelog/SKILL.md
+│       └── record-decision/SKILL.md
 ├── docs/
 │   ├── AGENT-WORKFLOW-GUIDE.md    ← this file
 │   ├── open-questions.md

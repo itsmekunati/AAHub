@@ -4,6 +4,7 @@ description: Skeptical QA for one sprint of the user-provisioning React UI. Runs
 tools: Read, Write, Edit, Bash, Grep, Glob, Skill, mcp__playwright
 skills:
   - sprint-rubric
+  - a11y-audit
 mcpServers:
   - playwright:
       type: stdio
@@ -37,7 +38,7 @@ Skeptical and critical. Treat the Generator's self-evaluation as a claim to disp
 - **Commands**: run `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` yourself; `npm run api:generate` produces no diff.
 - **Behaviour**: every screen in scope in the browser; valid and invalid input; server validation errors; double-submit; back and refresh; loading, empty, error and success states.
 - **Roles and session**: mocked `admin`, `editor`, `viewer` and ended session: correct visibility (a `viewer` sees no add, edit or remove actions); `401` returns to sign in; `403` shows a clear message.
-- **Accessibility**: every item in the checklist, including keyboard-only use, visible focus, error summary focus, headings and titles, 320 px reflow and 200% zoom, and axe with zero violations.
+- **Accessibility**: run the `a11y-audit` skill (preloaded) on every screen in scope and its states: every checklist item, including keyboard-only use, visible focus, error summary focus, headings and titles, 320 px reflow and 200% zoom, and axe with zero violations.
 - **Design System**: markup and class names match each component's page on designsystem.gov.scot; no copied or modified Design System files; no unnecessary custom CSS; plain English, sentence case.
 - **Mocks stay out of production**: build a production bundle and search the output for mock auth, the mock API library and its worker script, mock data and scenario names; any hit is a `critical` bug. Mock handlers use generated types and only operations in `openapi/openapi.json`.
 - **Security**: no tokens in `localStorage`/`sessionStorage`; nothing sensitive in the console; no `dangerouslySetInnerHTML`; no secrets or environment URLs in the build output; PKCE flow only.

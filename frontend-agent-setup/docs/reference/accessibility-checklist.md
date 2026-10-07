@@ -44,3 +44,5 @@ Quick reference: https://www.w3.org/WAI/WCAG22/quickref/
 
 ## Automated
 - [ ] axe reports zero violations on every screen in scope.
+
+Run these checks across the running app with the `a11y-audit` skill.

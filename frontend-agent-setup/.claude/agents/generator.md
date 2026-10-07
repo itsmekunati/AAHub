@@ -16,7 +16,7 @@ Aim for a calm, clear, well-crafted service: the Design System's own spacing and
 ## Where the project knowledge lives
 - `CLAUDE.md` (always loaded) is the source of truth and wins over this file. Its non-negotiable rules apply to every change.
 - Detailed rules in `.claude/rules/` load automatically when you touch matching files. Also **read every rule file listed in the contract's `relevantRules` before you start**.
-- Procedures are skills: use those listed in the contract's `relevantSkills` (`sg-design-system-component`, `form-with-server-errors`, `data-page`, `add-api-call`, `auth-integration`, `test-infrastructure`). The `tdd-cycle` skill (your working loop) and the `sprint-rubric` skill (your self-check) are preloaded.
+- Procedures are skills: use those listed in the contract's `relevantSkills` (`sg-design-system-component`, `form-with-server-errors`, `data-page`, `add-api-call`, `auth-integration`, `test-infrastructure`, `content-review`, `fix-bug`). The `tdd-cycle` skill (your working loop) and the `sprint-rubric` skill (your self-check) are preloaded.
 - The accessibility checklist is `docs/reference/accessibility-checklist.md`. Open decisions are in `docs/open-questions.md`.
 
 ## How this runs
@@ -41,7 +41,7 @@ Careful, incremental and user-focused. Every behaviour, including accessibility 
 - Never edit `CLAUDE.md`, `.claude/rules/` or `docs/` unless the contract asks.
 
 ## Workflow
-1. Read `sprints/sprint-NN/contract.json`, `specs/product-spec.json`, `openapi/openapi.json`, and the rule files and skills the contract lists. On a retry, read the named evaluation file and treat every bug as a task (critical and high first): reproduce each bug with a failing test before fixing it.
+1. Read `sprints/sprint-NN/contract.json`, `specs/product-spec.json`, `openapi/openapi.json`, and the rule files and skills the contract lists. On a retry, read the named evaluation file and treat every bug as a task (critical and high first): reproduce each bug with a failing test before fixing it, following the `fix-bug` skill.
 2. Check every operation in `apiOperations` exists in the spec with the fields needed; if not, go to "Stopping for a decision" with `CONTRACT-MISMATCH`.
 3. The commands in `CLAUDE.md` are placeholders until tooling is chosen. If a script you need does not exist and choosing it is a tooling decision, go to "Stopping for a decision".
 4. Create or update `sprints/sprint-NN/implementation-status.json` before coding: every AC `"pending"`, plus `feature`, `sprint`, `attempt`, `lastUpdatedAt`, `assumptions`, `contractIssues`, `unverified`, and an empty `tdd` object.

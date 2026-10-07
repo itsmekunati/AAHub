@@ -16,4 +16,4 @@ paths:
 - Do not guess what the UI sends or expects. If a task depends on frontend behaviour, ask for the relevant request/response or frontend code.
 - Whether the UI and API share an origin through OpenShift routing (and so whether CORS is needed) is still open: see `docs/open-questions.md`.
 
-For the step-by-step procedure, use the `add-endpoint` skill.
+For the step-by-step procedure, use the `add-endpoint` skill. To check a change for breaking changes, use the `api-contract-diff` skill.

@@ -25,4 +25,4 @@ paths:
 ## Content
 - Follow the Design System's writing guidance: plain English, sentence case, no jargon.
 
-For the step-by-step procedure, use the `form-with-server-errors` skill.
+For the step-by-step procedure, use the `form-with-server-errors` skill. To check the running app, use `a11y-audit`; to check wording, use `content-review`.

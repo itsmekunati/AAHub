@@ -62,7 +62,7 @@ The project rules are split into layers, so each agent reads only what the curre
 |---|---|---|---|
 | 1. Core rules | `CLAUDE.md` (repository root) | Always, in every session and every agent | Overview, stack, architecture, data ownership, non-negotiable security rules, commands, rules for Claude, and where to find the layers below |
 | 2. Area rules | `.claude/rules/*.md` | Automatically, when an agent works on a file matching the rule's `paths:` | Detailed rules for one area: audit logging, LDAP, Futures Database, Okta, testing, deployment and so on |
-| 3. Procedures | `.claude/skills/<name>/SKILL.md` | When the task needs it, or preloaded into an agent | Step-by-step how-tos: `tdd-cycle`, `test-infrastructure`, `add-endpoint`, `provisioning-flow`, `add-audit-event`, `ldap-gateway`, `futures-persistence`, `sprint-rubric` |
+| 3. Procedures | `.claude/skills/<name>/SKILL.md` | When the task needs it, or preloaded into an agent | Step-by-step how-tos: `tdd-cycle`, `test-infrastructure`, `add-endpoint`, `provisioning-flow`, `add-audit-event`, `ldap-gateway`, `futures-persistence`, `sprint-rubric`, `review-code`, `commit`, `create-pr`, `release-ready`, `fix-bug`, `record-decision`, `changelog`, `api-contract-diff`, `log-shipping` |
 | 4. Reference | `docs/reference/`, `docs/open-questions.md` | Only when an agent opens the file | Long reference material (the audit record schema) and decisions still to be made |
 
 ### Rule files and when they load
@@ -95,12 +95,21 @@ The project rules are split into layers, so each agent reads only what the curre
 | `ldap-gateway` | Reading or writing LDAP entries, groups or role memberships | Config-driven DNs, injection-safe filters, error mapping, OpenDJ container tests |
 | `futures-persistence` | Adding or changing a table, entity, repository or query | Migration first, explicit mapping with `ddl-auto: validate`, constraint and query tests |
 | `sprint-rubric` | Self-check and grading (preloaded into Generator and Evaluator) | Scores, pass threshold, severity guide |
+| `review-code` | Reviewing a branch, diff or commit range, and before a pull request | The Evaluator's code-level checks and the rule files applied to a diff, breaking API changes, findings by severity, read-only |
+| `commit` | You run `/commit` | Safe staging, fast checks, message in the repo's style, hook never bypassed |
+| `create-pr` | You run `/create-pr` | Review, full build, PR description with API contract notes, and the push commands for you to run; never pushes |
+| `release-ready` | You run `/release-ready` | Build, API contract diff, migrations, security and audit configuration, open questions; READY / NOT READY report |
+| `fix-bug` | Fixing any bug, including evaluation bugs | Reproduce at the fastest test level, failing test committed first, smallest fix, same bug elsewhere |
+| `record-decision` | An open question has been answered | Procedure A: rule updated, waiting steps updated, row removed, `docs(rules)` commit |
+| `changelog` | You run `/changelog` | Release notes grouped for readers, breaking API changes marked; added to `CHANGELOG.md` only if you agree |
+| `api-contract-diff` | A change touches `api/`, `exception/` or DTOs; PRs and releases (preloaded into the Evaluator) | Spec for the branch and the base, structural diff, breaking or non-breaking for the UI |
+| `log-shipping` | Building or changing log rotation or the S3 shipping job | Europe/London cutover, completed files only, upload confirmation, retries, IRSA, mocked S3 until #12 |
 
 ### How the agents use the layers
 
 - **Planner** does not edit source files, so rules would not load for it automatically. It reads the relevant rule files and `docs/open-questions.md` itself, and lists them in each sprint contract as `relevantRules` and `relevantSkills`.
 - **Generator** reads the rules and skills named in the contract before it starts. Other rules load automatically as it edits matching files. The `tdd-cycle` skill (its working loop) and the `sprint-rubric` skill (its self-check) are preloaded.
-- **Evaluator** reads the rules named in the contract plus `testing.md` and `tdd.md`, because it reviews rather than edits. The same `sprint-rubric` skill is preloaded, so the Generator and Evaluator grade the same way.
+- **Evaluator** reads the rules named in the contract plus `testing.md` and `tdd.md`, because it reviews rather than edits. The same `sprint-rubric` skill is preloaded, so the Generator and Evaluator grade the same way, and so is the `api-contract-diff` skill, which it uses to find API contract changes.
 
 ### Keeping the layers healthy
 
@@ -333,7 +342,16 @@ Copy the three agent files into the repository so the folder looks like this:
 │       ├── ldap-gateway/SKILL.md
 │       ├── futures-persistence/SKILL.md
 │       ├── provisioning-flow/SKILL.md
-│       └── sprint-rubric/SKILL.md
+│       ├── sprint-rubric/SKILL.md
+│       ├── api-contract-diff/SKILL.md
+│       ├── log-shipping/SKILL.md
+│       ├── fix-bug/SKILL.md
+│       ├── review-code/SKILL.md
+│       ├── commit/SKILL.md
+│       ├── create-pr/SKILL.md
+│       ├── release-ready/SKILL.md
+│       ├── changelog/SKILL.md
+│       └── record-decision/SKILL.md
 ├── docs/
 │   ├── AGENT-WORKFLOW-GUIDE.md    ← this file
 │   ├── open-questions.md
@@ -502,7 +520,7 @@ When a sprint passes, the Planner gives you a short summary. Before moving on, i
 | `git diff` | The commits for the sprint. Look for `!` and `BREAKING` in commit messages. |
 | `sprints/sprint-NN/evaluation-RR.json` | Scores, bugs found and fixed, `apiContract` changes. |
 | `sprints/sprint-NN/implementation-status.json` | The `tdd` red/green evidence per acceptance criterion, assumptions made, anything `unverified`. |
-| `openapi.json` diff | Any change that could break the frontend. |
+| `openapi.json` diff (from the `api-contract-diff` skill) | Any change that could break the frontend. |
 
 The agents make mistakes. The Evaluator reduces them but does not replace human code review.
 
