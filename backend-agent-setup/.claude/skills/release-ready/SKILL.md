@@ -12,7 +12,7 @@ Report only: change no files, and fix nothing without asking. Severity comes fro
 - `git status` is clean and the branch is up to date with its base (`git log HEAD..<base>` is empty).
 - `./mvnw clean verify` (needs Docker for the container tests; if Docker is unavailable, report **skipped**, not passed).
 - `bash .githooks/pre-commit --all`.
-- Snyk: only if it is turned on (`.githooks/snyk.conf` or `git config hooks.snyk`); run `bash .githooks/pre-push`. Never turn it on or sign in.
+- Snyk: run `bash .githooks/pre-push` as well. The two hook scripts run Snyk only when it is turned on, and their output says whether it ran; read `.githooks/snyk.conf` for the team default. Never run `git config` to check or change Snyk settings, turn it on or sign in (the protect-files hook refuses it).
 
 ## 2. API contract
 - Run the `api-contract-diff` skill against the last release (the latest tag, or the first commit if there are no tags).

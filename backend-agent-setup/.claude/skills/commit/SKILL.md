@@ -27,9 +27,10 @@ Relevant rules: `.claude/rules/tdd.md`. Never use `--no-verify` or `-n`, never c
 - No personal data, ticket contents, hostnames or environment names in the message.
 
 ## 4. Commit
+- Run `bash .githooks/pre-commit` on the staged files first. This works whether or not the Git hooks are turned on; never run `git config` to check or change them (the protect-files hook refuses it).
 - `git commit`, passing the message with a heredoc so it is not mangled.
 - If the pre-commit hook fails: fix what it reports, `git add` again, and make a **new** commit attempt (do not amend someone else's commit).
-- If the hooks are not turned on (`git config core.hooksPath` is empty), run `bash .githooks/pre-commit` by hand before committing and tell the user to run `git config core.hooksPath .githooks` once.
+- If the commit output shows no lint hook running, remind the user of the once-per-clone hook set-up in `CLAUDE.md` ("Commands"); do not run it yourself.
 - If Snyk blocks the commit, report the issue and stop.
 
 ## 5. Report
