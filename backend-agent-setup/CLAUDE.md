@@ -12,7 +12,7 @@ Java 25 (LTS), Spring Boot 4.1.x and Maven (via the committed wrapper). This API
 
 - **OpenDJ (LDAP)**, through Spring LDAP: the system of record for user **roles**.
 - **The Futures Database** (an Oracle database in ROSA), through Spring Data JPA: the system of record for **user details and provisioning records**.
-- **The audit log:** single-line JSON in a local file, rotated daily and shipped to AWS S3. It is never a source of truth for user state.
+- **The audit log:** single-line JSON in a local file, rotated daily and shipped to AWS S3. It is never a source of truth for user state. Application logs go to a separate file that is rotated and shipped the same way.
 
 Authentication is Okta (OIDC); this API is an OAuth2 resource server. The OpenAPI contract is generated from the code with springdoc-openapi 3.x. Delivery is GitHub Actions, ROSA (OpenShift) and Argo CD.
 

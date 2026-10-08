@@ -9,7 +9,7 @@ When a question is answered: record the decision in the matching rule file under
 | 1 | Internal email domains (User Role Management): gov.uk, Forestry and Nature domains are internal. What are the exact Forestry and Nature domains, do subdomains count (e.g. any `*.gov.uk`), and is the list the same in every environment? Which domains are internal in the test environment? | Classification, tests | `user-classification.md` |
 | 2 | OpenDJ schema: how are internal vs external users and roles modelled (OUs, groups, custom object classes)? Is it accessed over LDAPS? Which OpenDJ distribution and version runs in production (the test container must match it)? | LDAP gateway | `ldap.md` |
 | 3 | What does the Futures Database schema for user details and provisioning look like? | Entities, migrations | `futures-db.md` |
-| 4 | Which S3 bucket/prefix, and which AWS account? | Shipping job | `log-shipping.md` |
+| 4 | Which S3 bucket/prefix, and which AWS account? Do audit and application log files share one prefix (told apart by file name) or have a prefix each? | Shipping job | `log-shipping.md` |
 | 5 | How often does the S3 shipping scheduler run (once shortly after each cutover, or more frequently as a safety margin)? | Shipping job | `log-shipping.md` |
 | 6 | Does the local log directory need a persistent volume, given pods can be rescheduled before that day's file is shipped? | Shipping, deployment | `log-shipping.md`, `deploy.md` |
 | 7 | What may `admin` and `editor` each do (permission matrix)? Can an `editor` create external users, or assign roles? (`viewer` is decided: read-only, see `security-okta.md`.) | Every endpoint | `security-okta.md` |

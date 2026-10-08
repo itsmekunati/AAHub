@@ -47,15 +47,25 @@ The UI reports things this API cannot see for itself (a journey started or cance
 ## Implementation standards
 
 - Use **SLF4J** for the logging API, **Logback** (Spring Boot's native integration) as the framework, **Logstash Logback Encoder** for JSON, and **MDC** for correlation and contextual fields. Prefer these over custom logging implementations.
-- Audit logs and application logs go to the **same log file** and follow the same rotation, shipping and retention policies (see `.claude/rules/log-shipping.md`).
-- Logs are **single-line JSON records** (JSON Lines / NDJSON). One event produces exactly one record. Records never span multiple lines and are machine-parseable without transformation, suitable for SIEM and log aggregation.
-- All events share **one base schema**. Event-specific fields may be added, but the mandatory fields must always be present.
+- Audit logs and application logs go to **two separate files**, one per log type, and both follow the same rotation, shipping and retention policies (see `.claude/rules/log-shipping.md`).
+- Both are **single-line JSON records** (JSON Lines / NDJSON). One event produces exactly one record. Records never span multiple lines and are machine-parseable without transformation, suitable for SIEM and log aggregation.
+- Every record carries `logType`: `AUDIT` in the audit file, `APPLICATION` in the application file. Set it in the Logback configuration for each appender, never in business code.
+- All audit events share **one base schema**. Event-specific fields may be added, but the mandatory fields must always be present.
 - Audit log writes are thread-safe and reliable. Audit logs are not written to a database.
 - Do not duplicate authentication auditing that already exists in Okta.
 
+## Audit log and application log
+
+- **The audit file** holds audit records only. A dedicated audit logger writes to it and does not pass its records on to the application file. Every record in it meets the mandatory fields below.
+- **The application file** holds everything else: diagnostic output for developers and support (start-up, retries, debug detail, stack traces). Each record has the timestamp, level, logger, message and the MDC context, not the audit schema.
+- An auditable event is always an audit record. Never rely on an application log line to show that something happened; a failure may also be logged to the application file with its stack trace, joined to the audit record by `correlationId`.
+- The same limits apply to both: no passwords, credentials, secrets, access tokens or unnecessary personal data.
+
+For an example of one failed request in both files, read `docs/reference/audit-record-schema.md`.
+
 ## Mandatory fields
 
-Every record includes: activity type; event category; outcome (Allowed, Denied, Success, Failure); description; reason code or failure reason where applicable; ISO-8601 timestamp with timezone; application/service name; process or component; correlation identifier; transaction ID and JSM/Jira ticket for every transaction (see `.claude/rules/transactions.md`); operator username; operator identifier (subject ID from the validated token); source hostname and IP; destination hostname, IP, source port, destination port and network protocol where applicable; affected user account; environment identifier; application instance or pod identifier.
+Every audit record includes: activity type; event category; outcome (Allowed, Denied, Success, Failure); description; reason code or failure reason where applicable; ISO-8601 timestamp with timezone; application/service name; process or component; correlation identifier; transaction ID and JSM/Jira ticket for every transaction (see `.claude/rules/transactions.md`); operator username; operator identifier (subject ID from the validated token); source hostname and IP; destination hostname, IP, source port, destination port and network protocol where applicable; affected user account; environment identifier; application instance or pod identifier.
 
 For the full schema and an example record, read `docs/reference/audit-record-schema.md`.
 
