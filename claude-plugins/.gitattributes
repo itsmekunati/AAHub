@@ -1,0 +1,3 @@
+*.sh text eol=lf
+plugins/*/templates/githooks/* text eol=lf
+*.conf text eol=lf

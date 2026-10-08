@@ -1,0 +1,22 @@
+---
+paths:
+  - "src/**/*.test.ts"
+  - "src/**/*.test.tsx"
+  - "src/**/*.spec.ts"
+  - "src/**/*.spec.tsx"
+  - "src/**/__tests__/**"
+  - "src/mocks/**"
+  - "src/test/**"
+---
+# Component tests
+
+Shared test helpers (mock API server, `renderPage` with persona, scenario and route, mock auth, axe helper, typed fakes) are built and used with the `react-ui-kit:test-infrastructure` skill. All tests are written **before** the code they cover (see `.claude/rules/tdd.md` and the `react-ui-kit:tdd-cycle` skill). This file says **what** must be tested; `tdd.md` says **when and how**.
+
+- Test form validation and error states, including server validation errors shown as inline errors plus the error summary.
+- Test role-based visibility for each role the project defines using a **mocked auth interface**, never a real identity provider.
+- Test loading, empty, error and success states, and `401`/`403` handling.
+- Include automated accessibility checks (axe) for components and pages under test.
+- Use role/label-based queries (`getByRole`, `getByLabelText`) rather than CSS selectors or test IDs where possible.
+- Mock the API at the `src/services/` boundary using the generated types; never call a real backend.
+- The mock API is **Mock Service Worker (MSW)**: default handlers in `src/mocks/handlers.ts`, named error scenarios in `src/mocks/scenarios.ts`. Unhandled requests fail the test. Render pages with `renderPage(ui, { persona, scenario, route })` from `src/test/render.tsx`, and check accessibility with `expectNoAxeViolations` from `src/test/axe.ts`.
+- **Mock mode:** `npm run dev` starts the same MSW mock API in the browser. Pick an error scenario by adding `?scenario=<name>` to the first page load.

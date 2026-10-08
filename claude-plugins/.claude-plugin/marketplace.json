@@ -1,0 +1,17 @@
+{
+  "name": "team-agent-kits",
+  "description": "Sprint workflow plugins for Spring Boot APIs and React UIs",
+  "owner": { "name": "Ark" },
+  "plugins": [
+    {
+      "name": "springboot-api-kit",
+      "source": "./plugins/springboot-api-kit",
+      "description": "Test-first sprint workflow, skills, agents and a protect-files hook for Spring Boot APIs"
+    },
+    {
+      "name": "react-ui-kit",
+      "source": "./plugins/react-ui-kit",
+      "description": "Test-first sprint workflow, skills, agents and a protect-files hook for React UIs"
+    }
+  ]
+}
