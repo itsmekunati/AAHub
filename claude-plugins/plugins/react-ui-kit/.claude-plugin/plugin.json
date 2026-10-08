@@ -1,7 +1,7 @@
 {
   "name": "react-ui-kit",
   "displayName": "React UI kit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Test-first sprint workflow for React UIs: planner, generator and evaluator agents, procedure skills for pages, forms, API calls and accessibility, a protect-files hook, and a setup skill that copies rules, CLAUDE.md, permissions and Git hooks into a repository.",
   "author": { "name": "Ark" },
   "keywords": ["react", "typescript", "tdd", "accessibility", "workflow"]

@@ -326,7 +326,9 @@ Copy the three agent files into the repository so the folder looks like this:
 ├── .claude/
 │   ├── settings.json              ← permission rules and hook registration
 │   ├── hooks/
-│   │   └── protect-files.sh       ← protects secrets and critical files
+│   │   ├── protect-files.sh       ← protects secrets, critical files, tests and sprint files
+│   │   ├── check-agent-output.sh  ← sends a sprint agent back if its output file is missing
+│   │   └── session-start.sh       ← reports missing set-up at the start of a session
 │   ├── agents/
 │   │   ├── planner.md
 │   │   ├── generator.md
@@ -439,6 +441,24 @@ The hook still checks every auto-approved command, so `git commit --no-verify` o
 
 **Why two layers?** The permission rules in `settings.json` (`allow`, `ask`, `deny`) cover Claude's file tools. A shell command such as `cat .env` or `sed -i deploy/...` goes around them, so the hook checks every tool call, including shell commands, and denies or asks as needed. Deny always wins over ask, and ask over allow.
 
+**What is written, and by which agent**
+
+The same hook also looks at the text being written and at which agent is writing it:
+
+| Check | Trigger | Result |
+|---|---|---|
+| Secret scan | The text contains a private key, an AWS access key, or a GitHub or Slack token | Refused |
+| Secret scan, less certain | An address with a user name and password in it, a signed token (JWT), or a password, key or token written as a literal value. Not applied to tests and mocks, where fake values are normal | Asks you |
+| Test guard | An edit adds `.skip`, `.only`, `.todo`, `.fixme`, `xit`, `xdescribe`, `fit` or `fdescribe` to a test, or a shell command deletes a test file | Asks you |
+| Agent roles | The Generator writes a contract, `sprints/status.json`, the spec or an evaluation; the Evaluator writes anything in the repository except its own evaluation file; the Planner writes under `src/` or `e2e/` | Refused |
+
+A subagent cannot answer a question, so "asks you" stops the Generator and Evaluator outright. The secret scan and the role check cover Claude's file tools, not text written by a shell command, and the secret scan only knows the patterns above: it is a safety net, not a replacement for a secrets scanner in CI.
+
+**Two more hooks**
+
+- **When a sprint agent finishes** (`.claude/hooks/check-agent-output.sh`): while a sprint is in progress, the Generator is sent back if `self-eval.json` is missing (unless it recorded `needs-decision` or `contract-mismatch`), and the Evaluator is sent back if its newest evaluation file has no `PASS` or `FAIL` verdict. Each is sent back once, then allowed to finish, so a broken sprint cannot loop.
+- **When a session starts** (`.claude/hooks/session-start.sh`): you are told if neither `jq` nor `python3` is installed or if the Git hooks are not turned on in your clone, and Claude is told the current sprint and how many open questions remain. It changes nothing, and is silent when there is nothing to report.
+
 **What happens when something is blocked:** Claude is told why and is instructed not to work around it. It stops and tells you what change a person needs to make, and you make that change yourself.
 
 **Prerequisite:** the hook needs `jq` (or `python3`). Without either, it blocks tool calls and says so.
@@ -451,7 +471,7 @@ The hook still checks every auto-approved command, so `git commit --no-verify` o
 
 Run `/permissions` inside Claude Code to see the active rules.
 
-**Changing the rules:** edit `.claude/settings.json` or `.claude/hooks/protect-files.sh` yourself, in a reviewed pull request. Claude cannot edit them. For personal additions, use `.claude/settings.local.json` (not committed). Rules from both files are combined, and deny always wins.
+**Changing the rules:** edit `.claude/settings.json` or the scripts in `.claude/hooks/` yourself, in a reviewed pull request. Claude cannot edit them. For personal additions, use `.claude/settings.local.json` (not committed). Rules from both files are combined, and deny always wins.
 
 ### Step 5.5: Check the agents are recognised
 
@@ -834,7 +854,9 @@ These come from `CLAUDE.md` and the agent files. They apply to people as much as
 | `.githooks/pre-push` | People | Optional Snyk code check on push. |
 | `.githooks/snyk.conf`, `.githooks/snyk-lib.sh` | People | Snyk team defaults (off) and shared helper. Personal settings use `git config hooks.snyk...` (section 9). |
 | `.claude/settings.json` | People | Permission rules: allowed, ask-first and denied files and commands (Step 5.4). |
-| `.claude/hooks/protect-files.sh` | People | PreToolUse hook that protects secrets, critical files and real environments, including through shell commands (Step 5.4). |
+| `.claude/hooks/protect-files.sh` | People | PreToolUse hook that protects secrets, critical files and real environments, including through shell commands, and checks what is written and by which agent (Step 5.4). |
+| `.claude/hooks/check-agent-output.sh` | People | SubagentStop hook: a sprint agent cannot finish without its output file (Step 5.4). |
+| `.claude/hooks/session-start.sh` | People | SessionStart hook: reports missing set-up and gives Claude the sprint state (Step 5.4). |
 | `.claude/rules/*.md` | People | Detailed area rules; loaded when matching files are touched. |
 | `.claude/skills/*/SKILL.md` | People | Step-by-step procedures; loaded when needed. |
 | `docs/open-questions.md` | People | Decisions still to be made. |

@@ -87,9 +87,13 @@ claude --agent springboot-api-kit:planner     # plan a feature and run the sprin
 
 The Planner writes a spec and sprint contracts, the Generator builds each sprint test-first, and the Evaluator builds, runs and grades it. Skills used without the agents (commit, review, release check, changelog, bug fix) work on their own.
 
-## What the hook protects
+## What the hooks do
 
-The hook runs before every file and shell tool call and applies four tiers:
+Each plugin registers three hooks.
+
+### Before every file and shell tool call
+
+It decides by path, in four tiers:
 
 | Tier | Examples | Result |
 |---|---|---|
@@ -100,6 +104,31 @@ The hook runs before every file and shell tool call and applies four tiers:
 
 It also refuses `git push`, publishing, cloud and cluster CLIs, bypassing Git hooks, and switching Snyk on or off. Those are for a person.
 
+The same hook checks what is being written and who is writing it:
+
+| Check | Trigger | Result |
+|---|---|---|
+| Secret scan | The text being written contains a private key, an AWS access key, or a GitHub or Slack token | Denied |
+| Secret scan, less certain | An address with a user name and password, a signed token (JWT), or a password, key or token written as a literal value. Not applied to tests and mocks, where fake values are normal | You confirm |
+| Test guard | An edit adds `@Disabled` or `@Ignore` (API), or `.skip`, `.only`, `.todo`, `.fixme`, `xit`, `xdescribe`, `fit`, `fdescribe` (UI) to a test, or a shell command deletes a test file | You confirm |
+| Agent roles | The Generator writes a contract, the status file, the spec or an evaluation; the Evaluator writes anything in the repository except its evaluation file; the Planner writes under `src/` or `e2e/` | Denied |
+
+A subagent cannot answer a confirmation, so "you confirm" stops the Generator and Evaluator outright.
+
+### When a sprint agent finishes
+
+While a sprint is in progress, the Generator is sent back if `self-eval.json` is missing (unless it recorded `needs-decision` or `contract-mismatch`), and the Evaluator is sent back if its newest evaluation file has no `PASS` or `FAIL` verdict. Each is sent back once, then allowed to finish, so a broken sprint cannot loop.
+
+### When a session starts
+
+You are told if neither `jq` nor `python3` is installed, if the repository has not been set up, if the Git hooks are not turned on in your clone, or if `.template` files from setup are still waiting. Claude is told the current sprint and how many open questions remain. It is silent when there is nothing to report.
+
+### Limits
+
+- The secret scan looks at what the file tools write. It does not see text written by a shell command, and it only knows the patterns above; it is a safety net, not a replacement for a secrets scanner in CI.
+- The agent role check covers the file tools. The Generator and Evaluator also have a shell, which the existing shell rules narrow but do not close.
+- The role check goes by the agent's name, so a project agent of your own called `generator`, `evaluator` or `planner` gets the same limits.
+
 ## Updates
 
 - **Skills, agents and the hook** update with the plugin: `claude plugin update <plugin>@team-agent-kits`.
@@ -107,7 +136,7 @@ It also refuses `git push`, publishing, cloud and cluster CLIs, bypassing Git ho
 
 ## Maintaining the kits
 
-- Each plugin is a folder under `plugins/`: `agents/`, `skills/`, `hooks/hooks.json`, `scripts/` (the hook and the setup script) and `templates/` (everything setup copies, with packs under `templates/packs/`).
+- Each plugin is a folder under `plugins/`: `agents/`, `skills/`, `hooks/hooks.json`, `scripts/` (the three hook scripts and the setup script) and `templates/` (everything setup copies, with packs under `templates/packs/`).
 - Keep application-specific content out. If something only fits one application, it belongs in that repository's own rules or skills.
 - After any change, run `claude plugin validate . --strict` here, and bump `version` in the plugin's `.claude-plugin/plugin.json` so users receive it.
 - Shell scripts must keep LF line endings; `.gitattributes` enforces this.
