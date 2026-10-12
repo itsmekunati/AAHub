@@ -15,7 +15,8 @@ A **transaction** is any request that creates, changes or removes something: pro
 - **Every transaction must carry a JSM/Jira ticket.** A request with a missing, empty or blank ticket is a `400` validation error. Never default it, generate it or skip the check for any role.
 - Store the ticket with the transaction record in the Futures Database and include it in every audit record for that transaction (`ticketId`).
 - One ticket may cover several transactions, so the ticket is never unique and never a key.
-- The ticket's exact format, and whether it is checked against JSM, are still open: see `docs/open-questions.md`. Until decided, validate only that it is present.
+- **Ticket format (decided):** `ITS-` followed by six digits, for example `ITS-123456`. The UI adds the prefix and always sends this full form; a ticket in any other form is a `400` validation error. Keep the pattern in one place, and never add or change the prefix here: store and audit the ticket exactly as it was validated.
+- Whether the ticket is also checked against JSM (that it exists and is open) is still open: see `docs/open-questions.md`. Until decided, validate presence and format only.
 
 ## Transaction ID (separate from the ticket)
 

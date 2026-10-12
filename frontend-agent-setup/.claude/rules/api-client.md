@@ -13,9 +13,9 @@ paths:
 - CI regenerates the types and diffs them against the committed spec, so the two cannot drift.
 - Keep **all API calls in `src/services/`**, so a contract change is fixed in one place.
 - The backend is deployed separately, so a backend change can break the UI without any test here failing. Handle unexpected responses gracefully and surface any contract mismatch you notice.
-- **User type** (User Provisioning, internal users only): chosen by the operator and sent as `government`, `forestry` or `nature`. It does not decide internal or external.
+- **User type** is the operator's choice and never decides internal or external. User Provisioning (internal users only) sends `government`, `forestry` or `nature`. The User Role Manager sends `scottish-government`, `nature-scot`, `scottish-forestry` or `public` (`ROLE_USER_TYPES` in `src/services/roleManagement.ts`). The two lists are separate until the backend's spec says otherwise; do not merge or translate them in the UI.
 - **Internal/external** (User Role Management only): **decided by the backend** from the email domain (gov.uk, Forestry and Nature domains are internal). Never decide it, send it, or duplicate the domain rules. Display what the server returns.
-- **Temporary contract:** until the backend publishes its spec, `src/services/provisioning.ts` holds hand-written, clearly marked TEMPORARY request/response types and paths, and `src/mocks/` implements them. This is the only exception to "never write API types by hand". When the first spec-sync PR arrives, replace them with the generated types and delete this exception.
+- **Temporary contract:** until the backend publishes its spec, `src/services/provisioning.ts` and `src/services/roleManagement.ts` (the User Role Manager's LDAP group look-up and group catalogue, placeholder paths) hold hand-written, clearly marked TEMPORARY request/response types and paths, and `src/mocks/` implements them. This is the only exception to "never write API types by hand". When the first spec-sync PR arrives, replace them with the generated types and delete this exception.
 - Every transaction sends the mandatory JSM/Jira ticket and gets back a separate `transactionId`: see `.claude/rules/transactions.md`.
 - Do not use `as` to force API data into a shape; use the generated types and narrow `unknown`.
 

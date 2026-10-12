@@ -23,6 +23,7 @@ Quick reference: https://www.w3.org/WAI/WCAG22/quickref/
 - [ ] Inline error messages are linked with `aria-describedby` and describe how to fix the problem.
 - [ ] An error summary appears at the top on failed submit, receives focus, and each link moves focus to its field.
 - [ ] Server validation errors use the same inline and summary patterns.
+- [ ] An unavailable (greyed) submit button is still focusable, says why it is unavailable, and shows the error summary when pressed.
 - [ ] Required fields are indicated in text, not by colour alone.
 - [ ] Fields that collect information about the user use appropriate `autocomplete` values.
 - [ ] Information already entered is not asked for again in the same journey (WCAG 2.2, 3.3.7).

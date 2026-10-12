@@ -56,7 +56,7 @@ describe("Home page", () => {
   it("AC1: says the other tasks are not available yet", async () => {
     const { user } = renderApp();
 
-    await user.click(within(await screen.findByRole("main")).getByRole("link", { name: "User Role Manager" }));
+    await user.click(within(await screen.findByRole("main")).getByRole("link", { name: "Check user's existing RP&S access" }));
 
     expect(await findHeading("This part of the service is not available yet")).toBeInTheDocument();
   });

@@ -16,7 +16,7 @@ Shared test support (containers, mock operators, audit capture, outages) is buil
 - Test authorisation for **every endpoint**: unauthenticated → `401`, wrong role → `403`, correct role → success. Use Spring Security's test support with mock JWTs; a real Okta is not needed.
 - Test that a `viewer` gets `403` on **every** endpoint that creates, changes or deletes anything, including adding, editing and removing roles, and that the denial is audited.
 - Playwright end-to-end tests live in the frontend repo and run against a deployed test environment whose backend uses test OpenDJ/Futures Database and a test S3 bucket/prefix.
-- Test every transaction endpoint: a missing or blank JSM/Jira ticket is `400`; the returned `transactionId` is unique for each transaction and is never the ticket; two transactions with the same ticket get different transaction IDs.
+- Test every transaction endpoint: a missing or blank JSM/Jira ticket is `400`, and so is one that is not `ITS-` followed by six digits (including six digits with no prefix); the returned `transactionId` is unique for each transaction and is never the ticket; two transactions with the same ticket get different transaction IDs.
 - Test User Provisioning with each mandatory field missing in turn (first name, surname, email, user identifier, manager X number, job title, location): each is `400` naming the field.
 - Test the UI events endpoint (`POST /audit-events`): each allowed event type is recorded with `eventCategory` `UI` and the operator from the token; an unknown event type, an unexpected field carrying personal data, and an oversized body are rejected or dropped; all three roles may call it; no ticket is needed.
 

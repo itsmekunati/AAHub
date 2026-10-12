@@ -63,7 +63,7 @@ export function UserDetailsPage() {
           id="location"
           label="Location"
           placeholder="Select a location"
-          options={locations.status === "loaded" ? locations.locations : []}
+          options={locations.status === "loaded" ? locations.locations.map((name) => ({ value: name, label: name })) : []}
           value={location}
           onChange={setLocation}
           disabled={locations.status === "loading"}

@@ -16,6 +16,8 @@ paths:
 - On a failed submit, move focus to the error summary; each summary link moves focus to its field.
 - Show **server validation errors** using the same inline error and error summary patterns.
 - Basic client-side checks (e.g. email format) are for convenience only. The server result is always authoritative.
+- **Unavailable submit buttons:** only where a design asks for it. Use `aria-disabled="true"` (via `FormButtons unavailable`), never the native `disabled` attribute, except while a request is in flight. The button stays focusable, is described by a hint saying what to fix, and pressing it still shows the error summary.
+- **Errors while typing:** an inline error that typing more cannot fix (e.g. a character that is not allowed, too long) may show as the operator types; others (e.g. too short) wait until the field loses focus or the form is submitted. The error summary changes only on submit, so it never takes focus while the operator types.
 
 ## Screen states
 - Every data-driven screen handles loading, empty, error and success states. Never show a blank screen.

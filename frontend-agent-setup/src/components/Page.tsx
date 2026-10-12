@@ -7,6 +7,12 @@ const ribbonClasses = {
   error: "ds_notification app_notification--error",
 };
 
+// "full-width" is the Design System's category-list layout: header and content span all 12 columns.
+const layoutClasses = {
+  article: "ds_layout ds_layout--article",
+  "full-width": "ds_layout ds_layout--category-list",
+};
+
 interface PageProps {
   title: string;
   hasErrors?: boolean;
@@ -14,11 +20,13 @@ interface PageProps {
   hideTitle?: boolean;
   /** Shows the heading inside a green (success) or red (error) notification ribbon. */
   ribbon?: keyof typeof ribbonClasses;
+  /** "full-width" for pages whose content must span the whole page, e.g. tabs lined up with a banner. */
+  layout?: keyof typeof layoutClasses;
   children: ReactNode;
 }
 
 /** Sets the browser title, renders the page's only h1, and moves focus to it when the page opens. */
-export function Page({ title, hasErrors = false, hideTitle = false, ribbon, children }: PageProps) {
+export function Page({ title, hasErrors = false, hideTitle = false, ribbon, layout = "article", children }: PageProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -36,7 +44,7 @@ export function Page({ title, hasErrors = false, hideTitle = false, ribbon, chil
   );
 
   return (
-    <div className="ds_layout ds_layout--article">
+    <div className={layoutClasses[layout]}>
       <div className="ds_layout__header">
         {ribbon ? (
           <div className={ribbonClasses[ribbon]}>

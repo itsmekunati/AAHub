@@ -50,7 +50,7 @@ describe("Add the JSM/Jira ticket ID", () => {
     await openTicket();
 
     expect(screen.getByRole("textbox", { name: ticketLabel })).toHaveAccessibleDescription(
-      "This must be ITS- followed by five digits, for example ITS-12345",
+      "This must be ITS- followed by six digits, for example ITS-123456",
     );
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument();
@@ -69,8 +69,25 @@ describe("Add the JSM/Jira ticket ID", () => {
     );
   });
 
-  it.each(["not a ticket", "ITS-1234", "ITS-123456", "ABC-12345"])(
-    "AC11: rejects %s because it is not ITS- followed by five digits",
+  it("AC11: accepts just the six digits and sends ITS- with them", async () => {
+    let sent: unknown;
+    server.use(
+      http.post("*/provisioning-requests", async ({ request }) => {
+        sent = await request.json();
+        return HttpResponse.json({ transactionId: "TXN-000999" }, { status: 201 });
+      }),
+    );
+    const { user } = await openTicket();
+
+    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "123456");
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+
+    await findHeading(headings.success);
+    expect(sent).toEqual(expect.objectContaining({ jiraTicketId: "ITS-123456" }));
+  });
+
+  it.each(["not a ticket", "ITS-12345", "ITS-1234567", "ABC-123456", "12345"])(
+    "AC11: rejects %s because it is not ITS- followed by six digits",
     async (value) => {
       const { user } = await openTicket();
 
@@ -78,7 +95,7 @@ describe("Add the JSM/Jira ticket ID", () => {
       await user.click(screen.getByRole("button", { name: "Submit" }));
 
       expect(screen.getByRole("alert")).toHaveTextContent(
-        "Enter the JSM/Jira ticket ID in the correct format: ITS- followed by five digits, like ITS-12345",
+        "Enter the JSM/Jira ticket ID in the correct format: ITS- followed by six digits, like ITS-123456",
       );
     },
   );
@@ -93,14 +110,14 @@ describe("Add the JSM/Jira ticket ID", () => {
     );
     const { user } = await openTicket();
 
-    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "its-12345");
+    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "its-123456");
     await user.click(screen.getByRole("button", { name: "Submit" }));
 
     const heading = await findHeading(headings.success);
     expect(heading.closest(".ds_notification")).toHaveClass("ds_notification--success");
     const result = screen.getByRole("list", { name: "Request reference" });
     expect(within(result).getByText("Transaction ID").closest("li")).toHaveTextContent("TXN-000999");
-    expect(within(result).getByText("JSM/Jira ticket ID").closest("li")).toHaveTextContent("ITS-12345");
+    expect(within(result).getByText("JSM/Jira ticket ID").closest("li")).toHaveTextContent("ITS-123456");
     const expected: ProvisioningRequest = {
       userType: "government",
       userIdentifier: "U100001",
@@ -110,14 +127,14 @@ describe("Add the JSM/Jira ticket ID", () => {
       managerXNumber: "X000001",
       jobTitle: "Policy officer",
       location: "Perth",
-      jiraTicketId: "ITS-12345",
+      jiraTicketId: "ITS-123456",
     };
     expect(sent).toEqual(expected);
   });
 
   it("AC12: the success page offers a way back to the start", async () => {
     const { user } = await openTicket();
-    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-12345");
+    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-123456");
     await user.click(screen.getByRole("button", { name: "Submit" }));
     await findHeading(headings.success);
 
@@ -129,7 +146,7 @@ describe("Add the JSM/Jira ticket ID", () => {
   it("AC13: shows a red failure ribbon with a plain-English reason when submission fails", async () => {
     const { user } = await openTicket("submitServerError");
 
-    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-12345");
+    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-123456");
     await user.click(screen.getByRole("button", { name: "Submit" }));
 
     const heading = await findHeading(headings.failed);
@@ -140,7 +157,7 @@ describe("Add the JSM/Jira ticket ID", () => {
   it("AC13: shows the permission reason on 403", async () => {
     const { user } = await openTicket("submitForbidden");
 
-    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-12345");
+    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-123456");
     await user.click(screen.getByRole("button", { name: "Submit" }));
 
     await findHeading(headings.failed);
@@ -149,7 +166,7 @@ describe("Add the JSM/Jira ticket ID", () => {
 
   it("AC13: Try again returns to the ticket step with the answers kept", async () => {
     const { user } = await openTicket("submitServerError");
-    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-12345");
+    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-123456");
     await user.click(screen.getByRole("button", { name: "Submit" }));
     await findHeading(headings.failed);
 
@@ -157,12 +174,12 @@ describe("Add the JSM/Jira ticket ID", () => {
 
     await findHeading(headings.ticket);
     expect(screen.getByRole("list", { name: "Request details" })).toHaveTextContent("Perth");
-    expect(screen.getByRole("textbox", { name: ticketLabel })).toHaveValue("ITS-12345");
+    expect(screen.getByRole("textbox", { name: ticketLabel })).toHaveValue("ITS-123456");
   });
 
   it("AC12/AC13: the result pages have no accessibility violations", async () => {
     const { container, user } = await openTicket("submitServerError");
-    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-12345");
+    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-123456");
     await user.click(screen.getByRole("button", { name: "Submit" }));
     await findHeading(headings.failed);
 

@@ -19,7 +19,7 @@ Reference for `.claude/rules/audit-logging.md`. Every audit record is a single-l
 | `instanceId` | Application instance or pod identifier | Always |
 | `correlationId` | Request correlation identifier | Always |
 | `transactionId` | Unique ID this API generates for the transaction. Never the ticket | Every transaction (create, change, remove) |
-| `ticketId` | The mandatory JSM/Jira ticket supplied with the transaction | Every transaction (create, change, remove) |
+| `ticketId` | The mandatory JSM/Jira ticket supplied with the transaction: `ITS-` and six digits, exactly as the UI sent it | Every transaction (create, change, remove) |
 | `performedBy.username` | Acting operator's username (from the validated token) | Always, where available |
 | `performedBy.subjectId` | Acting operator's subject ID (from the validated token) | Always, where available |
 | `targetUser.username` | User account affected by the action | Where applicable |

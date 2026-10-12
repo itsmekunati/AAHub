@@ -8,9 +8,16 @@ export interface FormError {
 
 interface ErrorSummaryProps {
   errors: FormError[];
+  /** Lets the page reveal a field first (e.g. open its tab); the page then moves focus to it. */
+  onFieldLink?: (fieldId: string) => void;
 }
 
-function focusField(event: MouseEvent<HTMLAnchorElement>, fieldId: string) {
+function focusField(event: MouseEvent<HTMLAnchorElement>, fieldId: string, onFieldLink?: (fieldId: string) => void) {
+  if (onFieldLink) {
+    event.preventDefault();
+    onFieldLink(fieldId);
+    return;
+  }
   const field = document.getElementById(fieldId);
   if (field) {
     event.preventDefault();
@@ -19,7 +26,7 @@ function focusField(event: MouseEvent<HTMLAnchorElement>, fieldId: string) {
   }
 }
 
-export function ErrorSummary({ errors }: ErrorSummaryProps) {
+export function ErrorSummary({ errors, onFieldLink }: ErrorSummaryProps) {
   const summaryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,7 +53,7 @@ export function ErrorSummary({ errors }: ErrorSummaryProps) {
         {errors.map(({ fieldId, message }) => (
           <li key={`${fieldId ?? "form"}-${message}`}>
             {fieldId ? (
-              <a href={`#${fieldId}`} onClick={(event) => focusField(event, fieldId)}>
+              <a href={`#${fieldId}`} onClick={(event) => focusField(event, fieldId, onFieldLink)}>
                 {message}
               </a>
             ) : (

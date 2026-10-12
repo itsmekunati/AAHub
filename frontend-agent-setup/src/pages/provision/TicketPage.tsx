@@ -5,6 +5,7 @@ import { FormButtons } from "../../components/FormButtons";
 import { Page } from "../../components/Page";
 import { SummaryList } from "../../components/SummaryList";
 import { TextInput } from "../../components/TextInput";
+import { parseTicketNumber } from "../../services/jiraTicket";
 import { problemMessage } from "../../services/problemMessage";
 import { submitProvisioningRequest } from "../../services/provisioning";
 import { screenError, useCancelJourney, validationBlocked } from "./journeyAudit";
@@ -13,8 +14,6 @@ import { useProvision } from "./ProvisionContext";
 import { requestSummary, userDetailsSummary } from "./userSummary";
 
 const fieldId = "jira-ticket-id";
-// A convenience check only; the backend decides whether the ticket is valid.
-const ticketPattern = /^ITS-\d{5}$/;
 
 export function TicketPage() {
   const navigate = useNavigate();
@@ -38,22 +37,22 @@ export function TicketPage() {
     if (submitting || !userType || !user || !location) {
       return;
     }
-    const jiraTicketId = ticketId.trim().toUpperCase();
-    if (!jiraTicketId) {
-      setErrors([{ fieldId, message: "Enter the JSM/Jira ticket ID" }]);
-      validationBlocked("ticket", [fieldId], userType);
-      return;
-    }
-    if (!ticketPattern.test(jiraTicketId)) {
+    // The shared rule (ITS- and six digits); only its canonical ticket ID is ever sent.
+    const ticket = parseTicketNumber(ticketId);
+    if (!ticket.ok) {
       setErrors([
         {
           fieldId,
-          message: "Enter the JSM/Jira ticket ID in the correct format: ITS- followed by five digits, like ITS-12345",
+          message:
+            ticket.reason === "missing"
+              ? "Enter the JSM/Jira ticket ID"
+              : "Enter the JSM/Jira ticket ID in the correct format: ITS- followed by six digits, like ITS-123456",
         },
       ]);
       validationBlocked("ticket", [fieldId], userType);
       return;
     }
+    const jiraTicketId = ticket.ticketId;
     setSubmitting(true);
     try {
       const created = await submitProvisioningRequest({
@@ -92,7 +91,7 @@ export function TicketPage() {
         <TextInput
           id={fieldId}
           label="Enter the JSM/Jira ticket ID associated with this request"
-          hint="This must be ITS- followed by five digits, for example ITS-12345"
+          hint="This must be ITS- followed by six digits, for example ITS-123456"
           value={ticketId}
           onChange={setTicketId}
           error={errors.find((error) => error.fieldId === fieldId)?.message}

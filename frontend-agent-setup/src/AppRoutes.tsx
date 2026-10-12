@@ -10,6 +10,12 @@ import { TicketPage } from "./pages/provision/TicketPage";
 import { UserDetailsPage } from "./pages/provision/UserDetailsPage";
 import { UserNumberPage } from "./pages/provision/UserNumberPage";
 import { UserTypePage } from "./pages/provision/UserTypePage";
+import { ChangeFailedPage } from "./pages/role-manager/ChangeFailedPage";
+import { ReviewChangesPage } from "./pages/role-manager/ReviewChangesPage";
+import { RoleManagerLayout } from "./pages/role-manager/RoleManagerLayout";
+import { RoleUserDetailsPage } from "./pages/role-manager/RoleUserDetailsPage";
+import { SelectGroupsPage } from "./pages/role-manager/SelectGroupsPage";
+import { SubmittedPage } from "./pages/role-manager/SubmittedPage";
 
 export function AppRoutes() {
   return (
@@ -25,7 +31,14 @@ export function AppRoutes() {
           <Route path="ticket" element={<TicketPage />} />
           <Route path="result" element={<ResultPage />} />
         </Route>
-        <Route path="role-manager" element={<NotAvailablePage />} />
+        <Route path="role-manager" element={<RoleManagerLayout />}>
+          <Route index element={<Navigate to="user-details" replace />} />
+          <Route path="user-details" element={<RoleUserDetailsPage />} />
+          <Route path="select-groups" element={<SelectGroupsPage />} />
+          <Route path="review-changes" element={<ReviewChangesPage />} />
+          <Route path="submitted" element={<SubmittedPage />} />
+          <Route path="change-failed" element={<ChangeFailedPage />} />
+        </Route>
         <Route path="check-access" element={<NotAvailablePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

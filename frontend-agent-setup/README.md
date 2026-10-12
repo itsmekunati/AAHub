@@ -3,7 +3,7 @@
 The React user interface for Application Access Hub, an internal web application for:
 
 - **User Provisioning**: giving an internal user access (Government, Forestry or Nature user types).
-- **User Role Management**: managing roles for internal and external users (not built yet).
+- **User Role Management**: changing the LDAP groups (roles) of internal and external users.
 
 The UI talks only to the backend API, which lives in a separate repository. The backend is not built yet, so the UI currently runs against a mock API.
 
@@ -11,7 +11,8 @@ The UI talks only to the backend API, which lives in a separate repository. The 
 
 - The home page, site header, navigation and footer, built with the Scottish Government Design System.
 - The **Provision user access** journey: choose a user type, look up the user by identifier, confirm them, check their details and choose a location, add the JSM/Jira ticket, submit, and see the result with its transaction ID.
-- "User Role Manager" and "Check user's existing access" show a "not available yet" page.
+- The **User Role Manager** journey: choose a user type and enter an x number or username, see the LDAP groups the user is in, select groups to add or remove on a tab for each application, review the change and add the JSM/Jira ticket, submit, and see the result with its transaction ID.
+- "Check user's existing access" shows a "not available yet" page.
 
 Sign-in is not built yet. Every operator is shown as **EDITOR**, for display only.
 
@@ -52,7 +53,20 @@ The mock API uses fake data from `src/mocks/data.ts`:
 | Nature | `GAKWO300003` | Complete record |
 
 - A user is only found under their own user type.
-- The ticket must look like `ITS-12345` (`ITS-` and five digits).
+
+For the User Role Manager:
+
+| User type | Identifier | Notes |
+|---|---|---|
+| Scottish Government | `x123456` | Already in one RP&S group |
+| Public | `jo.bloggs` | Already in one RP&S group; a Public user must keep at least one RP&S group |
+
+- Any other identifier is "not found". RP&S has its real group names; the other applications have made-up example groups.
+- Its error scenarios include `ldapGroupsServerError`, `ldapGroupsForbidden`, `ldapGroupsOffline`, `ldapGroupsSlow`, `catalogueServerError`, `roleChangeServerError` and `roleChangeForbidden`.
+
+For both journeys:
+
+- The ticket is `ITS-` and six digits, for example `ITS-123456`. You can type just the six digits; the UI adds `ITS-` before it sends the ticket.
 - To see an error case, add `?scenario=<name>` to the first page you open, for example `http://localhost:5173/?scenario=submitServerError`. The names are in `src/mocks/scenarios.ts`.
 
 ## Configuration
@@ -115,4 +129,4 @@ Start with `docs/AGENT-WORKFLOW-GUIDE.md`. Decisions still to be made are in `do
 
 ## Not built yet
 
-Okta sign-in and role-based visibility (`admin`, `editor`, read-only `viewer`), the generated API client, User Role Management, Playwright end-to-end tests, and CI and deployment.
+Okta sign-in and role-based visibility (`admin`, `editor`, read-only `viewer`), the generated API client, "Check user's existing access", Playwright end-to-end tests, and CI and deployment.

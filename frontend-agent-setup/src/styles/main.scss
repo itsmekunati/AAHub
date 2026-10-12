@@ -1,6 +1,7 @@
 // The Scottish Government Design System. Keep overrides to a minimum and use its tokens.
 @use "@scottish-government/design-system/src/design-system";
 @use "@scottish-government/design-system/src/base/settings";
+@use "@scottish-government/design-system/src/base/helpers";
 
 // The Design System's notification banner has no error variant, so this adds a red one
 // using its own "negative" state colour. Used for "Access provisioning failed".
@@ -24,4 +25,64 @@
 .ds_notification .ds_page-header__title {
   color: inherit;
   margin: 0;
+}
+
+// A submit button shown as unavailable (aria-disabled) while a field is invalid. It uses the
+// Design System's disabled colours but, unlike [disabled], stays pressable and keeps its focus
+// outline, so keyboard and screen reader users can reach it and get the error summary.
+// :not(:focus) keeps the Design System's focus style and outranks its hover colour.
+.ds_button[aria-disabled="true"]:not(:focus) {
+  background-color: settings.$ds_colour__button--disabled__background;
+  box-shadow: none;
+  color: settings.$ds_colour__button--disabled;
+  font-weight: settings.$normal;
+}
+
+// Notification banner icon from the design: a black "!" in a white circle, instead of the
+// Design System's default orange icon.
+.app_notification__icon--circle {
+  align-items: center;
+  background-color: settings.$ds_colour__white;
+  border-radius: 50%;
+  color: settings.$ds_colour__black;
+  display: flex;
+  justify-content: center;
+
+  .ds_icon {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+}
+
+// Tabs that share one line on wider screens, so the last tab ends where the panel (and a full-width
+// banner above it) ends. The list may still wrap, and below medium width the Design System shows
+// a vertical list, so zoom and narrow screens never scroll sideways.
+@include helpers.ds_media-query(medium) {
+  .ds_tabs.js-initialised.app_tabs--fill {
+    .ds_tabs__tab {
+      flex: 1 1 auto;
+      text-align: center;
+    }
+
+    .ds_tabs__tab-link {
+      white-space: nowrap;
+    }
+  }
+}
+
+// The failure details on "Change failure", from the design: the Design System yellow with black text.
+.app_failure-details {
+  background-color: settings.$ds_colour__yellow;
+  color: settings.$ds_colour__black;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Space between the site navigation and the success or failure ribbon above the page content.
+.ds_layout__header > .ds_notification {
+  margin-top: 1.5rem;
 }

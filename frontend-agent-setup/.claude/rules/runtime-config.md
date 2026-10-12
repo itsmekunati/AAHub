@@ -18,5 +18,6 @@ paths:
   - `otherInstance` (optional): `{ "label", "url" }` link on the home page to the instance that manages the other environments; `url` must be http(s).
 - `public/config.json` holds the local development values and is **removed from production builds**. Each deployed environment supplies its own `config.json` (in OpenShift, from a ConfigMap; see `deploy.md`).
 - Do not use `VITE_*` build-time variables for anything that differs between environments.
+- **Not in config (decided):** the links to each application's LDAP group descriptions are the same in every environment, so they live in `src/pages/role-manager/groupDescriptionLinks.ts`. This is an agreed exception to "no hard-coded hostnames"; do not add other URLs there.
 - Read settings with `getConfig()` from `src/config.ts`.
 - When you add a setting: validate it in `loadConfig()`, add it to `public/config.json` and `src/test/testConfig.ts`, and list it here.

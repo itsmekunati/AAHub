@@ -27,7 +27,7 @@ React, strict TypeScript, Vite and React Router (versions and scripts are in `pa
 
 - **Work test-first (TDD):** no production code without a failing test that needs it.
 - **Accessibility is mandatory:** WCAG 2.2 AA, the Design System's documented markup, plain English, sentence case.
-- **No secrets in the frontend:** the bundle and `config.json` are public. No hard-coded credentials, hostnames, environment URLs, issuers or test domains, even as examples.
+- **No secrets in the frontend:** the bundle and `config.json` are public. No hard-coded credentials, hostnames, environment URLs, issuers or test domains, even as examples. The one agreed exception is recorded in `.claude/rules/runtime-config.md`.
 - **Tokens stay in memory only:** never in `localStorage` or `sessionStorage`, and no personal data there either. Never weaken the Okta sign-in flow.
 - **Never log** personal data, tokens or full API payloads, and never show users raw server messages or stack traces.
 - **Never render unsanitised HTML** (`dangerouslySetInnerHTML` with API data or user input).
