@@ -4,3 +4,8 @@ coverage/
 *.log
 .env
 .env.*
+
+# Playwright
+e2e/.auth/
+test-results/
+playwright-report/
