@@ -9,7 +9,7 @@ export interface FakeDirectoryEntry {
 
 export const fakeDirectory: FakeDirectoryEntry[] = [
   {
-    userType: "government",
+    userType: "SG",
     user: {
       userIdentifier: "U100001",
       firstName: "Alex",
@@ -20,7 +20,7 @@ export const fakeDirectory: FakeDirectoryEntry[] = [
     },
   },
   {
-    userType: "forestry",
+    userType: "FGS",
     user: {
       userIdentifier: "Z200002",
       firstName: "Sam",
@@ -31,7 +31,7 @@ export const fakeDirectory: FakeDirectoryEntry[] = [
     },
   },
   {
-    userType: "nature",
+    userType: "SNH",
     user: {
       userIdentifier: "GAKWO300003",
       firstName: "Jo",
@@ -46,10 +46,18 @@ export const fakeDirectory: FakeDirectoryEntry[] = [
 // The transaction ID is the backend's own reference. It is separate from the JSM/Jira ticket.
 export const fakeTransactionId = "TXN-000123";
 
+// The x number the backend gives a newly provisioned user in this environment.
+export const fakeProvisionedXNumber = "x500001";
+
 // A role change gets its own transaction ID from the backend, never the ticket.
 export const fakeRoleChangeTransactionId = "TXN-000456";
 
-export const fakeLocations =["Perth", "SASA", "House", "Inverness"];
+// The locations an operator can choose depend on the user type. Placeholders until the backend supplies them.
+export const fakeLocations: Record<UserType, string[]> = {
+  SG: ["Perth", "SASA", "House", "Inverness"],
+  FGS: ["Silvan House", "Dumfries", "Dingwall"],
+  SNH: ["Great Glen House", "Battleby", "Golspie"],
+};
 
 export interface FakeLdapMembership {
   userType: RoleUserType;
@@ -58,7 +66,7 @@ export interface FakeLdapMembership {
 }
 
 export const fakeLdapMemberships: FakeLdapMembership[] = [
-  { userType: "scottish-government", userIdentifier: "x123456", groups: ["RPS-RegisteredUser"] },
+  { userType: "SG", userIdentifier: "x123456", groups: ["RPS-RegisteredUser"] },
   { userType: "public", userIdentifier: "jo.bloggs", groups: ["RPS-TransactionalCustomer"] },
 ];
 

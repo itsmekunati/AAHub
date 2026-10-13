@@ -40,7 +40,7 @@ describe("UI audit events in the User Role Manager journey", () => {
         journey,
         step: "user-details",
         fields: ["user-identifier"],
-        userType: "scottish-government",
+        userType: "SG",
       }),
     );
     expect(JSON.stringify(events)).not.toContain("ab!c");
@@ -58,7 +58,7 @@ describe("UI audit events in the User Role Manager journey", () => {
         journey,
         step: "user-details",
         reasonCode: "HTTP_500",
-        userType: "scottish-government",
+        userType: "SG",
       }),
     );
     expect(JSON.stringify(events)).not.toContain("x123456");

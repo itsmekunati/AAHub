@@ -1,7 +1,7 @@
 import type { RoleUserType } from "../../services/roleManagement";
 import { identifierCopy, identifierMessages, isFinalError, sanitiseIdentifier, validateIdentifier } from "./validateIdentifier";
 
-const internal: RoleUserType = "scottish-government";
+const internal: RoleUserType = "SG";
 const publicUser: RoleUserType = "public";
 
 const invisibleOrControl = [
@@ -29,7 +29,7 @@ describe("sanitiseIdentifier", () => {
     expect(sanitiseIdentifier(raw, userType)).toEqual({ ok: true, value });
   });
 
-  it.each(["nature-scot", "scottish-forestry"] as const)("AC12: treats %s like Scottish Government", (userType) => {
+  it.each(["SNH", "FGS"] as const)("AC12: treats %s like Scottish Government", (userType) => {
     expect(sanitiseIdentifier("x123456", userType)).toEqual({ ok: true, value: "x123456" });
     expect(sanitiseIdentifier("jo.bloggs", userType)).toEqual({ ok: false, message: identifierMessages.xNumber });
   });

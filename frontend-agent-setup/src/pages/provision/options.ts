@@ -4,9 +4,9 @@ import type { UserType } from "../../services/provisioning";
 // User Provisioning is for internal users only. The user type is the operator's choice and does
 // not decide internal or external (that applies only to User Role Management, decided by the backend).
 export const userTypeOptions: readonly RadioOption<UserType>[] = [
-  { value: "government", label: "Government" },
-  { value: "forestry", label: "Forestry" },
-  { value: "nature", label: "Nature" },
+  { value: "SG", label: "Scottish Government" },
+  { value: "FGS", label: "Scottish Forestry" },
+  { value: "SNH", label: "NatureScot" },
 ];
 
 export function userTypeLabel(userType: UserType): string {
@@ -16,7 +16,6 @@ export function userTypeLabel(userType: UserType): string {
 export const paths = {
   userType: "/provision/user-type",
   userIdentifier: "/provision/user-number",
-  confirmUser: "/provision/confirm-user",
   userDetails: "/provision/user-details",
   ticket: "/provision/ticket",
   result: "/provision/result",

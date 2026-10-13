@@ -7,7 +7,7 @@ import { Page } from "../../components/Page";
 import { SummaryList } from "../../components/SummaryList";
 import { TextInput } from "../../components/TextInput";
 import { getConfig } from "../../config";
-import { isFinalTicketError, parseTicketNumber } from "../../services/jiraTicket";
+import { isFinalTicketError, parseTicketNumber, ticketCopy } from "../../services/jiraTicket";
 import { problemMessage } from "../../services/problemMessage";
 import { RoleChangeFailedError, submitRoleChangeRequest } from "../../services/roleManagement";
 import { roleManagerAudit, roleManagerJourney, useJourneyCancel } from "../provision/journeyAudit";
@@ -17,9 +17,7 @@ import { useRoleManager } from "./RoleManagerContext";
 const step = "review-changes";
 const fieldId = "jsm-ticket-id";
 const unavailableHintId = "submit-unavailable";
-const ticketHeading = "Enter the JSM ticket ID associated with this request";
-const missingMessage = "You must enter the associated JSM ticket ID in order to submit this page.";
-const formatMessage = "Enter the 6 numbers from the ITS ticket, for example 123456";
+const { heading: ticketHeading, missing: missingMessage, format: formatMessage } = ticketCopy;
 
 function namesOrNone(names: string[]): string | string[] {
   return names.length > 0 ? names : "None";
@@ -101,7 +99,7 @@ export function ReviewChangesPage() {
   return (
     <>
       <BackLink to={paths.selectGroups} label="Previous" />
-      <Page title="Review your selection before submitting" hasErrors={summary.length > 0}>
+      <Page title="Review your selection before submitting" titleSize="h2" hasErrors={summary.length > 0}>
         <ErrorSummary errors={summary} />
         <p className="ds_lead">Review the group selection, before clicking Submit to make the changes.</p>
         <SummaryList
@@ -122,12 +120,12 @@ export function ReviewChangesPage() {
             },
           ]}
         />
-        <h2 className="ds_h3">{ticketHeading}</h2>
+        <h2>{ticketHeading}</h2>
         <form noValidate onSubmit={(event) => void handleSubmit(event)}>
           <TextInput
             id={fieldId}
             label={ticketHeading}
-            hint="Enter just the numbers from the ITS ticket. This is required for audit purposes and is a mandatory field."
+            hint={ticketCopy.hint}
             value={ticket}
             onChange={handleTicketChange}
             onBlur={() => setTouched(true)}
@@ -144,7 +142,7 @@ export function ReviewChangesPage() {
             onCancel={cancel}
           />
           <p className="visually-hidden" id={unavailableHintId}>
-            Enter the 6 numbers from the ITS ticket to continue
+            {ticketCopy.unavailable}
           </p>
           <div className="visually-hidden" role="status">
             {submitting ? "Submitting the changes" : ""}

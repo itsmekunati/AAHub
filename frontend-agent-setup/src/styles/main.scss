@@ -21,10 +21,11 @@
   margin: 0 0 0 auto;
 }
 
-// A page heading shown inside a ribbon takes the ribbon's text colour.
+// A page heading shown inside a ribbon takes the ribbon's text colour and is centred, from the design.
 .ds_notification .ds_page-header__title {
   color: inherit;
   margin: 0;
+  text-align: center;
 }
 
 // A submit button shown as unavailable (aria-disabled) while a field is invalid. It uses the
@@ -70,6 +71,14 @@
   }
 }
 
+// The home page's three tasks stay in two columns on large screens, from the design; the Design
+// System's grid would otherwise use three. Below medium width it is still a single column.
+@include helpers.ds_media-query(large) {
+  .ds_category-list--grid.app_category-list--two-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 // The failure details on "Change failure", from the design: the Design System yellow with black text.
 .app_failure-details {
   background-color: settings.$ds_colour__yellow;
@@ -85,4 +94,16 @@
 // Space between the site navigation and the success or failure ribbon above the page content.
 .ds_layout__header > .ds_notification {
   margin-top: 1.5rem;
+
+  // The ribbon sits in the page's column, so its wrapper must not take the fixed page width.
+  > .ds_wrapper {
+    width: 100%;
+  }
+}
+
+// A ribbon on a full-width page (the provisioning result pages), from the design: clear space
+// between the site navigation and the ribbon, and between the ribbon and the content below it.
+.ds_layout--category-list > .ds_layout__header > .ds_notification {
+  margin-bottom: 2rem;
+  margin-top: 3rem;
 }

@@ -4,6 +4,15 @@
 export const TICKET_PREFIX = "ITS-";
 export const TICKET_DIGITS = 6;
 
+/** The words every journey uses to ask for the ticket, so they never drift apart. */
+export const ticketCopy = {
+  heading: "Enter the JSM ticket ID associated with this request",
+  hint: "Enter just the numbers from the ITS ticket. This is required for audit purposes and is a mandatory field.",
+  missing: "You must enter the associated JSM ticket ID in order to submit this page.",
+  format: "Enter the 6 numbers from the ITS ticket, for example 123456",
+  unavailable: "Enter the 6 numbers from the ITS ticket to continue",
+};
+
 export type ParsedTicket = { ok: true; ticketId: string } | { ok: false; reason: "missing" | "format" };
 
 // ASCII digits only (no `u` flag), with an optional ITS- prefix in any letter case.

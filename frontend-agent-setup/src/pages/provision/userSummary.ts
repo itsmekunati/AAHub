@@ -5,20 +5,20 @@ import { paths, userTypeLabel } from "./options";
 
 export const notProvided = "Not provided";
 
-/** User type and user identifier can be changed; the environment cannot. */
+/** User type and user can be changed; the environment cannot. */
 export function requestSummary(userType: UserType, userIdentifier: string): SummaryItem[] {
   return [
-    { key: "User type", value: userTypeLabel(userType), changeTo: paths.userType },
-    { key: "User identifier", value: userIdentifier, changeTo: paths.userIdentifier },
-    { key: "Environment", value: getConfig().environmentName },
+    { key: "Selected environment", value: getConfig().environmentName },
+    { key: "Selected user type", value: userTypeLabel(userType), changeTo: paths.userType },
+    { key: "Selected user", value: userIdentifier, changeTo: paths.userIdentifier },
   ];
 }
 
+/** The manager's x number is not here: the operator types it, and it may be left blank. */
 export const mandatoryDetails = [
   { field: "firstName", key: "First name", name: "first name" },
-  { field: "surname", key: "Surname", name: "surname" },
+  { field: "surname", key: "Last name", name: "last name" },
   { field: "email", key: "Email address", name: "email address" },
-  { field: "managerXNumber", key: "Manager X number", name: "manager X number" },
   { field: "jobTitle", key: "Job title", name: "job title" },
 ] as const;
 

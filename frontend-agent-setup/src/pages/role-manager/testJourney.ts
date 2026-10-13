@@ -13,7 +13,7 @@ export const headings = {
 };
 
 // The default user type is Scottish Government, which is identified by an x number.
-const defaultCopy = identifierCopy("scottish-government");
+const defaultCopy = identifierCopy("SG");
 const publicCopy = identifierCopy("public");
 
 export const identifierLabel = defaultCopy.label;

@@ -8,7 +8,7 @@ description: Test-first procedure for building a form page that follows Scottish
 Relevant rules: `.claude/rules/tdd.md`, `forms-accessibility.md`, `design-system.md`, `api-client.md`, `auth.md`. Checklist: `docs/reference/accessibility-checklist.md`. Follow the `tdd-cycle` skill.
 
 ## 1. Check the contract
-- Only ask for what the API operation needs (check `openapi/openapi.json`). The user type is chosen once, as radio buttons (Government, Forestry, Nature), at the start of the journey.
+- Only ask for what the API operation needs (check `openapi/openapi.json`). The user type is chosen once, as radio buttons (Scottish Government, Scottish Forestry, NatureScot), at the start of the journey.
 
 ## 2. Red: write the failing page tests first
 Render the page with a mocked auth interface and a mocked service (generated types), and write tests for:

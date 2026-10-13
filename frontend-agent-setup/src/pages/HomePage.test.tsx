@@ -21,6 +21,16 @@ describe("Home page", () => {
     expect(document.title).toBe("Home - Application Access Hub");
   });
 
+  it("AC1: lays the three tasks out as a grid of tiles", async () => {
+    renderApp();
+    await findHeading("Home");
+
+    const list = within(screen.getByRole("main")).getByRole("list");
+    expect(list).toHaveClass("ds_category-list", "ds_category-list--grid", "app_category-list--two-columns");
+    expect(within(list).getAllByRole("listitem")).toHaveLength(3);
+    expect(list.closest(".ds_layout")).toHaveClass("ds_layout--category-list");
+  });
+
   it("AC1: has no visible page heading, but keeps one for screen readers", async () => {
     renderApp();
 

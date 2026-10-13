@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { server } from "../../mocks/node";
 import type { ScenarioName } from "../../mocks/scenarios";
@@ -86,12 +86,13 @@ describe("Provide the user details (User Role Manager)", () => {
     await openPage();
 
     expect(screen.getByRole("link", { name: "Previous" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveClass("ds_h2");
     expect(screen.getByText("Selected environment")).toBeInTheDocument();
     expect(screen.getByText(testConfig.environmentName)).toBeInTheDocument();
 
     const userType = screen.getByRole("combobox", { name: "User type" });
     expect(userType).toHaveAccessibleDescription("Select the user type from the dropdown");
-    expect(userType).toHaveValue("scottish-government");
+    expect(userType).toHaveValue("SG");
     expect(within(userType).getAllByRole("option").map((option) => option.textContent)).toEqual([
       "Scottish Government",
       "NatureScot",
@@ -247,7 +248,7 @@ describe("Provide the user details (User Role Manager)", () => {
     const lookups = captureLookups();
     const { user } = await openPage();
 
-    await submitIdentifier(user, "jo.bloggs", "nature-scot");
+    await submitIdentifier(user, "jo.bloggs", "SNH");
 
     expect(within(screen.getByRole("alert")).getByRole("link", { name: identifierMessages.xNumber })).toBeInTheDocument();
     expect(lookups).toEqual([]);
@@ -263,7 +264,7 @@ describe("Provide the user details (User Role Manager)", () => {
     expect(identifierField()).not.toHaveAttribute("aria-invalid");
     expect(screen.getByRole("button", { name: submitLabel })).not.toHaveAttribute("aria-disabled");
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "User type" }), "scottish-forestry");
+    await user.selectOptions(screen.getByRole("combobox", { name: "User type" }), "FGS");
     expect(identifierField()).toHaveAccessibleDescription(`${identifierHint} Error: ${identifierMessages.xNumber}`);
   });
 
@@ -294,6 +295,26 @@ describe("Provide the user details (User Role Manager)", () => {
     expect(await findHeading(headings.selectGroups)).toBeInTheDocument();
     expect(screen.getByRole("checkbox", { name: "RPS - TransactionalCustomer" })).toBeChecked();
     expect(screen.getByRole("checkbox", { name: "RPS - RegisteredUser" })).not.toBeChecked();
+  });
+
+  it.each([
+    ["Scottish Government", "x123456", "SG"],
+    ["NatureScot", "x123456", "SNH"],
+    ["Scottish Forestry", "x123456", "FGS"],
+    ["Public", "jo.bloggs", "public"],
+  ])("AC3: looks a %s user up with the backend's user type code", async (userType, identifier, code) => {
+    const lookedUp: string[] = [];
+    server.use(
+      http.get("*/users/:userIdentifier/ldap-groups", ({ request }) => {
+        lookedUp.push(new URL(request.url).search);
+        return new HttpResponse(null, { status: 404 });
+      }),
+    );
+    const { user } = await openPage();
+
+    await submitIdentifier(user, identifier, userType);
+
+    await waitFor(() => expect(lookedUp).toEqual([`?userType=${code}`]));
   });
 
   it("AC4: says the user was not found and keeps what was entered", async () => {
@@ -344,7 +365,7 @@ describe("Provide the user details (User Role Manager)", () => {
 
     await findHeading(headings.userDetails);
     expect(identifierField()).toHaveValue("");
-    expect(screen.getByRole("combobox", { name: "User type" })).toHaveValue("scottish-government");
+    expect(screen.getByRole("combobox", { name: "User type" })).toHaveValue("SG");
   });
 
   it("AC6: has no accessibility violations, with and without errors", async () => {

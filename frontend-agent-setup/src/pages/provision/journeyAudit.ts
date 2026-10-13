@@ -32,7 +32,7 @@ export function useJourneyCancel(journey: string, step: string): () => void {
   }, [navigate, journey, step]);
 }
 
-export type JourneyStep = "user-type" | "user-identifier" | "confirm-user" | "user-details" | "ticket";
+export type JourneyStep = "user-type" | "user-identifier" | "user-details" | "ticket";
 
 const provisioning = journeyAudit<JourneyStep>("provisioning", "user-type");
 

@@ -2,9 +2,9 @@ import type { RoleUserType } from "../../services/roleManagement";
 
 // The operator's choice only. Whether a user is internal or external is decided by the backend.
 export const roleUserTypeOptions: readonly { value: RoleUserType; label: string }[] = [
-  { value: "scottish-government", label: "Scottish Government" },
-  { value: "nature-scot", label: "NatureScot" },
-  { value: "scottish-forestry", label: "Scottish Forestry" },
+  { value: "SG", label: "Scottish Government" },
+  { value: "SNH", label: "NatureScot" },
+  { value: "FGS", label: "Scottish Forestry" },
   { value: "public", label: "Public" },
 ];
 

@@ -86,7 +86,7 @@ export function RoleUserDetailsPage() {
   return (
     <>
       <BackLink to="/" label="Previous" />
-      <Page title="Provide the user details" hasErrors={summary.length > 0}>
+      <Page title="Provide the user details" titleSize="h2" hasErrors={summary.length > 0}>
         <ErrorSummary errors={summary} />
         <SummaryList items={[{ key: "Selected environment", value: getConfig().environmentName }]} />
         <form noValidate onSubmit={(event) => void handleSubmit(event)}>

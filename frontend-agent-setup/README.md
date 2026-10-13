@@ -2,7 +2,7 @@
 
 The React user interface for Application Access Hub, an internal web application for:
 
-- **User Provisioning**: giving an internal user access (Government, Forestry or Nature user types).
+- **User Provisioning**: giving an internal user access (Scottish Government, Scottish Forestry or NatureScot user types).
 - **User Role Management**: changing the LDAP groups (roles) of internal and external users.
 
 The UI talks only to the backend API, which lives in a separate repository. The backend is not built yet, so the UI currently runs against a mock API.
@@ -10,7 +10,7 @@ The UI talks only to the backend API, which lives in a separate repository. The 
 ## What works today
 
 - The home page, site header, navigation and footer, built with the Scottish Government Design System.
-- The **Provision user access** journey: choose a user type, look up the user by identifier, confirm them, check their details and choose a location, add the JSM/Jira ticket, submit, and see the result with its transaction ID.
+- The **Provision user access** journey: choose a user type, look up the user by identifier, review their details, optionally add the manager's x number and choose a location, add the JSM/Jira ticket, submit, and see the result with its transaction ID.
 - The **User Role Manager** journey: choose a user type and enter an x number or username, see the LDAP groups the user is in, select groups to add or remove on a tab for each application, review the change and add the JSM/Jira ticket, submit, and see the result with its transaction ID.
 - "Check user's existing access" shows a "not available yet" page.
 
@@ -48,11 +48,12 @@ The mock API uses fake data from `src/mocks/data.ts`:
 
 | User type | User identifier | Notes |
 |---|---|---|
-| Government | `U100001` | Complete record |
-| Forestry | `Z200002` | Job title missing, so the journey stops at the details step |
-| Nature | `GAKWO300003` | Complete record |
+| Scottish Government | `U100001` | Complete record |
+| Scottish Forestry | `Z200002` | Job title missing, so the journey stops at the details step |
+| NatureScot | `GAKWO300003` | Complete record |
 
 - A user is only found under their own user type.
+- Each user type has its own mock locations: Scottish Government has Perth, SASA, House and Inverness; Scottish Forestry has Silvan House, Dumfries and Dingwall; NatureScot has Great Glen House, Battleby and Golspie.
 
 For the User Role Manager:
 

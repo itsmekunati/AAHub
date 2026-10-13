@@ -5,7 +5,7 @@
 import { ApiError, apiFetch } from "./apiClient";
 
 // The user type is the operator's choice. It never decides internal or external: the backend does.
-export const ROLE_USER_TYPES = ["scottish-government", "nature-scot", "scottish-forestry", "public"] as const;
+export const ROLE_USER_TYPES = ["SG", "SNH", "FGS", "public"] as const;
 export type RoleUserType = (typeof ROLE_USER_TYPES)[number];
 
 export type LdapGroupsResult = { found: true; groups: string[] } | { found: false };

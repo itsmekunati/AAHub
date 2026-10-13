@@ -16,7 +16,7 @@ export function ChangeFailedPage() {
   return (
     <Page title="Change failure" ribbon="error">
       <div className="app_failure-details">
-        <h2 className="ds_h3">User role manager failure details</h2>
+        <h2>User role manager failure details</h2>
         <p>
           LDAP groups for user <strong>{userIdentifier}</strong> in the <strong>{getConfig().environmentName}</strong>{" "}
           environment have not been updated.

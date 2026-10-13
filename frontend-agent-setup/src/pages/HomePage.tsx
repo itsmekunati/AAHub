@@ -25,7 +25,7 @@ export function HomePage() {
   const { environmentName, managedEnvironments, otherInstance } = getConfig();
 
   return (
-    <Page title="Home" hideTitle>
+    <Page title="Home" hideTitle layout="full-width">
       <div className="ds_inset-text">
         <div className="ds_inset-text__text">
           <p>
@@ -41,7 +41,7 @@ export function HomePage() {
           )}
         </div>
       </div>
-      <ul className="ds_category-list">
+      <ul className="ds_category-list ds_category-list--grid app_category-list--two-columns">
         {tasks.map((task) => (
           <li className="ds_category-item" key={task.to}>
             <h2 className="ds_category-item__title">

@@ -121,7 +121,8 @@ describe("Review your selection before submitting", () => {
   it("AC13: asks for the ticket with its hint, and Submit is unavailable until the ticket is valid", async () => {
     const { user } = await openReview();
 
-    expect(screen.getByRole("heading", { level: 2, name: ticketLabel })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveClass("ds_h2");
+    expect(screen.getByRole("heading", { level: 2, name: ticketLabel })).not.toHaveClass("ds_h3");
     expect(ticketField()).toHaveAccessibleDescription(ticketHint);
     const submit = screen.getByRole("button", { name: submitName });
     expect(submit).toHaveAttribute("aria-disabled", "true");
@@ -148,7 +149,7 @@ describe("Review your selection before submitting", () => {
         journey: "role-management",
         step: "review-changes",
         fields: ["jsm-ticket-id"],
-        userType: "scottish-government",
+        userType: "SG",
       }),
     );
   });
@@ -192,7 +193,7 @@ describe("Review your selection before submitting", () => {
     const heading = await findHeading("Change success");
     expect(heading.closest(".ds_notification")).toHaveClass("ds_notification--success");
     expect(sent).toEqual({
-      userType: "scottish-government",
+      userType: "SG",
       userIdentifier: "x123456",
       groupsToAdd: ["RPS-TransactionalCustomer"],
       groupsToRemove: ["RPS-RegisteredUser"],
@@ -256,7 +257,7 @@ describe("Review your selection before submitting", () => {
         journey: "role-management",
         step: "review-changes",
         reasonCode: "HTTP_500",
-        userType: "scottish-government",
+        userType: "SG",
       }),
     );
   });

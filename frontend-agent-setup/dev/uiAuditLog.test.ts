@@ -20,7 +20,7 @@ describe("Local UI audit log line", () => {
         step: "ticket",
         reasonCode: "FORMAT",
         fields: ["jira-ticket-id"],
-        userType: "government",
+        userType: "SG",
         transactionId: "TXN-000123",
       },
       now,
@@ -29,7 +29,7 @@ describe("Local UI audit log line", () => {
     expect(result.ok && JSON.parse(result.line)).toMatchObject({
       reasonCode: "FORMAT",
       fields: ["jira-ticket-id"],
-      userType: "government",
+      userType: "SG",
       transactionId: "TXN-000123",
     });
   });

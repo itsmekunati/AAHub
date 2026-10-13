@@ -153,7 +153,7 @@ export function SelectGroupsPage() {
         For user <strong>{state.userIdentifier}</strong> in <strong>{getConfig().environmentName}</strong> environment
       </NotificationBanner>
       <BackLink to={paths.userDetails} label="Previous" />
-      <Page title="Review and select LDAP groups" hasErrors={summary.length > 0} layout="full-width">
+      <Page title="Review and select LDAP groups" titleSize="h2" hasErrors={summary.length > 0} layout="full-width">
         <ErrorSummary errors={summary} onFieldLink={revealField} />
         <p className="ds_lead">Select the groups the user should be in, then select Review to check your changes.</p>
         <form noValidate onSubmit={handleSubmit}>

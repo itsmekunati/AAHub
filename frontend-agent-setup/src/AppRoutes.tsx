@@ -3,7 +3,6 @@ import { Layout } from "./components/Layout";
 import { HomePage } from "./pages/HomePage";
 import { NotAvailablePage } from "./pages/NotAvailablePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
-import { ConfirmUserPage } from "./pages/provision/ConfirmUserPage";
 import { ProvisionLayout } from "./pages/provision/ProvisionLayout";
 import { ResultPage } from "./pages/provision/ResultPage";
 import { TicketPage } from "./pages/provision/TicketPage";
@@ -26,7 +25,6 @@ export function AppRoutes() {
           <Route index element={<Navigate to="user-type" replace />} />
           <Route path="user-type" element={<UserTypePage />} />
           <Route path="user-number" element={<UserNumberPage />} />
-          <Route path="confirm-user" element={<ConfirmUserPage />} />
           <Route path="user-details" element={<UserDetailsPage />} />
           <Route path="ticket" element={<TicketPage />} />
           <Route path="result" element={<ResultPage />} />

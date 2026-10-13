@@ -1,6 +1,6 @@
 // TESTS AND DEVELOPMENT ONLY. Follows the TEMPORARY contract in src/services/provisioning.ts.
 import { http, HttpResponse, delay } from "msw";
-import { locationsPath, provisioningRequestsPath, userLookupPath } from "../services/provisioning";
+import { USER_TYPES, locationsPath, provisioningRequestsPath, userLookupPath } from "../services/provisioning";
 import { parseTicketNumber } from "../services/jiraTicket";
 import { ldapGroupCataloguePath, ldapGroupsPath, roleChangeRequestsPath } from "../services/roleManagement";
 import {
@@ -8,6 +8,7 @@ import {
   fakeLdapCatalogue,
   fakeLdapMemberships,
   fakeLocations,
+  fakeProvisionedXNumber,
   fakeRoleChangeTransactionId,
   fakeTransactionId,
 } from "./data";
@@ -82,15 +83,22 @@ export const handlers = [
     }
     return HttpResponse.json({ groups: entry.groups });
   }),
-  http.get(`*${locationsPath}`, async () => {
+  http.get(`*${locationsPath}`, async ({ request }) => {
     await delay(100);
-    return HttpResponse.json(fakeLocations);
+    const requested = new URL(request.url).searchParams.get("userType");
+    const userType = USER_TYPES.find((candidate) => candidate === requested);
+    if (!userType) {
+      return new HttpResponse(null, { status: 400 });
+    }
+    return HttpResponse.json(fakeLocations[userType]);
   }),
   http.get(`*${userLookupPath}`, async ({ params, request }) => {
     await delay(150);
     const userType = new URL(request.url).searchParams.get("userType");
+    // The operator may type the identifier's letters in either case.
+    const userIdentifier = String(params.userIdentifier).toUpperCase();
     const entry = fakeDirectory.find(
-      (candidate) => candidate.user.userIdentifier === params.userIdentifier && candidate.userType === userType,
+      (candidate) => candidate.user.userIdentifier.toUpperCase() === userIdentifier && candidate.userType === userType,
     );
     if (!entry) {
       return new HttpResponse(null, { status: 404 });
@@ -102,6 +110,6 @@ export const handlers = [
     if (!isComplete(await request.json())) {
       return new HttpResponse(null, { status: 400 });
     }
-    return HttpResponse.json({ transactionId: fakeTransactionId }, { status: 201 });
+    return HttpResponse.json({ transactionId: fakeTransactionId, userXNumber: fakeProvisionedXNumber }, { status: 201 });
   }),
 ];

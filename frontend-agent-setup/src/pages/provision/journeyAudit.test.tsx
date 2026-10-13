@@ -46,7 +46,7 @@ describe("UI audit events in the provisioning journey", () => {
         journey: "provisioning",
         step: "ticket",
         fields: ["jira-ticket-id"],
-        userType: "government",
+        userType: "SG",
       }),
     );
     expect(JSON.stringify(events)).not.toContain("ABC-99999");
@@ -54,7 +54,7 @@ describe("UI audit events in the provisioning journey", () => {
 
   it("reports a missing location and a missing mandatory detail by name", async () => {
     const { events, user } = await openJourney();
-    await walkToUserDetails(user, "Forestry", "Z200002");
+    await walkToUserDetails(user, "Scottish Forestry", "Z200002");
 
     await user.click(screen.getByRole("button", { name: "Next" }));
 
@@ -64,7 +64,7 @@ describe("UI audit events in the provisioning journey", () => {
         journey: "provisioning",
         step: "user-details",
         fields: ["jobTitle", "location"],
-        userType: "forestry",
+        userType: "FGS",
       }),
     );
   });
@@ -83,7 +83,7 @@ describe("UI audit events in the provisioning journey", () => {
         journey: "provisioning",
         step: "ticket",
         reasonCode: "HTTP_500",
-        userType: "government",
+        userType: "SG",
       }),
     );
   });

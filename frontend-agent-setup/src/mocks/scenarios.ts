@@ -33,6 +33,7 @@ export const scenarios = {
   ],
   submitForbidden: [http.post(submit, () => new HttpResponse(null, { status: 403 }))],
   submitServerError: [http.post(submit, () => new HttpResponse(null, { status: 500 }))],
+  submitOffline: [http.post(submit, () => HttpResponse.error())],
   roleChangeForbidden: [http.post(roleChange, () => new HttpResponse(null, { status: 403 }))],
   roleChangeServerError: [http.post(roleChange, () => new HttpResponse(null, { status: 500 }))],
   ldapGroupsForbidden:[http.get(ldapGroups, () => new HttpResponse(null, { status: 403 }))],

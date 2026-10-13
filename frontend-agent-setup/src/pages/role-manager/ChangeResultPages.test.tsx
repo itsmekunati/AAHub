@@ -84,7 +84,7 @@ describe("Change failure", () => {
 
     const heading = await findHeading("Change failure");
     expect(heading.closest(".ds_notification")).toHaveClass("app_notification--error");
-    expect(screen.getByRole("heading", { level: 2, name: "User role manager failure details" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "User role manager failure details" })).not.toHaveClass("ds_h3");
     expect(
       screen.getByText((_, element) => element?.tagName === "P" && element.textContent === `LDAP groups for user x123456 in the ${environment} environment have not been updated.`),
     ).toBeInTheDocument();
@@ -118,7 +118,7 @@ describe("Change failure", () => {
         journey: "role-management",
         step: "review-changes",
         reasonCode: "HTTP_500",
-        userType: "scottish-government",
+        userType: "SG",
       }),
     );
     const sent = JSON.stringify(events);

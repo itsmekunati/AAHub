@@ -1,23 +1,31 @@
 import { useState, type FormEvent } from "react";
-import { Navigate, useNavigate } from "react-router";
+import { Link, Navigate, useNavigate } from "react-router";
+import { BackLink } from "../../components/BackLink";
 import { ErrorSummary, type FormError } from "../../components/ErrorSummary";
 import { FormButtons } from "../../components/FormButtons";
 import { Page } from "../../components/Page";
-import { SummaryList } from "../../components/SummaryList";
 import { TextInput } from "../../components/TextInput";
 import { problemMessage } from "../../services/problemMessage";
 import { lookUpUser } from "../../services/provisioning";
 import { screenError, useCancelJourney, validationBlocked } from "./journeyAudit";
 import { paths, userTypeLabel } from "./options";
 import { useProvision } from "./ProvisionContext";
+import { isFinalError, sanitiseUserIdentifier, userIdentifierCopy, validateUserIdentifier } from "./validateUserIdentifier";
 
 const fieldId = "user-number";
+const unavailableHintId = "user-number-unavailable";
+const notFoundMessage = "User not found. Check the user number and user type.";
 
 export function UserNumberPage() {
   const navigate = useNavigate();
   const { state, userValidated } = useProvision();
   const [userIdentifier, setUserIdentifier] = useState(state.userIdentifier);
-  const [errors, setErrors] = useState<FormError[]>([]);
+  // Errors that typing more cannot fix show at once; the rest wait until the field is left or submitted.
+  const [touched, setTouched] = useState(false);
+  // A "not found" answer from the backend, shown until the value is changed.
+  const [serverFieldError, setServerFieldError] = useState<string>();
+  // The summary changes only on submit, so it never takes focus while the operator types.
+  const [summary, setSummary] = useState<FormError[]>([]);
   const [checking, setChecking] = useState(false);
   const cancel = useCancelJourney("user-identifier");
 
@@ -25,60 +33,90 @@ export function UserNumberPage() {
     return <Navigate to={paths.userType} replace />;
   }
   const userType = state.userType;
+  const copy = userIdentifierCopy(userType);
+  const problem = validateUserIdentifier(userIdentifier, userType);
+  const fieldError = serverFieldError ?? (touched || isFinalError(userIdentifier, userType) ? problem : undefined);
+
+  function handleIdentifierChange(value: string) {
+    setUserIdentifier(value);
+    setServerFieldError(undefined);
+    if (!validateUserIdentifier(value, userType)) {
+      setSummary((current) => (current.length === 0 ? current : []));
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (checking) {
       return;
     }
-    const trimmed = userIdentifier.trim();
-    if (!trimmed) {
-      setErrors([{ fieldId, message: "Enter a user identifier" }]);
+    setTouched(true);
+    // Only the sanitised value is ever sent or kept, never what was typed.
+    const identifier = sanitiseUserIdentifier(userIdentifier, userType);
+    if (!identifier.ok) {
+      setSummary([{ fieldId, message: identifier.message }]);
       validationBlocked("user-identifier", [fieldId], userType);
       return;
     }
     setChecking(true);
     try {
-      const result = await lookUpUser(userType, trimmed);
+      const result = await lookUpUser(userType, identifier.value);
       if (!result.found) {
-        setErrors([{ fieldId, message: "User not found. Check the user identifier and user type." }]);
+        setServerFieldError(notFoundMessage);
+        setSummary([{ fieldId, message: notFoundMessage }]);
         return;
       }
-      userValidated(trimmed, result.user);
-      void navigate(paths.confirmUser);
+      userValidated(identifier.value, result.user);
+      void navigate(paths.userDetails);
     } catch (error) {
-      setErrors([{ message: problemMessage(error) }]);
+      setSummary([{ message: problemMessage(error) }]);
       screenError("user-identifier", error, userType);
     } finally {
       setChecking(false);
     }
   }
 
-  const fieldError = errors.find((error) => error.fieldId === fieldId)?.message;
-
   return (
-    <Page title="Enter the user identifier" hasErrors={errors.length > 0}>
-      <ErrorSummary errors={errors} />
-      <SummaryList items={[{ key: "User type", value: userTypeLabel(userType) }]} />
-      <form noValidate onSubmit={(event) => void handleSubmit(event)}>
-        <TextInput
-          id={fieldId}
-          label="User identifier"
-          value={userIdentifier}
-          onChange={setUserIdentifier}
-          error={fieldError}
-          width="fixed-20"
-        />
-        <FormButtons
-          submitLabel="Validate"
-          busy={checking}
-          busyLabel="Validating"
-          onCancel={cancel}
-        />
-        <div className="visually-hidden" role="status">
-          {checking ? "Checking the user identifier" : ""}
-        </div>
-      </form>
-    </Page>
+    <>
+      <BackLink to={paths.userType} label="Previous" />
+      <p>
+        <strong>Selected user type:</strong>
+      </p>
+      <p>{userTypeLabel(userType)}</p>
+      <p>
+        <Link className="ds_link" to={paths.userType}>
+          Change <span className="visually-hidden">user type</span>
+        </Link>
+      </p>
+      <Page title="Provide the user details" titleSize="h2" hasErrors={summary.length > 0}>
+        <ErrorSummary errors={summary} />
+        <form noValidate onSubmit={(event) => void handleSubmit(event)}>
+          <TextInput
+            id={fieldId}
+            label={copy.label}
+            hint={copy.hint}
+            value={userIdentifier}
+            onChange={handleIdentifierChange}
+            onBlur={() => setTouched(true)}
+            error={fieldError}
+            width="fixed-20"
+          />
+          <FormButtons
+            submitLabel="Validate user details"
+            busy={checking}
+            busyLabel="Validating"
+            unavailable={Boolean(problem)}
+            unavailableHintId={unavailableHintId}
+            onCancel={cancel}
+          />
+          <p className="visually-hidden" id={unavailableHintId}>
+            {copy.unavailable}
+          </p>
+          <div className="visually-hidden" role="status">
+            {checking ? "Checking the user number" : ""}
+          </div>
+        </form>
+      </Page>
+    </>
   );
 }

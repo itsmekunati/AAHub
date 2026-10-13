@@ -32,6 +32,7 @@ describe("Review and select LDAP groups", () => {
     expect(screen.getByText(/For user/)).toHaveTextContent(`For user x123456 in ${testConfig.environmentName} environment`);
     expect(screen.getByRole("link", { name: "Previous" })).toHaveAttribute("href", "/role-manager/user-details");
     expect(document.title).toBe("Review and select LDAP groups - Application Access Hub");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveClass("ds_h2");
   });
 
   it("AC8: shows one tab per application, with RP&S selected", async () => {

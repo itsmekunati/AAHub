@@ -26,7 +26,7 @@ interface RoleManagerContextValue {
 
 const RoleManagerContext = createContext<RoleManagerContextValue | undefined>(undefined);
 
-const initialState: RoleManagerState = { userType: "scottish-government", userIdentifier: "" };
+const initialState: RoleManagerState = { userType: "SG", userIdentifier: "" };
 
 /** Holds the journey's answers. It lives only while the operator is inside /role-manager. */
 export function RoleManagerProvider({ children }: { children: ReactNode }) {

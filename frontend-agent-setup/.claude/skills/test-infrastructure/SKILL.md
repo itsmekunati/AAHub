@@ -34,7 +34,7 @@ Rules: `.claude/rules/testing.md`, `tdd.md`, `api-client.md`, `auth.md`. Templat
    Commit them as `test(sprint-NN): test infrastructure`.
 2. **Green:** add the files from `templates/`, adapting imports and environment variable names to the chosen tooling.
 3. **Handlers follow the contract:** every path, method, request and response shape comes from `openapi/openapi.json` via the generated types. A handler never invents an endpoint, field or status code; error bodies use the documented error shape.
-4. **Fake data only:** `example.test` emails and obviously fake names. Cover all three user types (Government, Forestry, Nature).
+4. **Fake data only:** `example.test` emails and obviously fake names. Cover all three user types (Scottish Government, Scottish Forestry, NatureScot).
 5. **Development server mode:** the development server can start the mock worker and mock auth when a development-only flag is set, with persona and scenario selectable (query parameter or a development-only switcher). Record the chosen flag and how to switch in `CLAUDE.md` "Commands".
 6. **Never in production:** mock auth, the mock API library, its worker script, mock data and scenarios must not appear in a production build. Build a production bundle and search it to prove this.
 7. **Use it everywhere:** every component and page test renders through `renderPage`, uses role and label queries and `user`, and calls `expectNoAxeViolations` where it renders UI. Services in `src/services/` are tested against the mock server too.
