@@ -158,13 +158,11 @@ describe("Review your selection before submitting", () => {
     await openDetails();
 
     await screen.findByRole("option", { name: "Perth" });
-    expect(within(locationField()).getAllByRole("option").map((option) => option.textContent)).toEqual([
-      locationPlaceholder,
-      "Perth",
-      "SASA",
-      "House",
-      "Inverness",
-    ]);
+    expect(
+      within(locationField())
+        .getAllByRole("option")
+        .map((option) => option.textContent),
+    ).toEqual([locationPlaceholder, "Perth", "SASA", "House", "Inverness"]);
     expect(locationField()).toHaveValue("");
   });
 
@@ -175,10 +173,11 @@ describe("Review your selection before submitting", () => {
     await openDetails(userType, userIdentifier);
 
     await screen.findByRole("option", { name: locations[0] });
-    expect(within(locationField()).getAllByRole("option").map((option) => option.textContent)).toEqual([
-      locationPlaceholder,
-      ...locations,
-    ]);
+    expect(
+      within(locationField())
+        .getAllByRole("option")
+        .map((option) => option.textContent),
+    ).toEqual([locationPlaceholder, ...locations]);
     expect(screen.queryByRole("option", { name: "Perth" })).not.toBeInTheDocument();
   });
 
@@ -232,7 +231,9 @@ describe("Review your selection before submitting", () => {
 
     await user.type(managerField(), "x12345");
     expect(nextButton()).toHaveAttribute("aria-disabled", "true");
-    expect(nextButton()).toHaveAccessibleDescription("Enter a valid manager's x number, or leave it blank, to continue");
+    expect(nextButton()).toHaveAccessibleDescription(
+      "Enter a valid manager's x number, or leave it blank, to continue",
+    );
 
     await user.type(managerField(), "6");
     expect(nextButton()).not.toHaveAttribute("aria-disabled");

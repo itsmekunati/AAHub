@@ -4,10 +4,8 @@
 import type { paths } from "../services/api/generated/schema"; // VERIFY: generated file name
 
 // PLACEHOLDER operation: replace with real operations from openapi/openapi.json. Never invent one.
-type CreateUserRequest =
-  paths["/VERIFY/users"]["post"]["requestBody"]["content"]["application/json"];
-type CreateUserResponse =
-  paths["/VERIFY/users"]["post"]["responses"]["201"]["content"]["application/json"];
+type CreateUserRequest = paths["/VERIFY/users"]["post"]["requestBody"]["content"]["application/json"];
+type CreateUserResponse = paths["/VERIFY/users"]["post"]["responses"]["201"]["content"]["application/json"];
 
 export function fakeCreatedUser(request: CreateUserRequest): CreateUserResponse {
   // VERIFY: return every required field of the generated response type; the type checker

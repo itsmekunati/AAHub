@@ -46,7 +46,10 @@ export function sanitiseUserIdentifier(raw: string, userType: UserType): Sanitis
   const value = raw.trim();
   const gakwoType = isGakwoType(userType);
   if (!value) {
-    return { ok: false, message: gakwoType ? userIdentifierMessages.missingGakwo : userIdentifierMessages.missingNumber };
+    return {
+      ok: false,
+      message: gakwoType ? userIdentifierMessages.missingGakwo : userIdentifierMessages.missingNumber,
+    };
   }
   if (!(gakwoType ? gakwoNumber : userNumber).test(value)) {
     return { ok: false, message: gakwoType ? userIdentifierMessages.gakwo : userIdentifierMessages.number };

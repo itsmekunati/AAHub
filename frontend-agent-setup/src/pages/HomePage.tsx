@@ -29,8 +29,8 @@ export function HomePage() {
       <div className="ds_inset-text">
         <div className="ds_inset-text__text">
           <p>
-            You are viewing the <strong>{environmentName}</strong> instance of Application Access Hub which allows
-            you to provision and manage users in the following environments only: {managedEnvironments.join(", ")}.
+            You are viewing the <strong>{environmentName}</strong> instance of Application Access Hub which allows you
+            to provision and manage users in the following environments only: {managedEnvironments.join(", ")}.
           </p>
           {otherInstance && (
             <p>

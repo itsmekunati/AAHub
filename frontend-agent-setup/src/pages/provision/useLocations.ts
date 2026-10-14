@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { getLocations, type UserType } from "../../services/provisioning";
 
-export type LocationsState =
-  | { status: "loading" }
-  | { status: "loaded"; locations: string[] }
-  | { status: "failed" };
+export type LocationsState = { status: "loading" } | { status: "loaded"; locations: string[] } | { status: "failed" };
 
 type Fetched = { userType: UserType; state: LocationsState };
 

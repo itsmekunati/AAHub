@@ -18,7 +18,8 @@ import {
 } from "./testJourney";
 
 const start = "/provision/user-type";
-const ticketHint = "Enter just the numbers from the ITS ticket. This is required for audit purposes and is a mandatory field.";
+const ticketHint =
+  "Enter just the numbers from the ITS ticket. This is required for audit purposes and is a mandatory field.";
 const missingMessage = "You must enter the associated JSM ticket ID in order to submit this page.";
 const formatMessage = "Enter the 6 numbers from the ITS ticket, for example 123456";
 
@@ -56,7 +57,9 @@ describe("Review your selection before submitting: the JSM ticket step", () => {
     expect(screen.getByRole("heading", { level: 1, name: headings.ticket })).toHaveClass("ds_h2");
     expect(screen.getByText("You are updating the details of an existing request.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Previous" })).toHaveAttribute("href", "/provision/user-details");
-    await waitFor(() => expect(document.title).toBe("Review your selection before submitting - Application Access Hub"));
+    await waitFor(() =>
+      expect(document.title).toBe("Review your selection before submitting - Application Access Hub"),
+    );
   });
 
   it("AC10: Previous goes back to the details step with the answers kept", async () => {
@@ -75,10 +78,11 @@ describe("Review your selection before submitting: the JSM ticket step", () => {
     expect(row(requestDetails(), "Selected environment")).toHaveTextContent("Test environment");
     expect(row(requestDetails(), "Selected user type")).toHaveTextContent("Scottish Government");
     expect(row(requestDetails(), "Selected user")).toHaveTextContent("U100001");
-    expect(within(requestDetails()).getAllByRole("link").map((link) => link.textContent)).toEqual([
-      "Change selected user type",
-      "Change selected user",
-    ]);
+    expect(
+      within(requestDetails())
+        .getAllByRole("link")
+        .map((link) => link.textContent),
+    ).toEqual(["Change selected user type", "Change selected user"]);
   });
 
   it("AC10: shows the user's details, the manager's x number and the location, all read-only", async () => {
@@ -295,7 +299,10 @@ describe("Review your selection before submitting: the JSM ticket step", () => {
 
   it.each([
     ["submitServerError", "Sorry, there is a problem with the service. Try again later."],
-    ["submitForbidden", "You do not have permission to do this. Contact your administrator if you think this is wrong."],
+    [
+      "submitForbidden",
+      "You do not have permission to do this. Contact your administrator if you think this is wrong.",
+    ],
     ["submitOffline", "Sorry, there is a problem with the service. Try again later."],
   ] as const)("AC13: shows a red failure ribbon and the failure details for %s", async (scenario, reason) => {
     const { user } = await openTicket(scenario);

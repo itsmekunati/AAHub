@@ -27,7 +27,9 @@ describe("UI audit events in the provisioning journey", () => {
     const { events, user } = await openJourney();
     await chooseUserType(user);
 
-    await waitFor(() => expect(events).toContainEqual({ eventType: "JOURNEY_STARTED", journey: "provisioning", step: "user-type" }));
+    await waitFor(() =>
+      expect(events).toContainEqual({ eventType: "JOURNEY_STARTED", journey: "provisioning", step: "user-type" }),
+    );
     expect(events.filter((event) => event.eventType === "JOURNEY_STARTED")).toHaveLength(1);
   });
 
@@ -38,7 +40,11 @@ describe("UI audit events in the provisioning journey", () => {
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 
     await waitFor(() =>
-      expect(events).toContainEqual({ eventType: "JOURNEY_CANCELLED", journey: "provisioning", step: "user-identifier" }),
+      expect(events).toContainEqual({
+        eventType: "JOURNEY_CANCELLED",
+        journey: "provisioning",
+        step: "user-identifier",
+      }),
     );
   });
 
@@ -97,6 +103,44 @@ describe("UI audit events in the provisioning journey", () => {
     );
   });
 
+  it("reports that the journey finished successfully, with the transaction ID", async () => {
+    const { events, user } = await openJourney();
+    await walkToTicket(user);
+    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-123456");
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+    await findHeading(headings.success);
+
+    await waitFor(() =>
+      expect(events).toContainEqual({
+        eventType: "JOURNEY_COMPLETED",
+        journey: "provisioning",
+        step: "ticket",
+        outcome: "SUCCESS",
+        transactionId: "TXN-000123",
+        userType: "SG",
+      }),
+    );
+  });
+
+  it("reports that the journey finished with a failure, by reason code only", async () => {
+    const { events, user } = await openJourney("submitServerError");
+    await walkToTicket(user);
+    await user.type(screen.getByRole("textbox", { name: ticketLabel }), "ITS-123456");
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+    await findHeading(headings.failed);
+
+    await waitFor(() =>
+      expect(events).toContainEqual({
+        eventType: "JOURNEY_COMPLETED",
+        journey: "provisioning",
+        step: "ticket",
+        outcome: "FAILURE",
+        reasonCode: "HTTP_500",
+        userType: "SG",
+      }),
+    );
+  });
+
   it("never sends personal data, the user identifier or the ticket", async () => {
     const { events, user } = await openJourney();
     await walkToTicket(user);
@@ -106,7 +150,15 @@ describe("UI audit events in the provisioning journey", () => {
 
     await waitFor(() => expect(events.length).toBeGreaterThan(0));
     const sent = JSON.stringify(events);
-    for (const value of ["Alex", "Example", "alex.example@example.test", "U100001", "X000001", "Policy officer", "ITS-123456"]) {
+    for (const value of [
+      "Alex",
+      "Example",
+      "alex.example@example.test",
+      "U100001",
+      "X000001",
+      "Policy officer",
+      "ITS-123456",
+    ]) {
       expect(sent).not.toContain(value);
     }
   });
@@ -137,7 +189,15 @@ describe("UI audit events in the provisioning journey", () => {
       userType: "SNH",
     });
     const sent = JSON.stringify(events);
-    for (const value of ["Jo", "jo.test@example.test", "not-an-email", "GAKWO300003", "x722222", "Ecologist", "Battleby"]) {
+    for (const value of [
+      "Jo",
+      "jo.test@example.test",
+      "not-an-email",
+      "GAKWO300003",
+      "x722222",
+      "Ecologist",
+      "Battleby",
+    ]) {
       expect(sent).not.toContain(value);
     }
   });

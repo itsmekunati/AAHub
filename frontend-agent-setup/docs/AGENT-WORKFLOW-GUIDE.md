@@ -296,7 +296,7 @@ Make sure you have the following before you start:
 
 > **Important:** The agents never use real environments, real Okta orgs or real people's accounts. Local work uses a **mock API and mocked sign-in**. E2E tests only run against a deployed **test** environment with dedicated **test** users, and only when you have set those details yourself as environment variables.
 
-> **Build tooling is not finalised yet.** The commands in `CLAUDE.md` are placeholders. The first sprint will probably ask you to choose tooling (for example the build tool and test runner). Answer those questions, then update the "Commands" section of `CLAUDE.md` and remove question 3 from `docs/open-questions.md`.
+> **Build tooling is decided:** Vite, Vitest and ESLint (see `.claude/rules/code-style.md`). The commands are in the "Commands" section of `CLAUDE.md`.
 
 ---
 
@@ -387,7 +387,7 @@ git add CLAUDE.md .claude docs .githooks
 git commit -m "chore: add multi-agent build workflow"
 ```
 
-**About the lint hook.** Every commit, by a person or an agent, runs `.githooks/pre-commit`. It lints only the files being committed: ESLint (with the repo's typescript-eslint and accessibility rules, no warnings allowed) on staged `.ts`/`.tsx`/`.js` files, yamllint on YAML files and Hadolint on Dockerfiles. Generated API code is skipped. ESLint is skipped with a note until `npm install` has run.
+**About the lint hook.** Every commit, by a person or an agent, runs `.githooks/pre-commit`. It lints only the files being committed: ESLint (with the repo's typescript-eslint and accessibility rules, no warnings allowed) on staged `.ts`/`.tsx`/`.js` files, a Prettier check (it never rewrites; run `npm run format` to fix what it reports) on staged files that `.prettierignore` does not leave out, yamllint on YAML files and Hadolint on Dockerfiles. Generated API code is skipped. ESLint and Prettier are skipped with a note until `npm install` has run.
 
 - If it fails, fix what it reports, `git add` again and commit again.
 - Run it by hand with `bash .githooks/pre-commit`, or `bash .githooks/pre-commit --all` for every file.
@@ -508,7 +508,7 @@ Type a short request. Focus on what the operator needs to do, not on the impleme
 The Planner reads `openapi/openapi.json`, writes `specs/product-spec.json`, and replies with:
 
 - a short summary of the features, the Design System components each uses, and how they are split into sprints (up to 8);
-- **open questions** that block the work, from `docs/open-questions.md`: the `admin`/`editor` permission matrix, Okta details and OIDC library, build tooling, how the app is served, E2E test domains;
+- **open questions** that block the work, from `docs/open-questions.md`: the `admin`/`editor` permission matrix, Okta details and OIDC library, build tooling, how the app is served;
 - **backend dependencies**: anything the UI needs that is **not** in the API spec yet (a missing endpoint, field or error code).
 
 What to do:
@@ -592,9 +592,6 @@ The simplest plan is to run both repositories in parallel. The backend builds it
 
    | # | Question | Why it blocks |
    |---|---|---|
-   | 3 | Build tooling (build tool, test runner, npm scripts) | Nothing can be built without it |
-   | 7 | Mock API library (proposed: MSW) | Needed by the test infrastructure |
-   | 8 | Formatter (Prettier or not) | Decides the formatting hook |
    | 2 | OIDC library and Okta details | Needed for sign-in |
    | 1 | What `admin` and `editor` may each do | Decides what each role sees |
 
@@ -721,7 +718,7 @@ Snyk checks for known vulnerabilities and security problems. The checks are buil
 |---|---|---|---|
 | Dependencies | `snyk test` | On commit, when `package.json` or `package-lock.json` is staged | On |
 | Infrastructure | `snyk iac test` | On commit, when `deploy/` manifests are staged | On |
-| Your own code | `snyk code test` | On push (`.githooks/pre-push`) | **Off.** It uploads your source code to Snyk, so it needs approval first (open question #10). |
+| Your own code | `snyk code test` | On push (`.githooks/pre-push`) | **Off.** It uploads your source code to Snyk, so it needs approval first (open question #6). |
 
 Only issues at **high** or **critical** severity block a commit or push. If Snyk can't run (not installed, not signed in, or no network), it **warns and lets the commit through**; CI remains the real gate.
 

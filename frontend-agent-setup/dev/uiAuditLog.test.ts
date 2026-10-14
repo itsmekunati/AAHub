@@ -34,6 +34,38 @@ describe("Local UI audit log line", () => {
     });
   });
 
+  it("keeps the selected tab and the journey's outcome", () => {
+    const tab = toAuditLine(
+      { eventType: "TAB_SELECTED", journey: "navigation", step: "site-header", tab: "role-management" },
+      now,
+    );
+    const completed = toAuditLine(
+      {
+        eventType: "JOURNEY_COMPLETED",
+        journey: "provisioning",
+        step: "ticket",
+        outcome: "SUCCESS",
+        transactionId: "TXN-000123",
+      },
+      now,
+    );
+
+    expect(tab.ok && JSON.parse(tab.line)).toMatchObject({ eventType: "TAB_SELECTED", tab: "role-management" });
+    expect(completed.ok && JSON.parse(completed.line)).toMatchObject({
+      outcome: "SUCCESS",
+      transactionId: "TXN-000123",
+    });
+  });
+
+  it("drops an outcome that is not SUCCESS or FAILURE", () => {
+    const result = toAuditLine(
+      { eventType: "JOURNEY_COMPLETED", journey: "provisioning", step: "ticket", outcome: "alex.example@example.test" },
+      now,
+    );
+
+    expect(result.ok && result.line).not.toContain("alex.example@example.test");
+  });
+
   it("drops anything it does not expect, so personal data cannot reach the file", () => {
     const result = toAuditLine(
       { eventType: "JOURNEY_STARTED", journey: "provisioning", step: "user-type", email: "alex.example@example.test" },

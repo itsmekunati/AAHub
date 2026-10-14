@@ -81,12 +81,14 @@ export function ReviewChangesPage() {
         jiraTicketId: result.ticketId,
       });
       changesSubmitted(created.transactionId, result.ticketId);
+      roleManagerAudit.succeeded(step, created.transactionId, userType);
       void navigate(paths.submitted);
     } catch (error) {
       roleManagerAudit.screenError(step, error, userType);
       if (error instanceof RoleChangeFailedError) {
         // The backend could not apply the change: show the failure page, not a form error.
         changeFailed();
+        roleManagerAudit.failed(step, error, userType);
         void navigate(paths.changeFailed);
         return;
       }

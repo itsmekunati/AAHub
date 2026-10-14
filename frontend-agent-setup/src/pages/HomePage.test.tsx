@@ -43,16 +43,15 @@ describe("Home page", () => {
     renderApp();
     await findHeading("Home");
 
-    const inset = screen
-      .getByText(/instance of Application Access Hub/)
-      .closest(".ds_inset-text");
+    const inset = screen.getByText(/instance of Application Access Hub/).closest(".ds_inset-text");
     expect(inset).toHaveTextContent(
       "You are viewing the Test environment instance of Application Access Hub which allows you to provision and manage users in the following environments only: UAT, OAT.",
     );
     expect(within(inset as HTMLElement).getByText("Test environment", { selector: "strong" })).toBeInTheDocument();
-    expect(
-      within(inset as HTMLElement).getByRole("link", { name: "Go to the Production instance" }),
-    ).toHaveAttribute("href", "https://prod.example.test/");
+    expect(within(inset as HTMLElement).getByRole("link", { name: "Go to the Production instance" })).toHaveAttribute(
+      "href",
+      "https://prod.example.test/",
+    );
   });
 
   it("AC1: starts the provisioning journey", async () => {
@@ -66,7 +65,9 @@ describe("Home page", () => {
   it("AC1: says the other tasks are not available yet", async () => {
     const { user } = renderApp();
 
-    await user.click(within(await screen.findByRole("main")).getByRole("link", { name: "Check user's existing RP&S access" }));
+    await user.click(
+      within(await screen.findByRole("main")).getByRole("link", { name: "Check user's existing RP&S access" }),
+    );
 
     expect(await findHeading("This part of the service is not available yet")).toBeInTheDocument();
   });
@@ -100,7 +101,11 @@ describe("Home page", () => {
 
       const nav = screen.getByRole("navigation");
       expect(nav.closest(".ds_site-header")).not.toBeNull();
-      expect(within(nav).getAllByRole("link").map((link) => [link.textContent, link.getAttribute("href")])).toEqual([
+      expect(
+        within(nav)
+          .getAllByRole("link")
+          .map((link) => [link.textContent, link.getAttribute("href")]),
+      ).toEqual([
         ["User provisioning", "/provision/user-type"],
         ["User Role Manager", "/role-manager"],
         ["Check existing access to RP&S", "/check-access"],

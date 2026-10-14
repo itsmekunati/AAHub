@@ -27,13 +27,39 @@ async function submitChange(scenario?: ScenarioName) {
 const environment = testConfig.environmentName;
 
 describe("Change success", () => {
+  it("reports that the journey finished successfully, with the transaction ID and no personal data", async () => {
+    const events = captureUiEvents();
+    await submitChange();
+    await findHeading("Change success");
+
+    await waitFor(() =>
+      expect(events).toContainEqual({
+        eventType: "JOURNEY_COMPLETED",
+        journey: "role-management",
+        step: "review-changes",
+        outcome: "SUCCESS",
+        transactionId: "TXN-000456",
+        userType: "SG",
+      }),
+    );
+    const sent = JSON.stringify(events);
+    for (const value of ["x123456", "ITS-123456", "RPS-"]) {
+      expect(sent).not.toContain(value);
+    }
+  });
+
   it("AC15: shows the success ribbon with the user, the environment and what to do next", async () => {
     await submitChange();
 
     const heading = await findHeading("Change success");
     expect(heading.closest(".ds_notification")).toHaveClass("ds_notification--success");
     expect(
-      screen.getByText((_, element) => element?.tagName === "P" && element.textContent === `LDAP groups for user x123456 in the ${environment} environment have been updated successfully.`),
+      screen.getByText(
+        (_, element) =>
+          element?.tagName === "P" &&
+          element.textContent ===
+            `LDAP groups for user x123456 in the ${environment} environment have been updated successfully.`,
+      ),
     ).toBeInTheDocument();
     expect(
       screen.getByText("Please validate the changes with the user, then update any corresponding JSM tickets."),
@@ -84,9 +110,16 @@ describe("Change failure", () => {
 
     const heading = await findHeading("Change failure");
     expect(heading.closest(".ds_notification")).toHaveClass("app_notification--error");
-    expect(screen.getByRole("heading", { level: 2, name: "User role manager failure details" })).not.toHaveClass("ds_h3");
+    expect(screen.getByRole("heading", { level: 2, name: "User role manager failure details" })).not.toHaveClass(
+      "ds_h3",
+    );
     expect(
-      screen.getByText((_, element) => element?.tagName === "P" && element.textContent === `LDAP groups for user x123456 in the ${environment} environment have not been updated.`),
+      screen.getByText(
+        (_, element) =>
+          element?.tagName === "P" &&
+          element.textContent ===
+            `LDAP groups for user x123456 in the ${environment} environment have not been updated.`,
+      ),
     ).toBeInTheDocument();
     expect(
       screen.getByText("Please update any corresponding JSM tickets and escalate to the relevant team."),
@@ -125,6 +158,23 @@ describe("Change failure", () => {
     for (const value of ["x123456", "123456", "RPS-"]) {
       expect(sent).not.toContain(value);
     }
+  });
+
+  it("reports that the journey finished with a failure, by reason code only", async () => {
+    const events = captureUiEvents();
+    await submitChange("roleChangeServerError");
+    await findHeading("Change failure");
+
+    await waitFor(() =>
+      expect(events).toContainEqual({
+        eventType: "JOURNEY_COMPLETED",
+        journey: "role-management",
+        step: "review-changes",
+        outcome: "FAILURE",
+        reasonCode: "HTTP_500",
+        userType: "SG",
+      }),
+    );
   });
 
   it("AC16: Go to Home Page takes you to the home page", async () => {

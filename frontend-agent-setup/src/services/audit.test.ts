@@ -24,7 +24,9 @@ describe("Reporting UI audit events", () => {
     process.on("unhandledRejection", onRejection);
     server.use(handler);
 
-    expect(() => recordUiEvent({ eventType: "JOURNEY_STARTED", journey: "provisioning", step: "user-type" })).not.toThrow();
+    expect(() =>
+      recordUiEvent({ eventType: "JOURNEY_STARTED", journey: "provisioning", step: "user-type" }),
+    ).not.toThrow();
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     process.off("unhandledRejection", onRejection);

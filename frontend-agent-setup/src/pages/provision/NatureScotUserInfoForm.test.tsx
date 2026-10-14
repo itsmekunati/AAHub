@@ -109,7 +109,9 @@ describe("Enter NatureScot user information", () => {
     await pasteInto(user, natureScotCsv({ email: "not-an-email" }));
     await user.click(nextButton());
 
-    expect(within(screen.getByRole("alert")).getByRole("link", { name: natureScotCsvMessages.email })).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("alert")).getByRole("link", { name: natureScotCsvMessages.email }),
+    ).toBeInTheDocument();
     expect(checked).toEqual([]);
   });
 
@@ -178,7 +180,10 @@ describe("Enter NatureScot user information", () => {
   });
 
   it.each<[ScenarioName, string]>([
-    ["existingCheckForbidden", "You do not have permission to do this. Contact your administrator if you think this is wrong."],
+    [
+      "existingCheckForbidden",
+      "You do not have permission to do this. Contact your administrator if you think this is wrong.",
+    ],
     ["existingCheckServerError", "Sorry, there is a problem with the service. Try again later."],
     ["existingCheckOffline", "Sorry, there is a problem with the service. Try again later."],
   ])("AC5: shows a plain-English message under %s", async (scenario, message) => {

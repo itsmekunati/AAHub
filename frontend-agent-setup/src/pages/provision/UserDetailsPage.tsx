@@ -102,7 +102,9 @@ export function UserDetailsPage() {
             id={locationFieldId}
             label="Location"
             placeholder="Select location from dropdown"
-            options={locations.status === "loaded" ? locations.locations.map((name) => ({ value: name, label: name })) : []}
+            options={
+              locations.status === "loaded" ? locations.locations.map((name) => ({ value: name, label: name })) : []
+            }
             value={chosenLocation}
             onChange={setLocation}
             disabled={locations.status === "loading"}

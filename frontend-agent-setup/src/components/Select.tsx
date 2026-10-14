@@ -18,7 +18,17 @@ interface SelectProps {
   disabled?: boolean;
 }
 
-export function Select({ id, label, value, options, onChange, placeholder, hint, error, disabled = false }: SelectProps) {
+export function Select({
+  id,
+  label,
+  value,
+  options,
+  onChange,
+  placeholder,
+  hint,
+  error,
+  disabled = false,
+}: SelectProps) {
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
   const describedBy = [hint ? hintId : undefined, error ? errorId : undefined].filter(Boolean).join(" ");

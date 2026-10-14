@@ -18,7 +18,12 @@ export interface RoleManagerState {
 
 interface RoleManagerContextValue {
   state: RoleManagerState;
-  groupsFound: (userType: RoleUserType, userIdentifier: string, memberships: string[], catalogue: LdapApplication[]) => void;
+  groupsFound: (
+    userType: RoleUserType,
+    userIdentifier: string,
+    memberships: string[],
+    catalogue: LdapApplication[],
+  ) => void;
   groupsSelected: (selected: string[]) => void;
   changesSubmitted: (transactionId: string, ticketId: string) => void;
   changeFailed: () => void;

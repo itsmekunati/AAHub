@@ -19,7 +19,17 @@ interface CheckboxGroupProps {
   error?: string;
 }
 
-export function CheckboxGroup({ idPrefix, name, legend, options, selected, onToggle, hint, note, error }: CheckboxGroupProps) {
+export function CheckboxGroup({
+  idPrefix,
+  name,
+  legend,
+  options,
+  selected,
+  onToggle,
+  hint,
+  note,
+  error,
+}: CheckboxGroupProps) {
   const hintId = `${idPrefix}-hint`;
   const noteId = `${idPrefix}-note`;
   const errorId = `${idPrefix}-error`;

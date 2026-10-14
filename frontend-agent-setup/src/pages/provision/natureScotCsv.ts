@@ -24,8 +24,7 @@ export const natureScotCsvMessages = {
 };
 
 export type ParsedNatureScotCsv =
-  | { ok: true; user: DirectoryUser; managerXNumber: string; location: string }
-  | { ok: false; message: string };
+  { ok: true; user: DirectoryUser; managerXNumber: string; location: string } | { ok: false; message: string };
 
 function cells(raw: string): string[] {
   return raw.split(",").map((cell) => cell.trim());

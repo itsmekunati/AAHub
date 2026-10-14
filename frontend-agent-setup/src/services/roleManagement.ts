@@ -20,7 +20,10 @@ function readGroups(body: unknown): string[] {
   return groups;
 }
 
-export async function getLdapGroupMemberships(userType: RoleUserType, userIdentifier: string): Promise<LdapGroupsResult> {
+export async function getLdapGroupMemberships(
+  userType: RoleUserType,
+  userIdentifier: string,
+): Promise<LdapGroupsResult> {
   const query = new URLSearchParams({ userType });
   const response = await apiFetch(`/users/${encodeURIComponent(userIdentifier)}/ldap-groups?${query.toString()}`);
   if (response.status === 404) {
@@ -116,7 +119,8 @@ export async function submitRoleChangeRequest(request: RoleChangeRequest): Promi
     throw new ApiError(response.status);
   }
   const body: unknown = await response.json();
-  const transactionId: unknown = typeof body === "object" && body !== null ? Reflect.get(body, "transactionId") : undefined;
+  const transactionId: unknown =
+    typeof body === "object" && body !== null ? Reflect.get(body, "transactionId") : undefined;
   if (typeof transactionId !== "string" || !transactionId) {
     throw new Error("Unexpected role change response");
   }

@@ -26,7 +26,9 @@ describe("UI audit events in the User Role Manager journey", () => {
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 
-    await waitFor(() => expect(events).toContainEqual({ eventType: "JOURNEY_CANCELLED", journey, step: "user-details" }));
+    await waitFor(() =>
+      expect(events).toContainEqual({ eventType: "JOURNEY_CANCELLED", journey, step: "user-details" }),
+    );
   });
 
   it("AC7: reports a client-side check by field name, never the value", async () => {

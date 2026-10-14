@@ -23,7 +23,7 @@ This is procedure A in `docs/AGENT-WORKFLOW-GUIDE.md`. Every file it changes is 
 - If mocks, personas or test data were built around a placeholder (for example a ticket format in `src/mocks/`), list them as follow-up work; do not change code in this commit.
 
 ## 4. Remove the row
-Delete the row from `docs/open-questions.md`. Do not renumber the other rows: other files refer to them by number.
+Delete the row from `docs/open-questions.md`, then renumber the remaining rows so they run 1, 2, 3… with no gaps. Other files refer to questions by number (`open questions #2`, `open-questions.md` #2): grep for them and update every reference to the new numbers in the same commit.
 
 ## 5. The other repository
 Many questions exist in both repositories (permission matrix, Okta, transaction formats, hooks, Snyk, how the UI is served). Name the matching question in the backend's `docs/open-questions.md` if you know it, and remind the user to record the decision there too.

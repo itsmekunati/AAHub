@@ -45,7 +45,9 @@ export function ProvisionProvider({ children }: { children: ReactNode }) {
       state,
       chooseUserType: (userType) =>
         setState((current) =>
-          current.userType === userType ? current : { ...initialState, userIdentifier: current.userIdentifier, userType },
+          current.userType === userType
+            ? current
+            : { ...initialState, userIdentifier: current.userIdentifier, userType },
         ),
       userValidated: (userIdentifier, user) =>
         setState((current) => {

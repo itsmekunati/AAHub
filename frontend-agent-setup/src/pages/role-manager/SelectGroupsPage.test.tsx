@@ -29,7 +29,9 @@ describe("Review and select LDAP groups", () => {
   it("AC8: shows who and which environment the changes are for, with a Previous link", async () => {
     await openPage();
 
-    expect(screen.getByText(/For user/)).toHaveTextContent(`For user x123456 in ${testConfig.environmentName} environment`);
+    expect(screen.getByText(/For user/)).toHaveTextContent(
+      `For user x123456 in ${testConfig.environmentName} environment`,
+    );
     expect(screen.getByRole("link", { name: "Previous" })).toHaveAttribute("href", "/role-manager/user-details");
     expect(document.title).toBe("Review and select LDAP groups - Application Access Hub");
     expect(screen.getByRole("heading", { level: 1 })).toHaveClass("ds_h2");

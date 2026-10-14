@@ -37,7 +37,8 @@ Open the address the terminal prints (normally `http://localhost:5173`).
 | `npm test` | Runs the component tests once (Vitest). |
 | `npm run test:watch` | Runs the tests in watch mode. |
 | `npm run typecheck` | TypeScript check. |
-| `npm run lint` | ESLint, no warnings allowed. |
+| `npm run lint` | ESLint, no warnings allowed, then a Prettier check that fails on unformatted files. |
+| `npm run format` | Formats the code with Prettier. |
 | `npm run build` | Production build into `dist/`. Mock code and the local `config.json` are left out. |
 
 Before you say a change is done, `typecheck`, `lint`, `test` and `build` must all pass.

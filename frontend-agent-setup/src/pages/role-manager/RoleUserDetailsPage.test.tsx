@@ -59,7 +59,9 @@ describe("Sanitising the x number or username (User Role Manager)", () => {
       await user.paste(value);
       await user.click(screen.getByRole("button", { name: submitLabel }));
 
-      expect(within(screen.getByRole("alert")).getByRole("link", { name: identifierMessages.characters })).toBeInTheDocument();
+      expect(
+        within(screen.getByRole("alert")).getByRole("link", { name: identifierMessages.characters }),
+      ).toBeInTheDocument();
       expect(lookups).toEqual([]);
     },
   );
@@ -93,12 +95,11 @@ describe("Provide the user details (User Role Manager)", () => {
     const userType = screen.getByRole("combobox", { name: "User type" });
     expect(userType).toHaveAccessibleDescription("Select the user type from the dropdown");
     expect(userType).toHaveValue("SG");
-    expect(within(userType).getAllByRole("option").map((option) => option.textContent)).toEqual([
-      "Scottish Government",
-      "NatureScot",
-      "Scottish Forestry",
-      "Public",
-    ]);
+    expect(
+      within(userType)
+        .getAllByRole("option")
+        .map((option) => option.textContent),
+    ).toEqual(["Scottish Government", "NatureScot", "Scottish Forestry", "Public"]);
 
     expect(identifierField()).toHaveAccessibleDescription(identifierHint);
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
@@ -188,7 +189,9 @@ describe("Provide the user details (User Role Manager)", () => {
 
     await submitIdentifier(user, "");
 
-    expect(within(screen.getByRole("alert")).getByRole("link", { name: identifierMessages.missingXNumber })).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("alert")).getByRole("link", { name: identifierMessages.missingXNumber }),
+    ).toBeInTheDocument();
   });
 
   it("AC2: removes the summary once the value is fixed, without taking focus from the field", async () => {
@@ -214,7 +217,9 @@ describe("Provide the user details (User Role Manager)", () => {
 
     await user.type(identifierField(), "abc");
     await user.tab();
-    expect(identifierField()).toHaveAccessibleDescription(`${publicIdentifierHint} Error: ${identifierMessages.length}`);
+    expect(identifierField()).toHaveAccessibleDescription(
+      `${publicIdentifierHint} Error: ${identifierMessages.length}`,
+    );
 
     await user.type(identifierField(), "d");
     expect(identifierField()).not.toHaveAttribute("aria-invalid");
@@ -250,7 +255,9 @@ describe("Provide the user details (User Role Manager)", () => {
 
     await submitIdentifier(user, "jo.bloggs", "SNH");
 
-    expect(within(screen.getByRole("alert")).getByRole("link", { name: identifierMessages.xNumber })).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("alert")).getByRole("link", { name: identifierMessages.xNumber }),
+    ).toBeInTheDocument();
     expect(lookups).toEqual([]);
   });
 

@@ -136,6 +136,9 @@ export const handlers = [
     if (!isComplete(await request.json())) {
       return new HttpResponse(null, { status: 400 });
     }
-    return HttpResponse.json({ transactionId: fakeTransactionId, userXNumber: fakeProvisionedXNumber }, { status: 201 });
+    return HttpResponse.json(
+      { transactionId: fakeTransactionId, userXNumber: fakeProvisionedXNumber },
+      { status: 201 },
+    );
   }),
 ];

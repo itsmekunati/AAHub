@@ -117,9 +117,7 @@ export async function checkExistingUser(
   return { exists: true, userXNumber };
 }
 
-export async function submitProvisioningRequest(
-  request: ProvisioningRequest,
-): Promise<ProvisioningRequestCreated> {
+export async function submitProvisioningRequest(request: ProvisioningRequest): Promise<ProvisioningRequestCreated> {
   const response = await apiFetch(provisioningRequestsPath, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

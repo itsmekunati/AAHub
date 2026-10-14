@@ -64,7 +64,9 @@ describe("Provide the user details", () => {
     async (userType) => {
       await openUserNumber(userType);
 
-      expect(screen.getByRole("textbox", { name: "Enter user's u/z/c number" })).toHaveAccessibleDescription(numberHint);
+      expect(screen.getByRole("textbox", { name: "Enter user's u/z/c number" })).toHaveAccessibleDescription(
+        numberHint,
+      );
       expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
       expect(validateButton()).toBeInTheDocument();
     },

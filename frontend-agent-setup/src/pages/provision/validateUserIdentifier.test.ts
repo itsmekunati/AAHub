@@ -24,14 +24,21 @@ describe("sanitiseUserIdentifier", () => {
     expect(sanitiseUserIdentifier(" GAKWO300003 ", "SNH")).toEqual({ ok: true, value: "GAKWO300003" });
   });
 
-  it.each(["x111111", "u12345", "u1234567", "111111", "uu11111", "u11111a", "u 111111", "GAKWO300003", "ｕ１１１１１１"])(
-    "rejects %j for Scottish Government and Scottish Forestry",
-    (raw) => {
-      for (const userType of numberTypes) {
-        expect(sanitiseUserIdentifier(raw, userType)).toEqual({ ok: false, message: userIdentifierMessages.number });
-      }
-    },
-  );
+  it.each([
+    "x111111",
+    "u12345",
+    "u1234567",
+    "111111",
+    "uu11111",
+    "u11111a",
+    "u 111111",
+    "GAKWO300003",
+    "ｕ１１１１１１",
+  ])("rejects %j for Scottish Government and Scottish Forestry", (raw) => {
+    for (const userType of numberTypes) {
+      expect(sanitiseUserIdentifier(raw, userType)).toEqual({ ok: false, message: userIdentifierMessages.number });
+    }
+  });
 
   it.each(["GAKWO300003", "gakwo300003"])("accepts %s for NatureScot", (raw) => {
     expect(sanitiseUserIdentifier(raw, "SNH")).toEqual({ ok: true, value: raw });
@@ -62,13 +69,19 @@ describe("isFinalError", () => {
     expect(isFinalError(raw, "SG")).toBe(false);
   });
 
-  it.each(["x", "1", "u1a", "uu", "u1234567", "u-1"])("reports %j at once, because typing more cannot fix it", (raw) => {
-    expect(isFinalError(raw, "SG")).toBe(true);
-  });
+  it.each(["x", "1", "u1a", "uu", "u1234567", "u-1"])(
+    "reports %j at once, because typing more cannot fix it",
+    (raw) => {
+      expect(isFinalError(raw, "SG")).toBe(true);
+    },
+  );
 
-  it.each(["g", "GAK", "gakwo", "GAKWO3", "GAKWO300003"])("waits while %j could still become a valid GAKWO number", (raw) => {
-    expect(isFinalError(raw, "SNH")).toBe(false);
-  });
+  it.each(["g", "GAK", "gakwo", "GAKWO3", "GAKWO300003"])(
+    "waits while %j could still become a valid GAKWO number",
+    (raw) => {
+      expect(isFinalError(raw, "SNH")).toBe(false);
+    },
+  );
 
   it.each(["u", "GAKX", "GAKWOO", "GAKWO3000033", "GAKWO3a"])("reports %j at once for NatureScot", (raw) => {
     expect(isFinalError(raw, "SNH")).toBe(true);

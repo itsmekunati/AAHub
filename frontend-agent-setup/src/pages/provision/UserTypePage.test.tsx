@@ -12,11 +12,11 @@ describe("Select the user type", () => {
 
     await findHeading(headings.userType);
     const group = screen.getByRole("group", { name: "User type" });
-    expect(within(group).getAllByRole("radio").map((radio) => radio.getAttribute("value"))).toEqual([
-      "SG",
-      "FGS",
-      "SNH",
-    ]);
+    expect(
+      within(group)
+        .getAllByRole("radio")
+        .map((radio) => radio.getAttribute("value")),
+    ).toEqual(["SG", "FGS", "SNH"]);
     expect(within(group).getByRole("radio", { name: "Scottish Government" })).toHaveAttribute("value", "SG");
     expect(within(group).getByRole("radio", { name: "Scottish Forestry" })).toHaveAttribute("value", "FGS");
     expect(within(group).getByRole("radio", { name: "NatureScot" })).toHaveAttribute("value", "SNH");
@@ -58,10 +58,7 @@ describe("Select the user type", () => {
     const summary = screen.getByRole("alert");
     expect(within(summary).getByRole("heading", { name: "There is a problem" })).toBeInTheDocument();
     expect(summary).toHaveFocus();
-    expect(within(summary).getByRole("link", { name: "Select a user type" })).toHaveAttribute(
-      "href",
-      "#user-type-SG",
-    );
+    expect(within(summary).getByRole("link", { name: "Select a user type" })).toHaveAttribute("href", "#user-type-SG");
     expect(screen.getByRole("group", { name: "User type" })).toHaveAccessibleDescription(
       `${hint} Error: Select a user type`,
     );

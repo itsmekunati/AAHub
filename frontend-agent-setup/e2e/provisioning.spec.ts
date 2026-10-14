@@ -15,6 +15,11 @@ const locations: Record<UserType, string> = {
   "Scottish Forestry": process.env.E2E_FORESTRY_LOCATION ?? "Dumfries",
   NatureScot: process.env.E2E_NATURE_LOCATION ?? "Battleby",
 };
+// NatureScot users are not looked up: the operator pastes one CSV line (first name, last name, email,
+// GAKWO number, manager's x number, unused, job title, location). Defaults are fake mock values.
+const natureScotInformation =
+  process.env.E2E_NATURE_USER_INFO ??
+  `Jo, Test, jo.test@example.test, ${users.NatureScot}, , , Ecologist, ${locations.NatureScot},`;
 const ticketId = process.env.E2E_JSM_TICKET ?? "ITS-123456";
 const ticketLabel = "Enter the JSM ticket ID associated with this request";
 
@@ -46,7 +51,8 @@ async function expectHeadingCentredInRibbon(page: Page, name: string) {
 }
 
 const mockOnly = "Relies on the mock API's data and scenarios";
-const userNumberField = (page: Page) => page.getByRole("textbox", { name: /^Enter user's (u\/z\/c|GAKWO) number$/ });
+const userNumberField = (page: Page) => page.getByRole("textbox", { name: "Enter user's u/z/c number" });
+const natureScotField = (page: Page) => page.getByRole("textbox", { name: "NatureScot user information" });
 const managerField = (page: Page) => page.getByRole("textbox", { name: "Manager's x number" });
 const locationField = (page: Page) => page.getByRole("combobox", { name: "Location" });
 const summaryRow = (page: Page, key: string) =>
@@ -65,13 +71,20 @@ async function walkToUserNumber(page: Page, userType: UserType, start = "/provis
   await page.goto(start);
   await page.getByRole("radio", { name: userType }).check({ force: true });
   await page.getByRole("button", { name: "Next" }).click();
-  await expect(heading(page, "Provide the user details")).toBeVisible();
+  await expect(
+    heading(page, userType === "NatureScot" ? "Enter NatureScot user information" : "Provide the user details"),
+  ).toBeVisible();
 }
 
 async function walkToDetails(page: Page, userType: UserType, start = "/provision") {
   await walkToUserNumber(page, userType, start);
-  await userNumberField(page).fill(users[userType]);
-  await page.getByRole("button", { name: "Validate user details" }).click();
+  if (userType === "NatureScot") {
+    await natureScotField(page).fill(natureScotInformation);
+    await page.getByRole("button", { name: "Next" }).click();
+  } else {
+    await userNumberField(page).fill(users[userType]);
+    await page.getByRole("button", { name: "Validate user details" }).click();
+  }
   await expect(heading(page, "Review your selection before submitting")).toBeVisible();
   await expect(page.getByRole("option", { name: locations[userType] })).toBeAttached();
 }
@@ -88,7 +101,10 @@ const mockForestryIsIncomplete = !process.env.E2E_BASE_URL;
 
 for (const userType of Object.keys(users) as UserType[]) {
   test(`provisions a ${userType} user end to end`, async ({ page }) => {
-    test.skip(userType === "Scottish Forestry" && mockForestryIsIncomplete, "Covered by the missing job title test below");
+    test.skip(
+      userType === "Scottish Forestry" && mockForestryIsIncomplete,
+      "Covered by the missing job title test below",
+    );
     await walkToTicket(page, userType);
     await expectNoAccessibilityViolations(page);
     await page.getByRole("textbox", { name: ticketLabel }).fill(ticketId);
@@ -136,7 +152,7 @@ test("blocks a user whose job title is missing from their record", async ({ page
   await page.goto("/provision");
   await page.getByRole("radio", { name: "Scottish Forestry" }).check({ force: true });
   await page.getByRole("button", { name: "Next" }).click();
-  await page.getByRole("textbox", { name: /^Enter user's (u\/z\/c|GAKWO) number$/ }).fill(users["Scottish Forestry"]);
+  await userNumberField(page).fill(users["Scottish Forestry"]);
   await page.getByRole("button", { name: "Validate user details" }).click();
   await expect(page.getByRole("option", { name: locations["Scottish Forestry"] })).toBeAttached();
   await page.getByRole("combobox", { name: "Location" }).selectOption(locations["Scottish Forestry"]);
@@ -215,17 +231,30 @@ test.describe("provide the user details", () => {
     }
   });
 
-  test("asks a NatureScot user for a GAKWO number", async ({ page }) => {
+  test("asks for a NatureScot user's information as CSV and keeps Next unavailable until it is valid", async ({
+    page,
+  }) => {
     await walkToUserNumber(page, "NatureScot");
-    await expect(page.getByRole("textbox", { name: "Enter user's GAKWO number" })).toBeVisible();
-    await expect(page.getByText("Use the following format: GAKWO number, for example GAKWO111111")).toBeVisible();
+    await expect(page.getByText("Paste in the user information in csv format")).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "Enter user's GAKWO number" })).toHaveCount(0);
+    await expectUnavailable(page, "Next");
+    await expectNoAccessibilityViolations(page);
 
-    await userNumberField(page).fill("u111111");
-    await expect(page.getByText("GAKWO numbers must be GAKWO followed by six digits")).toBeVisible();
-    await expectUnavailable(page, "Validate user details");
+    await natureScotField(page).fill("Jo, Test, jo.test@example.test, XXXX, , , Ecologist, Battleby,");
+    await expectUnavailable(page, "Next");
 
-    await userNumberField(page).fill("gakwo111111");
-    await expectAvailable(page, "Validate user details");
+    await natureScotField(page).fill(natureScotInformation);
+    await expectAvailable(page, "Next");
+  });
+
+  test("says when the NatureScot user already exists", async ({ page }) => {
+    test.skip(!!process.env.E2E_BASE_URL, mockOnly);
+    await walkToUserNumber(page, "NatureScot");
+    await natureScotField(page).fill("Kim, Existing, kim.existing@example.test, GAKWO400004, , , Officer, Battleby,");
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect(page.getByRole("alert")).toContainText(/The user already exists in .+, x number is x400004/);
+    await expect(heading(page, "Enter NatureScot user information")).toBeVisible();
+    await expectNoAccessibilityViolations(page);
   });
 
   test("says when the user is not found", async ({ page }) => {
@@ -266,7 +295,9 @@ test.describe("review your selection: user details", () => {
     await expect(userNumberField(page)).toHaveValue(users["Scottish Government"]);
   });
 
-  test("keeps Next unavailable until a location is chosen and the manager's x number is valid or blank", async ({ page }) => {
+  test("keeps Next unavailable until a location is chosen and the manager's x number is valid or blank", async ({
+    page,
+  }) => {
     await walkToDetails(page, "Scottish Government");
     const managerError = "Manager's x number must be x followed by six digits, for example x111111";
     await expectUnavailable(page, "Next");
@@ -292,7 +323,7 @@ test.describe("review your selection: user details", () => {
   for (const [userType, expected] of [
     ["Scottish Government", ["Perth", "SASA", "House", "Inverness"]],
     ["Scottish Forestry", ["Silvan House", "Dumfries", "Dingwall"]],
-    ["NatureScot", ["Great Glen House", "Battleby", "Golspie"]],
+    ["NatureScot", ["Great Glen House", "Battleby", "Golspie", "Galashiels"]],
   ] as const) {
     test(`offers a ${userType} user that user type's own locations`, async ({ page }) => {
       test.skip(!!process.env.E2E_BASE_URL, mockOnly);
@@ -303,7 +334,9 @@ test.describe("review your selection: user details", () => {
 });
 
 test.describe("review your selection: JSM ticket", () => {
-  test("shows everything to be submitted, with the typed manager's x number, and Previous keeps the answers", async ({ page }) => {
+  test("shows everything to be submitted, with the typed manager's x number, and Previous keeps the answers", async ({
+    page,
+  }) => {
     await walkToDetails(page, "Scottish Government");
     await managerField(page).fill("x123456");
     await locationField(page).selectOption(locations["Scottish Government"]);
@@ -331,7 +364,9 @@ test.describe("review your selection: JSM ticket", () => {
     const ticket = page.getByRole("textbox", { name: ticketLabel });
     const formatError = "Enter the 6 numbers from the ITS ticket, for example 123456";
     await expect(
-      page.getByText("Enter just the numbers from the ITS ticket. This is required for audit purposes and is a mandatory field."),
+      page.getByText(
+        "Enter just the numbers from the ITS ticket. This is required for audit purposes and is a mandatory field.",
+      ),
     ).toBeVisible();
     await expectUnavailable(page, "Submit");
 
@@ -384,7 +419,9 @@ test.describe("access provisioning failed", () => {
       await expect(details).toContainText("The NatureScot user");
       await expect(details).toContainText("has not been provisioned.");
       await expect(details).toContainText(`Provisioning failure details: ${reason}`);
-      await expect(details).toContainText("Please update any corresponding JSM tickets and escalate to the relevant team.");
+      await expect(details).toContainText(
+        "Please update any corresponding JSM tickets and escalate to the relevant team.",
+      );
       await expect(page.getByRole("link", { name: "Try again" })).toHaveCount(0);
       await expectNoAccessibilityViolations(page);
       await page.getByRole("link", { name: "Go to Home Page" }).click();

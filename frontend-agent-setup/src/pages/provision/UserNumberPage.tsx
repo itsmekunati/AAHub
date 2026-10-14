@@ -11,7 +11,12 @@ import { NatureScotUserInfoForm } from "./NatureScotUserInfoForm";
 import { paths } from "./options";
 import { useProvision } from "./ProvisionContext";
 import { SelectedUserType } from "./SelectedUserType";
-import { isFinalError, sanitiseUserIdentifier, userIdentifierCopy, validateUserIdentifier } from "./validateUserIdentifier";
+import {
+  isFinalError,
+  sanitiseUserIdentifier,
+  userIdentifierCopy,
+  validateUserIdentifier,
+} from "./validateUserIdentifier";
 
 const fieldId = "user-number";
 const unavailableHintId = "user-number-unavailable";

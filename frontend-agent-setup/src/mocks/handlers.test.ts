@@ -49,7 +49,9 @@ describe("Mock API: LDAP group catalogue", () => {
       ? applications.map((application: unknown) => ({
           id: typeof application === "object" && application !== null ? Reflect.get(application, "id") : undefined,
           minimumGroups:
-            typeof application === "object" && application !== null ? Reflect.get(application, "minimumGroups") : undefined,
+            typeof application === "object" && application !== null
+              ? Reflect.get(application, "minimumGroups")
+              : undefined,
         }))
       : [];
   }
@@ -72,9 +74,7 @@ describe("Mock API: LDAP group catalogue", () => {
 
   it("sets the RP&S minimum-groups rule for Public users only", async () => {
     expect((await getCatalogue("public")).find((application) => application.id === "rps")?.minimumGroups).toBeDefined();
-    expect(
-      (await getCatalogue("SG")).find((application) => application.id === "rps")?.minimumGroups,
-    ).toBeUndefined();
+    expect((await getCatalogue("SG")).find((application) => application.id === "rps")?.minimumGroups).toBeUndefined();
   });
 
   it("knows x123456 is in RPS - RegisteredUser", async () => {
@@ -134,9 +134,12 @@ describe("Mock API: locations", () => {
     expect(await response.json()).toEqual(locations);
   });
 
-  it.each(["", "?userType=public", "?userType="])("rejects %j, which names no provisioning user type", async (query) => {
-    expect((await getLocations(query)).status).toBe(400);
-  });
+  it.each(["", "?userType=public", "?userType="])(
+    "rejects %j, which names no provisioning user type",
+    async (query) => {
+      expect((await getLocations(query)).status).toBe(400);
+    },
+  );
 });
 
 describe("Mock API: user lookup", () => {
@@ -169,12 +172,13 @@ describe("Mock API: existing user check", () => {
     expect((await check("userType=SNH&userIdentifier=GAKWO300003&email=jo.test@example.test")).status).toBe(404);
   });
 
-  it.each(["userType=SNH&userIdentifier=GAKWO400004", "userType=SNH&email=kim.existing@example.test", "userIdentifier=GAKWO400004&email=x@example.test"])(
-    "rejects %j, which leaves something out",
-    async (query) => {
-      expect((await check(query)).status).toBe(400);
-    },
-  );
+  it.each([
+    "userType=SNH&userIdentifier=GAKWO400004",
+    "userType=SNH&email=kim.existing@example.test",
+    "userIdentifier=GAKWO400004&email=x@example.test",
+  ])("rejects %j, which leaves something out", async (query) => {
+    expect((await check(query)).status).toBe(400);
+  });
 });
 
 describe("Mock API: provisioning requests", () => {

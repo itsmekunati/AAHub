@@ -1,9 +1,10 @@
 import { Link, useLocation } from "react-router";
+import { tabSelected, type NavigationTab } from "../pages/provision/journeyAudit";
 
-const sections = [
-  { label: "User provisioning", to: "/provision/user-type", prefix: "/provision" },
-  { label: "User Role Manager", to: "/role-manager", prefix: "/role-manager" },
-  { label: "Check existing access to RP&S", to: "/check-access", prefix: "/check-access" },
+const sections: { label: string; to: string; prefix: string; tab: NavigationTab }[] = [
+  { label: "User provisioning", to: "/provision/user-type", prefix: "/provision", tab: "provisioning" },
+  { label: "User Role Manager", to: "/role-manager", prefix: "/role-manager", tab: "role-management" },
+  { label: "Check existing access to RP&S", to: "/check-access", prefix: "/check-access", tab: "check-access" },
 ];
 
 export function SiteNavigation() {
@@ -22,6 +23,7 @@ export function SiteNavigation() {
                     to={section.to}
                     className={current ? "ds_site-navigation__link ds_current" : "ds_site-navigation__link"}
                     aria-current={current ? "page" : undefined}
+                    onClick={() => tabSelected(section.tab)}
                   >
                     <span className="label-nav">{section.label}</span>
                   </Link>

@@ -3,7 +3,7 @@
 import { appendFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type { Plugin } from "vite";
-import { UI_EVENT_TYPES } from "../src/services/auditEvents";
+import { UI_EVENT_TYPES, UI_OUTCOMES } from "../src/services/auditEvents";
 
 const maxLength = 100;
 const maxFields = 20;
@@ -45,6 +45,8 @@ export function toAuditLine(body: unknown, now: Date): AuditLine {
     fields: Array.isArray(fields) ? fields.slice(0, maxFields).map(clean).filter(Boolean) : undefined,
     userType: clean(read("userType")),
     transactionId: clean(read("transactionId")),
+    outcome: UI_OUTCOMES.find((outcome) => outcome === read("outcome")),
+    tab: clean(read("tab")),
   };
   return { ok: true, line: JSON.stringify(record) };
 }

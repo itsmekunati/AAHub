@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Pre-commit hook (plain Git hook, no hook manager): LINT, plus optional SNYK checks (off by default).
+# Pre-commit hook (plain Git hook, no hook manager): LINT and a PRETTIER check, plus optional SNYK checks (off by default).
 # Turn it on once per clone:   git config core.hooksPath .githooks
 # Run it by hand:              bash .githooks/pre-commit          (files staged for commit)
 #                              bash .githooks/pre-commit --all    (all tracked files)
@@ -38,6 +38,16 @@ if [ "${#code[@]}" -gt 0 ]; then
   else
     echo "• Code lint skipped: ESLint is not installed yet (run npm install)."
   fi
+fi
+
+# Formatting: Prettier check (never rewrites). .prettierignore decides what is checked, so Markdown,
+# YAML and generated files are skipped; --ignore-unknown skips file types Prettier does not handle.
+if [ -x node_modules/.bin/prettier ]; then
+  echo "• Formatting (Prettier)"
+  node_modules/.bin/prettier --check --ignore-unknown --log-level warn -- "${files[@]}" || {
+    echo "  Run: npm run format"; status=1; }
+else
+  echo "• Formatting skipped: Prettier is not installed yet (run npm install)."
 fi
 
 # YAML (deploy/ manifests, workflows): yamllint, if installed.

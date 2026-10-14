@@ -109,7 +109,9 @@ export function SelectGroupsPage() {
       );
       return;
     }
-    groupsSelected(catalogue.flatMap((application) => application.groups.map((group) => group.id)).filter((id) => selected.has(id)));
+    groupsSelected(
+      catalogue.flatMap((application) => application.groups.map((group) => group.id)).filter((id) => selected.has(id)),
+    );
     void navigate(paths.reviewChanges);
   }
 

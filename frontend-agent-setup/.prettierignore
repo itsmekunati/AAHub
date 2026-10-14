@@ -1,0 +1,16 @@
+# Generated, built or downloaded: never formatted by hand.
+dist
+coverage
+logs
+playwright-report
+test-results
+node_modules
+package-lock.json
+public/mockServiceWorker.js
+src/services/api/generated
+openapi
+
+# Prettier formats code and config only. Markdown and YAML keep their hand-written layout (yamllint checks YAML).
+*.md
+*.yml
+*.yaml

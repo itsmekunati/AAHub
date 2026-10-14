@@ -100,7 +100,9 @@ export function fakeLdapCatalogue(userType: string | null): LdapApplication[] {
       { id: "RPS-TransactionalCustomer", name: "RPS - TransactionalCustomer" },
     ],
     ...(userType === "public"
-      ? { minimumGroups: { message: "User type is Public, this user type must belong to one or both of these groups." } }
+      ? {
+          minimumGroups: { message: "User type is Public, this user type must belong to one or both of these groups." },
+        }
       : {}),
   };
   return [

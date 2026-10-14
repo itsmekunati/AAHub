@@ -4,9 +4,13 @@ import { expectNoAccessibilityViolations } from "./accessibility";
 test.describe("home page", () => {
   test("lists the three tasks", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("#main-content").getByRole("link", { name: "Provision user access to RP&S" })).toBeVisible();
+    await expect(
+      page.locator("#main-content").getByRole("link", { name: "Provision user access to RP&S" }),
+    ).toBeVisible();
     await expect(page.locator("#main-content").getByRole("link", { name: "User Role Manager" })).toBeVisible();
-    await expect(page.locator("#main-content").getByRole("link", { name: "Check user's existing RP&S access" })).toBeVisible();
+    await expect(
+      page.locator("#main-content").getByRole("link", { name: "Check user's existing RP&S access" }),
+    ).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });
 

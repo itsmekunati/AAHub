@@ -9,7 +9,7 @@ import { TextInput } from "../../components/TextInput";
 import { isFinalTicketError, parseTicketNumber, ticketCopy } from "../../services/jiraTicket";
 import { problemMessage } from "../../services/problemMessage";
 import { submitProvisioningRequest } from "../../services/provisioning";
-import { screenError, useCancelJourney, validationBlocked } from "./journeyAudit";
+import { journeyFailed, journeySucceeded, screenError, useCancelJourney, validationBlocked } from "./journeyAudit";
 import { DUMMY_MANAGER_X_NUMBER } from "./managerXNumber";
 import { paths, userTypeLabel } from "./options";
 import { useProvision } from "./ProvisionContext";
@@ -81,9 +81,11 @@ export function TicketPage() {
         jiraTicketId,
       });
       submissionFinished({ ...resultFor, outcome: { succeeded: true, userXNumber: created.userXNumber } });
+      journeySucceeded("ticket", created.transactionId, userType);
     } catch (error) {
       submissionFinished({ ...resultFor, outcome: { succeeded: false, reason: problemMessage(error) } });
       screenError("ticket", error, userType);
+      journeyFailed("ticket", error, userType);
     }
     // `submitting` stays set: this page is left for the result page either way.
     void navigate(paths.result);

@@ -8,7 +8,7 @@ This file holds only what applies to **every** task. Keep it short: a fact that 
 
 ## Stack
 
-React, strict TypeScript, Vite and React Router (versions and scripts are in `package.json`). Not obvious from the code:
+React, strict TypeScript, Vite, React Router and Prettier (versions and scripts are in `package.json`). Not obvious from the code:
 
 - **UI:** the Scottish Government Design System, which is plain HTML/CSS/JS wrapped in our own React components.
 - **Mock API:** Mock Service Worker (MSW), for tests and for local development.
@@ -41,6 +41,7 @@ React, strict TypeScript, Vite and React Router (versions and scripts are in `pa
 git config core.hooksPath .githooks   # once per clone: turn on the Git hooks
 npm run dev        # local, against the MOCK API; UI audit events go to logs/ui-audit.log
 npm run dev:api    # local, against a real backend
+npm run format     # format the code with Prettier (lint fails on unformatted files)
 npm run typecheck && npm run lint && npm test && npm run build   # all must pass before a task is done
 ```
 

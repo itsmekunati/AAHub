@@ -29,8 +29,8 @@ export function ResultPage() {
     return (
       <Page title="Access provisioning success" ribbon="success" layout="full-width">
         <p>
-          The <strong>{userTypeLabel}</strong> user <strong>{fullName}</strong> in the <strong>{environmentName}</strong>{" "}
-          environment has been provisioned successfully.
+          The <strong>{userTypeLabel}</strong> user <strong>{fullName}</strong> in the{" "}
+          <strong>{environmentName}</strong> environment has been provisioned successfully.
         </p>
         {outcome.userXNumber && (
           <p>
@@ -48,8 +48,8 @@ export function ResultPage() {
       <div className="app_failure-details">
         <h2>Provisioning failure details</h2>
         <p>
-          The <strong>{userTypeLabel}</strong> user <strong>{fullName}</strong> in the <strong>{environmentName}</strong>{" "}
-          environment has not been provisioned.
+          The <strong>{userTypeLabel}</strong> user <strong>{fullName}</strong> in the{" "}
+          <strong>{environmentName}</strong> environment has not been provisioned.
         </p>
         <p>Provisioning failure details: {outcome.reason}</p>
         <p>Please update any corresponding JSM tickets and escalate to the relevant team.</p>

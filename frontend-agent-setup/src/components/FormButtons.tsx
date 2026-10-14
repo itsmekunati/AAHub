@@ -12,7 +12,14 @@ interface FormButtonsProps {
   unavailableHintId?: string;
 }
 
-export function FormButtons({ submitLabel, onCancel, busy = false, busyLabel, unavailable = false, unavailableHintId }: FormButtonsProps) {
+export function FormButtons({
+  submitLabel,
+  onCancel,
+  busy = false,
+  busyLabel,
+  unavailable = false,
+  unavailableHintId,
+}: FormButtonsProps) {
   return (
     <div className="ds_button-group">
       <button type="button" className="ds_button ds_button--cancel" onClick={onCancel}>

@@ -17,10 +17,38 @@ export function journeyAudit<Step extends string>(journey: string, firstStep: St
     },
 
     screenError(step: Step, error: unknown, userType?: string): void {
-      const reasonCode = error instanceof ApiError ? `HTTP_${error.status}` : "NO_RESPONSE";
-      recordUiEvent({ eventType: "SCREEN_ERROR", journey, step, reasonCode, userType });
+      recordUiEvent({ eventType: "SCREEN_ERROR", journey, step, reasonCode: reasonCode(error), userType });
+    },
+
+    /** The journey's final submission was accepted; the transaction ID is the backend's own reference. */
+    succeeded(step: Step, transactionId: string, userType?: string): void {
+      recordUiEvent({ eventType: "JOURNEY_COMPLETED", journey, step, outcome: "SUCCESS", transactionId, userType });
+    },
+
+    /** The journey ended on its failure page. Only the reason code is sent, never the server's message. */
+    failed(step: Step, error: unknown, userType?: string): void {
+      recordUiEvent({
+        eventType: "JOURNEY_COMPLETED",
+        journey,
+        step,
+        outcome: "FAILURE",
+        reasonCode: reasonCode(error),
+        userType,
+      });
     },
   };
+}
+
+function reasonCode(error: unknown): string {
+  return error instanceof ApiError ? `HTTP_${error.status}` : "NO_RESPONSE";
+}
+
+/** The site navigation tabs, named like the journeys they open. */
+export type NavigationTab = "provisioning" | "role-management" | "check-access";
+
+/** The operator chose a tab in the site navigation. */
+export function tabSelected(tab: NavigationTab): void {
+  recordUiEvent({ eventType: "TAB_SELECTED", journey: "navigation", step: "site-header", tab });
 }
 
 /** Cancel on any step of any journey: report where the operator stopped, then leave the journey. */
@@ -46,6 +74,14 @@ export function validationBlocked(step: JourneyStep, fields: string[], userType?
 
 export function screenError(step: JourneyStep, error: unknown, userType?: UserType): void {
   provisioning.screenError(step, error, userType);
+}
+
+export function journeySucceeded(step: JourneyStep, transactionId: string, userType?: UserType): void {
+  provisioning.succeeded(step, transactionId, userType);
+}
+
+export function journeyFailed(step: JourneyStep, error: unknown, userType?: UserType): void {
+  provisioning.failed(step, error, userType);
 }
 
 export function useCancelJourney(step: JourneyStep): () => void {

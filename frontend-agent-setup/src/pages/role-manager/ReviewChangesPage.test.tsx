@@ -343,7 +343,11 @@ describe("Review your selection before submitting", () => {
 
     expect(await findHeading("Home")).toBeInTheDocument();
     await waitFor(() =>
-      expect(events).toContainEqual({ eventType: "JOURNEY_CANCELLED", journey: "role-management", step: "review-changes" }),
+      expect(events).toContainEqual({
+        eventType: "JOURNEY_CANCELLED",
+        journey: "role-management",
+        step: "review-changes",
+      }),
     );
   });
 

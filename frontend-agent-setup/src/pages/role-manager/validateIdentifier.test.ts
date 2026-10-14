@@ -1,5 +1,11 @@
 import type { RoleUserType } from "../../services/roleManagement";
-import { identifierCopy, identifierMessages, isFinalError, sanitiseIdentifier, validateIdentifier } from "./validateIdentifier";
+import {
+  identifierCopy,
+  identifierMessages,
+  isFinalError,
+  sanitiseIdentifier,
+  validateIdentifier,
+} from "./validateIdentifier";
 
 const internal: RoleUserType = "SG";
 const publicUser: RoleUserType = "public";
@@ -96,9 +102,12 @@ describe("validateIdentifier for any other user type (x number)", () => {
     },
   );
 
-  it.each(["x12 456", "x12345!", "jo bloggs", "x12\u0000456"])("AC2: rejects %j with characters that are not allowed", (value) => {
-    expect(validateIdentifier(value, internal)).toBe(identifierMessages.characters);
-  });
+  it.each(["x12 456", "x12345!", "jo bloggs", "x12\u0000456"])(
+    "AC2: rejects %j with characters that are not allowed",
+    (value) => {
+      expect(validateIdentifier(value, internal)).toBe(identifierMessages.characters);
+    },
+  );
 });
 
 describe("identifierCopy", () => {
@@ -117,9 +126,12 @@ describe("identifierCopy", () => {
 });
 
 describe("isFinalError", () => {
-  it.each(["ab!c", "a".repeat(21), "  ab!c  "])("AC2: %s cannot be fixed by typing more for a public user, so it shows at once", (value) => {
-    expect(isFinalError(value, publicUser)).toBe(true);
-  });
+  it.each(["ab!c", "a".repeat(21), "  ab!c  "])(
+    "AC2: %s cannot be fixed by typing more for a public user, so it shows at once",
+    (value) => {
+      expect(isFinalError(value, publicUser)).toBe(true);
+    },
+  );
 
   it.each(["", "abc", "x", "x123", "x1234567", "jo.bloggs", "a".repeat(20)])(
     "AC2: %s waits until a public user leaves the field",

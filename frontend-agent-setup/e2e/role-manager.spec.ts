@@ -1,9 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 import { expectNoAccessibilityViolations } from "./accessibility";
 
-// Defaults are the mock directory (src/mocks/data.ts): an internal Scottish Government x number.
-// An external (public email) case needs its test domain confirmed: see docs/open-questions.md.
+// Defaults are the mock directory (src/mocks/data.ts). Internal users have a gov.scot, forestry.gov.scot or
+// nature.scot email address; every other address is external. The backend decides which, never the UI.
 const internalUser = process.env.E2E_ROLE_INTERNAL_USER ?? "x123456";
+const externalUser = process.env.E2E_ROLE_EXTERNAL_USER ?? "jo.bloggs";
 const lookupButton = "Get user's existing LDAP group memberships";
 
 const heading = (page: Page, name: string) => page.getByRole("heading", { level: 1, name });
@@ -18,6 +19,16 @@ async function lookUpInternalUser(page: Page) {
 
 test("looks up an internal user and reaches the group selection", async ({ page }) => {
   await lookUpInternalUser(page);
+  await expectNoAccessibilityViolations(page);
+});
+
+test("looks up an external (Public) user and reaches the group selection", async ({ page }) => {
+  await page.goto("/role-manager");
+  await expect(heading(page, "Provide the user details")).toBeVisible();
+  await page.getByRole("combobox", { name: "User type" }).selectOption({ label: "Public" });
+  await page.getByRole("textbox").first().fill(externalUser);
+  await page.getByRole("button", { name: lookupButton }).click();
+  await expect(heading(page, "Review and select LDAP groups")).toBeVisible();
   await expectNoAccessibilityViolations(page);
 });
 

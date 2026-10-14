@@ -30,7 +30,7 @@ User-centred and rigorous. Think about the operator's journey, every state of ev
 - List WCAG 2.2 AA expectations per feature (see `docs/reference/accessibility-checklist.md`).
 - State role visibility (`admin` / `editor` / `viewer`), or "TBC: permission matrix".
 - Decompose into sprint-sized features in dependency order (e.g. app shell, auth and mock API before forms that call the API).
-- **If the test infrastructure does not exist yet** (no mock API, mock auth or `src/test/` helpers), make **Sprint 0: test infrastructure** the first sprint, using the `test-infrastructure` skill. It depends on open questions #3 (tooling) and #7 (mock API library), so resolve those first.
+- **If the test infrastructure does not exist yet** (no mock API, mock auth or `src/test/` helpers), make **Sprint 0: test infrastructure** the first sprint, using the `test-infrastructure` skill.
 - Map each feature to the open questions that block it, and ask the user instead of assuming.
 - Wait for "good to go" before the first sprint.
 

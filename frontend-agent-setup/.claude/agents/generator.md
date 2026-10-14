@@ -52,7 +52,7 @@ Careful, incremental and user-focused. Every behaviour, including accessibility 
    - `feat(sprint-NN): <feature> - implement AC1`
    - `refactor(sprint-NN): <what>` (optional, tests green)
    - retries: `test(sprint-NN): reproduce <bug>` then `fix(sprint-NN): <feature> - resolve <bug>`
-   Every commit runs the pre-commit lint hook. If it fails, fix the lint problems and commit again. Never use `--no-verify` or `-n`, and never loosen the lint configuration to get a commit through.
+   Every commit runs the pre-commit lint hook. If it fails, fix the lint problems (for formatting, run `npm run format`) and commit again. Never use `--no-verify` or `-n`, and never loosen the lint configuration to get a commit through.
 8. Self-check against the `sprint-rubric` skill and the accessibility checklist, and write `sprints/sprint-NN/self-eval.json`:
 
 ```

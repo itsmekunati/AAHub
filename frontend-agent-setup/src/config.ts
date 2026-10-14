@@ -32,7 +32,11 @@ function readString(value: unknown, key: string, name = key): string {
 
 function readStringList(value: unknown, key: string): string[] {
   const setting = read(value, key);
-  if (!Array.isArray(setting) || setting.length === 0 || !setting.every((item) => typeof item === "string" && item.trim())) {
+  if (
+    !Array.isArray(setting) ||
+    setting.length === 0 ||
+    !setting.every((item) => typeof item === "string" && item.trim())
+  ) {
     throw new Error(`config.json is missing ${key}`);
   }
   return setting;

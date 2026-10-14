@@ -32,13 +32,19 @@ describe("validateManagerXNumber", () => {
 });
 
 describe("isFinalManagerError", () => {
-  it.each(["", "x", "X1", "x12345", "x111111", " x11 "])("waits while %j could still become a valid x number", (raw) => {
-    expect(isFinalManagerError(raw)).toBe(false);
-  });
+  it.each(["", "x", "X1", "x12345", "x111111", " x11 "])(
+    "waits while %j could still become a valid x number",
+    (raw) => {
+      expect(isFinalManagerError(raw)).toBe(false);
+    },
+  );
 
-  it.each(["u", "1", "x1a", "xx", "x1234567", "x-1"])("reports %j at once, because typing more cannot fix it", (raw) => {
-    expect(isFinalManagerError(raw)).toBe(true);
-  });
+  it.each(["u", "1", "x1a", "xx", "x1234567", "x-1"])(
+    "reports %j at once, because typing more cannot fix it",
+    (raw) => {
+      expect(isFinalManagerError(raw)).toBe(true);
+    },
+  );
 });
 
 describe("DUMMY_MANAGER_X_NUMBER", () => {

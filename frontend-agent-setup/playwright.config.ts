@@ -12,9 +12,7 @@ export default defineConfig({
   // Several parallel Chromium instances crash on some Windows machines ("Target crashed").
   workers: process.env.CI ? 2 : 1,
   // The HTML report (playwright-report/index.html) is written on every run; view it with `npm run e2e:report`.
-  reporter: process.env.CI
-    ? [["github"], ["html", { open: "never" }]]
-    : [["list"], ["html", { open: "never" }]],
+  reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : [["list"], ["html", { open: "never" }]],
   use: { baseURL, trace: "on-first-retry" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: process.env.E2E_BASE_URL

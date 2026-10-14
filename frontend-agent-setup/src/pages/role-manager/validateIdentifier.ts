@@ -51,7 +51,10 @@ export function sanitiseIdentifier(raw: string, userType: RoleUserType): Sanitis
   const value = raw.trim();
   const usernameType = isUsernameType(userType);
   if (!value) {
-    return { ok: false, message: usernameType ? identifierMessages.missingUsername : identifierMessages.missingXNumber };
+    return {
+      ok: false,
+      message: usernameType ? identifierMessages.missingUsername : identifierMessages.missingXNumber,
+    };
   }
   if (usernameType && (value.length < IDENTIFIER_MIN_LENGTH || value.length > IDENTIFIER_MAX_LENGTH)) {
     return { ok: false, message: identifierMessages.length };
