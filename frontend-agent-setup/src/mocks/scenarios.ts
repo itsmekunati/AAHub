@@ -2,11 +2,12 @@
 // In the development server, pick one with ?scenario=<name> on the first page load.
 import { http, HttpResponse, delay } from "msw";
 import { auditEventsPath } from "../services/auditEvents";
-import { locationsPath, provisioningRequestsPath, userLookupPath } from "../services/provisioning";
+import { existingUserPath, locationsPath, provisioningRequestsPath, userLookupPath } from "../services/provisioning";
 import { ldapGroupCataloguePath, ldapGroupsPath, roleChangeRequestsPath } from "../services/roleManagement";
 
 const roleChange = `*${roleChangeRequestsPath}`;
 const lookup = `*${userLookupPath}`;
+const existing = `*${existingUserPath}`;
 const submit = `*${provisioningRequestsPath}`;
 const locations = `*${locationsPath}`;
 const ldapGroups = `*${ldapGroupsPath}`;
@@ -20,6 +21,15 @@ export const scenarios = {
   lookupOffline: [http.get(lookup, () => HttpResponse.error())],
   lookupSlow: [
     http.get(lookup, async () => {
+      await delay("infinite");
+      return new HttpResponse(null, { status: 500 });
+    }),
+  ],
+  existingCheckForbidden: [http.get(existing, () => new HttpResponse(null, { status: 403 }))],
+  existingCheckServerError: [http.get(existing, () => new HttpResponse(null, { status: 500 }))],
+  existingCheckOffline: [http.get(existing, () => HttpResponse.error())],
+  existingCheckSlow: [
+    http.get(existing, async () => {
       await delay("infinite");
       return new HttpResponse(null, { status: 500 });
     }),

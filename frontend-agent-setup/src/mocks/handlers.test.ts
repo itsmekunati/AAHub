@@ -1,4 +1,4 @@
-import { fakeProvisionedXNumber, fakeTransactionId } from "./data";
+import { fakeExistingUsers, fakeProvisionedXNumber, fakeTransactionId } from "./data";
 
 const validRequest = {
   userType: "SG",
@@ -126,7 +126,7 @@ describe("Mock API: locations", () => {
   it.each([
     ["SG", ["Perth", "SASA", "House", "Inverness"]],
     ["FGS", ["Silvan House", "Dumfries", "Dingwall"]],
-    ["SNH", ["Great Glen House", "Battleby", "Golspie"]],
+    ["SNH", ["Great Glen House", "Battleby", "Golspie", "Galashiels"]],
   ])("returns the locations for the %s user type", async (userType, locations) => {
     const response = await getLocations(`?userType=${userType}`);
 
@@ -150,6 +150,31 @@ describe("Mock API: user lookup", () => {
   it("returns 404 for a known user under another user type", async () => {
     expect((await fetch("http://localhost/api/users/U100001?userType=FGS")).status).toBe(404);
   });
+});
+
+describe("Mock API: existing user check", () => {
+  const check = (query: string) => fetch(`http://localhost/api/existing-users?${query}`);
+
+  it.each([
+    "userType=SNH&userIdentifier=GAKWO400004&email=someone.else@example.test",
+    "userType=SNH&userIdentifier=gakwo999999&email=Kim.Existing@example.test",
+  ])("returns the x number of a user who already exists, matched by GAKWO number or email: %s", async (query) => {
+    const response = await check(query);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ userXNumber: fakeExistingUsers[0]?.userXNumber });
+  });
+
+  it("returns 404 for a user who does not exist yet", async () => {
+    expect((await check("userType=SNH&userIdentifier=GAKWO300003&email=jo.test@example.test")).status).toBe(404);
+  });
+
+  it.each(["userType=SNH&userIdentifier=GAKWO400004", "userType=SNH&email=kim.existing@example.test", "userIdentifier=GAKWO400004&email=x@example.test"])(
+    "rejects %j, which leaves something out",
+    async (query) => {
+      expect((await check(query)).status).toBe(400);
+    },
+  );
 });
 
 describe("Mock API: provisioning requests", () => {

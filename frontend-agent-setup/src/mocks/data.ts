@@ -43,6 +43,18 @@ export const fakeDirectory: FakeDirectoryEntry[] = [
   },
 ];
 
+export interface FakeExistingUser {
+  userType: UserType;
+  userIdentifier: string;
+  email: string;
+  userXNumber: string;
+}
+
+// A NatureScot user who is already in FutureDatabase, so provisioning them again is refused.
+export const fakeExistingUsers: FakeExistingUser[] = [
+  { userType: "SNH", userIdentifier: "GAKWO400004", email: "kim.existing@example.test", userXNumber: "x400004" },
+];
+
 // The transaction ID is the backend's own reference. It is separate from the JSM/Jira ticket.
 export const fakeTransactionId = "TXN-000123";
 
@@ -56,7 +68,7 @@ export const fakeRoleChangeTransactionId = "TXN-000456";
 export const fakeLocations: Record<UserType, string[]> = {
   SG: ["Perth", "SASA", "House", "Inverness"],
   FGS: ["Silvan House", "Dumfries", "Dingwall"],
-  SNH: ["Great Glen House", "Battleby", "Golspie"],
+  SNH: ["Great Glen House", "Battleby", "Golspie", "Galashiels"],
 };
 
 export interface FakeLdapMembership {

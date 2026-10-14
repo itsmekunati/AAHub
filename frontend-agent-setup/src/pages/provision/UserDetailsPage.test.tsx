@@ -8,9 +8,10 @@ import {
   findHeading,
   headings,
   locationPlaceholder,
+  natureScotCsv,
+  pasteNatureScotInformation,
   ticketLabel,
   userNumberField,
-  validateUserNumber,
   walkToUserDetails,
 } from "./testJourney";
 
@@ -89,6 +90,51 @@ describe("Review your selection before submitting", () => {
     expect(screen.queryByText("X000001")).not.toBeInTheDocument();
   });
 
+  it("AC4: shows a NatureScot user's pasted details, saying where they came from", async () => {
+    await openDetails("NatureScot", "GAKWO300003");
+
+    expect(screen.getByText("These user details are from the information you pasted in.")).toBeInTheDocument();
+    expect(screen.queryByText("These user details have been retrieved from Okta via BI.")).not.toBeInTheDocument();
+    expect(summaryRow("Selected user")).toHaveTextContent("GAKWO300003");
+    expect(summaryRow("First name")).toHaveTextContent("Jo");
+    expect(summaryRow("Last name")).toHaveTextContent("Test");
+    expect(summaryRow("Email address")).toHaveTextContent("jo.test@example.test");
+    expect(summaryRow("Job title")).toHaveTextContent("Ecologist");
+  });
+
+  it("AC4: fills in a NatureScot user's manager's x number and location from what was pasted", async () => {
+    const { user } = await openDetails("NatureScot", "GAKWO300003");
+
+    expect(managerField()).toHaveValue("x722222");
+    await screen.findByRole("option", { name: "Battleby" });
+    expect(locationField()).toHaveValue("Battleby");
+    expect(nextButton()).not.toHaveAttribute("aria-disabled");
+
+    await user.click(nextButton());
+    expect(await screen.findByRole("textbox", { name: ticketLabel })).toBeInTheDocument();
+  });
+
+  it("AC4: matches a pasted location whatever its letter case", async () => {
+    const { user } = renderApp({ route: start });
+    await findHeading(headings.userType);
+    await chooseUserType(user, "NatureScot");
+    await pasteNatureScotInformation(user, natureScotCsv({ location: "galashiels" }));
+
+    await screen.findByRole("option", { name: "Galashiels" });
+    expect(locationField()).toHaveValue("Galashiels");
+  });
+
+  it("AC4: leaves the location for the operator to choose when the pasted one is not on the list", async () => {
+    const { user } = renderApp({ route: start });
+    await findHeading(headings.userType);
+    await chooseUserType(user, "NatureScot");
+    await pasteNatureScotInformation(user, natureScotCsv({ location: "Nowhere" }));
+
+    await screen.findByRole("option", { name: "Battleby" });
+    expect(locationField()).toHaveValue("");
+    expect(nextButton()).toHaveAttribute("aria-disabled", "true");
+  });
+
   it("AC7: explains what the operator has to add, under its own heading", async () => {
     await openDetails();
 
@@ -124,7 +170,7 @@ describe("Review your selection before submitting", () => {
 
   it.each([
     ["Scottish Forestry", "Z200002", ["Silvan House", "Dumfries", "Dingwall"]],
-    ["NatureScot", "GAKWO300003", ["Great Glen House", "Battleby", "Golspie"]],
+    ["NatureScot", "GAKWO300003", ["Great Glen House", "Battleby", "Golspie", "Galashiels"]],
   ])("AC7: offers a %s user that user type's own locations", async (userType, userIdentifier, locations) => {
     await openDetails(userType, userIdentifier);
 
@@ -143,7 +189,8 @@ describe("Review your selection before submitting", () => {
     await user.click(screen.getByRole("link", { name: "Change selected user type" }));
     await findHeading(headings.userType);
     await chooseUserType(user, "NatureScot");
-    await validateUserNumber(user, "GAKWO300003");
+    // Perth is not a NatureScot location, so the pasted one cannot be chosen either.
+    await pasteNatureScotInformation(user, natureScotCsv({ location: "Perth" }));
 
     await screen.findByRole("option", { name: "Battleby" });
     expect(screen.queryByRole("option", { name: "Perth" })).not.toBeInTheDocument();

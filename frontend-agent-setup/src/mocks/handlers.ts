@@ -1,10 +1,17 @@
 // TESTS AND DEVELOPMENT ONLY. Follows the TEMPORARY contract in src/services/provisioning.ts.
 import { http, HttpResponse, delay } from "msw";
-import { USER_TYPES, locationsPath, provisioningRequestsPath, userLookupPath } from "../services/provisioning";
+import {
+  USER_TYPES,
+  existingUserPath,
+  locationsPath,
+  provisioningRequestsPath,
+  userLookupPath,
+} from "../services/provisioning";
 import { parseTicketNumber } from "../services/jiraTicket";
 import { ldapGroupCataloguePath, ldapGroupsPath, roleChangeRequestsPath } from "../services/roleManagement";
 import {
   fakeDirectory,
+  fakeExistingUsers,
   fakeLdapCatalogue,
   fakeLdapMemberships,
   fakeLocations,
@@ -91,6 +98,25 @@ export const handlers = [
       return new HttpResponse(null, { status: 400 });
     }
     return HttpResponse.json(fakeLocations[userType]);
+  }),
+  http.get(`*${existingUserPath}`, async ({ request }) => {
+    await delay(150);
+    const query = new URL(request.url).searchParams;
+    const userType = query.get("userType");
+    const userIdentifier = query.get("userIdentifier")?.trim().toUpperCase();
+    const email = query.get("email")?.trim().toLowerCase();
+    if (!userType || !userIdentifier || !email) {
+      return new HttpResponse(null, { status: 400 });
+    }
+    const entry = fakeExistingUsers.find(
+      (candidate) =>
+        candidate.userType === userType &&
+        (candidate.userIdentifier.toUpperCase() === userIdentifier || candidate.email.toLowerCase() === email),
+    );
+    if (!entry) {
+      return new HttpResponse(null, { status: 404 });
+    }
+    return HttpResponse.json({ userXNumber: entry.userXNumber });
   }),
   http.get(`*${userLookupPath}`, async ({ params, request }) => {
     await delay(150);

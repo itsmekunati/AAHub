@@ -13,7 +13,9 @@ export interface SubmissionResult {
 export interface ProvisionState {
   userType?: UserType;
   userIdentifier: string;
-  /** The user returned by the lookup; set only once the user identifier has been validated. */
+  /** What a NatureScot operator pasted, kept so that Previous brings it back. */
+  pastedUserInformation?: string;
+  /** The user returned by the lookup, or read from the NatureScot paste; set only once it has been checked. */
   user?: DirectoryUser;
   /** What the operator typed; empty when they left it blank. */
   managerXNumber?: string;
@@ -25,6 +27,7 @@ interface ProvisionContextValue {
   state: ProvisionState;
   chooseUserType: (userType: UserType) => void;
   userValidated: (userIdentifier: string, user: DirectoryUser) => void;
+  natureScotUserEntered: (pasted: string, user: DirectoryUser, managerXNumber: string, location: string) => void;
   detailsCompleted: (managerXNumber: string, location: string) => void;
   submissionFinished: (result: SubmissionResult) => void;
 }
@@ -53,6 +56,20 @@ export function ProvisionProvider({ children }: { children: ReactNode }) {
             user,
             managerXNumber: sameUser ? current.managerXNumber : undefined,
             location: sameUser ? current.location : undefined,
+          };
+        }),
+      // The paste supplies the manager's x number and location too, unless the same line comes back
+      // after the operator changed them on the review step.
+      natureScotUserEntered: (pasted, user, managerXNumber, location) =>
+        setState((current) => {
+          const samePaste = current.pastedUserInformation === pasted;
+          return {
+            ...current,
+            pastedUserInformation: pasted,
+            userIdentifier: user.userIdentifier,
+            user,
+            managerXNumber: samePaste ? (current.managerXNumber ?? managerXNumber) : managerXNumber,
+            location: samePaste ? (current.location ?? location) : location,
           };
         }),
       detailsCompleted: (managerXNumber, location) => setState((current) => ({ ...current, managerXNumber, location })),

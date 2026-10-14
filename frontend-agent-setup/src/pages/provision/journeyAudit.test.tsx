@@ -2,7 +2,16 @@ import { screen, waitFor } from "@testing-library/react";
 import type { ScenarioName } from "../../mocks/scenarios";
 import { renderApp } from "../../test/render";
 import { captureUiEvents } from "../../test/uiEvents";
-import { chooseUserType, findHeading, headings, ticketLabel, walkToTicket, walkToUserDetails } from "./testJourney";
+import {
+  chooseUserType,
+  findHeading,
+  headings,
+  natureScotCsv,
+  pasteInto,
+  ticketLabel,
+  walkToTicket,
+  walkToUserDetails,
+} from "./testJourney";
 
 const route = "/provision/user-type";
 
@@ -98,6 +107,37 @@ describe("UI audit events in the provisioning journey", () => {
     await waitFor(() => expect(events.length).toBeGreaterThan(0));
     const sent = JSON.stringify(events);
     for (const value of ["Alex", "Example", "alex.example@example.test", "U100001", "X000001", "Policy officer", "ITS-123456"]) {
+      expect(sent).not.toContain(value);
+    }
+  });
+
+  it("never sends what was pasted for a NatureScot user, even when it is rejected", async () => {
+    const { events, user } = await openJourney("existingCheckServerError");
+    await chooseUserType(user, "NatureScot");
+
+    await pasteInto(user, natureScotCsv({ email: "not-an-email" }));
+    await user.click(screen.getByRole("button", { name: "Next" }));
+    await pasteInto(user, natureScotCsv());
+    await user.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() =>
+      expect(events).toContainEqual({
+        eventType: "SCREEN_ERROR",
+        journey: "provisioning",
+        step: "user-identifier",
+        reasonCode: "HTTP_500",
+        userType: "SNH",
+      }),
+    );
+    expect(events).toContainEqual({
+      eventType: "VALIDATION_BLOCKED",
+      journey: "provisioning",
+      step: "user-identifier",
+      fields: ["user-information"],
+      userType: "SNH",
+    });
+    const sent = JSON.stringify(events);
+    for (const value of ["Jo", "jo.test@example.test", "not-an-email", "GAKWO300003", "x722222", "Ecologist", "Battleby"]) {
       expect(sent).not.toContain(value);
     }
   });

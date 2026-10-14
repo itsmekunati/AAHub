@@ -37,7 +37,12 @@ export interface ProvisioningRequestCreated {
 
 export type UserLookupResult = { found: true; user: DirectoryUser } | { found: false };
 
+/** Whether a NatureScot user is already in FutureDatabase, and their x number if so. */
+export type ExistingUserResult = { exists: true; userXNumber: string } | { exists: false };
+
 export const userLookupPath = "/users/:userIdentifier";
+// Placeholder path: not under /users/, so it can never be mistaken for a user lookup.
+export const existingUserPath = "/existing-users";
 export const provisioningRequestsPath = "/provisioning-requests";
 export const locationsPath = "/locations";
 
@@ -88,6 +93,28 @@ export async function lookUpUser(userType: UserType, userIdentifier: string): Pr
     throw new ApiError(response.status);
   }
   return { found: true, user: toDirectoryUser(await response.json()) };
+}
+
+/** Asks the backend whether the user is already in FutureDatabase: 200 with their x number, or 404. */
+export async function checkExistingUser(
+  userType: UserType,
+  userIdentifier: string,
+  email: string,
+): Promise<ExistingUserResult> {
+  const query = new URLSearchParams({ userType, userIdentifier, email });
+  const response = await apiFetch(`${existingUserPath}?${query.toString()}`);
+  if (response.status === 404) {
+    return { exists: false };
+  }
+  if (!response.ok) {
+    throw new ApiError(response.status);
+  }
+  const body: unknown = await response.json();
+  const userXNumber = isRecord(body) ? readString(body, "userXNumber").trim() : "";
+  if (!userXNumber) {
+    throw new Error("Unexpected existing user response");
+  }
+  return { exists: true, userXNumber };
 }
 
 export async function submitProvisioningRequest(

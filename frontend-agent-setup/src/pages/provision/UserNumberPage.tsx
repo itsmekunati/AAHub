@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, Navigate, useNavigate } from "react-router";
-import { BackLink } from "../../components/BackLink";
+import { Navigate, useNavigate } from "react-router";
 import { ErrorSummary, type FormError } from "../../components/ErrorSummary";
 import { FormButtons } from "../../components/FormButtons";
 import { Page } from "../../components/Page";
@@ -8,8 +7,10 @@ import { TextInput } from "../../components/TextInput";
 import { problemMessage } from "../../services/problemMessage";
 import { lookUpUser } from "../../services/provisioning";
 import { screenError, useCancelJourney, validationBlocked } from "./journeyAudit";
-import { paths, userTypeLabel } from "./options";
+import { NatureScotUserInfoForm } from "./NatureScotUserInfoForm";
+import { paths } from "./options";
 import { useProvision } from "./ProvisionContext";
+import { SelectedUserType } from "./SelectedUserType";
 import { isFinalError, sanitiseUserIdentifier, userIdentifierCopy, validateUserIdentifier } from "./validateUserIdentifier";
 
 const fieldId = "user-number";
@@ -31,6 +32,9 @@ export function UserNumberPage() {
 
   if (!state.userType) {
     return <Navigate to={paths.userType} replace />;
+  }
+  if (state.userType === "SNH") {
+    return <NatureScotUserInfoForm />;
   }
   const userType = state.userType;
   const copy = userIdentifierCopy(userType);
@@ -78,16 +82,7 @@ export function UserNumberPage() {
 
   return (
     <>
-      <BackLink to={paths.userType} label="Previous" />
-      <p>
-        <strong>Selected user type:</strong>
-      </p>
-      <p>{userTypeLabel(userType)}</p>
-      <p>
-        <Link className="ds_link" to={paths.userType}>
-          Change <span className="visually-hidden">user type</span>
-        </Link>
-      </p>
+      <SelectedUserType userType={userType} />
       <Page title="Provide the user details" titleSize="h2" hasErrors={summary.length > 0}>
         <ErrorSummary errors={summary} />
         <form noValidate onSubmit={(event) => void handleSubmit(event)}>

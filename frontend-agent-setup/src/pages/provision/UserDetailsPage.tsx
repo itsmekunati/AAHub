@@ -40,9 +40,17 @@ export function UserDetailsPage() {
     return <Navigate to={paths.userType} replace />;
   }
 
+  // Only a location on the loaded list counts, in the list's own spelling: a pasted NatureScot location
+  // may differ in letter case, or not be on the list at all.
+  const chosenLocation =
+    locations.status === "loaded"
+      ? (locations.locations.find((name) => name.toLowerCase() === location.trim().toLowerCase()) ?? "")
+      : "";
   const managerProblem = validateManagerXNumber(managerXNumber);
   const managerError = managerTouched || isFinalManagerError(managerXNumber) ? managerProblem : undefined;
-  const locationError = location ? undefined : formErrors.find((error) => error.fieldId === locationFieldId)?.message;
+  const locationError = chosenLocation
+    ? undefined
+    : formErrors.find((error) => error.fieldId === locationFieldId)?.message;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,15 +58,15 @@ export function UserDetailsPage() {
       return;
     }
     setManagerTouched(true);
-    const found = validateDetails(user, location, managerXNumber);
+    const found = validateDetails(user, chosenLocation, managerXNumber);
     setFormErrors(found);
     // Only the sanitised manager's x number is kept, never what was typed.
     const manager = sanitiseManagerXNumber(managerXNumber);
     if (found.length === 0 && manager.ok) {
-      detailsCompleted(manager.value, location);
+      detailsCompleted(manager.value, chosenLocation);
       void navigate(paths.ticket);
     } else {
-      validationBlocked("user-details", missingFieldNames(user, location, managerXNumber), userType);
+      validationBlocked("user-details", missingFieldNames(user, chosenLocation, managerXNumber), userType);
     }
   }
 
@@ -69,7 +77,11 @@ export function UserDetailsPage() {
         <ErrorSummary errors={errors} />
         <p>Review the user data below and add additional mandatory fields before clicking Next.</p>
         <SummaryList items={requestSummary(userType, state.userIdentifier)} />
-        <p>These user details have been retrieved from Okta via BI.</p>
+        <p>
+          {userType === "SNH"
+            ? "These user details are from the information you pasted in."
+            : "These user details have been retrieved from Okta via BI."}
+        </p>
         <SummaryList label="User details" items={userDetailsSummary(user)} />
         <h2>Enter user data required for the provisioning request</h2>
         <p>
@@ -91,7 +103,7 @@ export function UserDetailsPage() {
             label="Location"
             placeholder="Select location from dropdown"
             options={locations.status === "loaded" ? locations.locations.map((name) => ({ value: name, label: name })) : []}
-            value={location}
+            value={chosenLocation}
             onChange={setLocation}
             disabled={locations.status === "loading"}
             error={locationError}
@@ -101,7 +113,7 @@ export function UserDetailsPage() {
           </div>
           <FormButtons
             submitLabel="Next"
-            unavailable={!location || Boolean(managerProblem)}
+            unavailable={!chosenLocation || Boolean(managerProblem)}
             unavailableHintId={unavailableHintId}
             onCancel={cancel}
           />

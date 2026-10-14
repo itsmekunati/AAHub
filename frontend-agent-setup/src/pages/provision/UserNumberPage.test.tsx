@@ -22,14 +22,14 @@ const validateButton = () => screen.getByRole("button", { name: "Validate user d
 
 describe("Provide the user details", () => {
   it("AC3: shows a Previous link and the selected user type, with a Change link, above the heading", async () => {
-    const { user } = await openUserNumber("NatureScot");
+    const { user } = await openUserNumber("Scottish Forestry");
 
     const heading = screen.getByRole("heading", { level: 1, name: headings.userIdentifier });
     expect(heading).toHaveClass("ds_h2");
     // Three lines, one under the other: the label, the user type, then the Change link.
     const lines = [
       screen.getByText("Selected user type:").closest("p"),
-      screen.getByText("NatureScot").closest("p"),
+      screen.getByText("Scottish Forestry").closest("p"),
       screen.getByRole("link", { name: "Change user type" }).closest("p"),
       heading,
     ];
@@ -47,7 +47,7 @@ describe("Provide the user details", () => {
     await user.click(screen.getByRole("link", { name: "Change user type" }));
 
     await findHeading(headings.userType);
-    expect(screen.getByRole("radio", { name: "NatureScot" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Scottish Forestry" })).toBeChecked();
   });
 
   it("AC3: Previous goes back to the user type with the choice kept", async () => {
@@ -69,25 +69,6 @@ describe("Provide the user details", () => {
       expect(validateButton()).toBeInTheDocument();
     },
   );
-
-  it("AC3: asks a NatureScot user for a GAKWO number", async () => {
-    const { user } = await openUserNumber("NatureScot");
-    const gakwoHint = "Use the following format: GAKWO number, for example GAKWO111111";
-
-    const field = screen.getByRole("textbox", { name: "Enter user's GAKWO number" });
-    expect(field).toHaveAccessibleDescription(gakwoHint);
-
-    await user.type(field, "U100001");
-    expect(field).toHaveAccessibleDescription(
-      `${gakwoHint} Error: GAKWO numbers must be GAKWO followed by six digits, for example GAKWO111111`,
-    );
-
-    await user.clear(field);
-    await user.type(field, "GAKWO300003");
-    await user.click(validateButton());
-
-    expect(await findHeading(headings.userDetails)).toBeInTheDocument();
-  });
 
   it("AC3: shows Validate user details as unavailable, and says why, until the number fits the format", async () => {
     const { user } = await openUserNumber();
@@ -169,7 +150,6 @@ describe("Provide the user details", () => {
   it.each([
     ["Scottish Government", "U100001", "SG"],
     ["Scottish Forestry", "Z200002", "FGS"],
-    ["NatureScot", "GAKWO300003", "SNH"],
   ])("AC4: looks a %s user up with the backend's user type code", async (userType, userIdentifier, code) => {
     const lookedUp: string[] = [];
     server.use(

@@ -3,6 +3,8 @@ import { ErrorMessage } from "./ErrorMessage";
 interface TextInputProps {
   id: string;
   label: string;
+  /** Keeps the label for screen readers only, where the page heading already says what to enter. */
+  hideLabel?: boolean;
   value: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
@@ -17,6 +19,7 @@ interface TextInputProps {
 export function TextInput({
   id,
   label,
+  hideLabel = false,
   value,
   onChange,
   onBlur,
@@ -35,7 +38,7 @@ export function TextInput({
 
   return (
     <div className={error ? "ds_question ds_question--error" : "ds_question"}>
-      <label className="ds_label" htmlFor={id}>
+      <label className={hideLabel ? "ds_label visually-hidden" : "ds_label"} htmlFor={id}>
         {label}
       </label>
       {hint && (
