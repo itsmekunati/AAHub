@@ -16,7 +16,7 @@ Rules for operator authentication:
 - Administrators sign in through **Okta**. The UI sends the access token as a Bearer token. This API validates it as an **OAuth2 resource server** (Spring Security, JWT validation against the Okta issuer). This API never sees passwords and never issues tokens.
 - Use Spring Security's standard resource server support. Do not add the Okta Spring Boot starter without asking; it is not needed to validate tokens.
 - The Okta issuer URI, client ID and any audience settings come from configuration per environment.
-- Map Okta roles to Spring authorities (`ROLE_EDITOR`, `ROLE_VIEWER`) in **one dedicated converter class**. Which claim carries the roles (for example a `groups` claim or a custom claim from the Okta authorization server) is TBC, so make the claim path configurable.
+- Map Okta groups to Spring authorities in **one dedicated converter class**: `AAH_Editor` → `ROLE_EDITOR`, `AAH_Viewer` → `ROLE_VIEWER` (decided; fixed names, the same in every environment, matched exactly). An operator in both groups gets `ROLE_EDITOR` only; an operator in neither gets no authorities, so `403` everywhere; any other group is ignored. Which claim carries the groups (for example a `groups` claim or a custom claim from the Okta authorization server) is TBC, so make the claim path configurable.
 - **Deny by default.** Every endpoint requires authentication, and each declares which role(s) may call it (e.g. `@PreAuthorize`). A new endpoint must never be accidentally public.
 - **Permission matrix (decided):**
   - **`editor`** may call every endpoint: User Provisioning, User Role Management and Check existing access.

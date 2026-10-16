@@ -9,7 +9,7 @@ Relevant rules: `.claude/rules/auth.md`, `tdd.md`, `api-client.md`, `code-style.
 
 ## 1. Check the open decisions
 - Sign-in is Okta SSO with MFA on Okta's hosted page (decided, `auth.md`). MFA and SSO happen in Okta, so they need no UI code or tests here.
-- The OIDC library (`@okta/okta-auth-js` or a standard OIDC client), which claim carries the roles, and the Okta issuer URL and client ID per environment are open (`docs/open-questions.md` #1). If the library is not decided, **stop and return `NEEDS-DECISION`**.
+- The OIDC library (`@okta/okta-auth-js` or a standard OIDC client), which claim carries the groups (the names `AAH_Editor` and `AAH_Viewer` are decided, see `auth.md`), and the Okta issuer URL and client ID per environment are open (`docs/open-questions.md` #1). If the library is not decided, **stop and return `NEEDS-DECISION`**.
 - The permission matrix is decided (`auth.md`). Keep role checks behind named capabilities in `src/auth/permissions.ts` (e.g. `canProvision(role)`), so the rules change in one place.
 
 ## 2. Shape
@@ -26,7 +26,7 @@ With the library adapter mocked:
 - If refresh fails, the session ends: `onSessionEnd` listeners fire and the user is sent back to sign in.
 - `logout` clears the in-memory state and calls the library's logout with the configured redirect.
 - **Nothing is written to `localStorage` or `sessionStorage`**, and nothing token-like is logged (spy on storage and the console).
-- `hasRole` reads roles from the configured claim location.
+- `hasRole` reads the groups from the configured claim location and maps `AAH_Editor` to `editor` and `AAH_Viewer` to `viewer`; both groups give `editor`; neither gives no role (the no-access page); other groups are ignored.
 
 With the mock API and `renderPage`:
 - every API request carries the Bearer token from `getToken`, and only the shared client adds it;

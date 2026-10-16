@@ -19,6 +19,10 @@ Rules:
 - Attach the access token as a Bearer token in **one place** in `src/services/`, and handle token refresh and expiry there. Send the user back to sign in cleanly when the session ends.
 - Keep Okta-specific code in `src/auth/` behind a **small interface** (current user, roles, login, logout, get token), so the rest of the UI does not depend on Okta directly.
 - The UI may read the operator's roles from the token **only to decide what to show** (e.g. hiding provisioning from a `viewer`). This is usability, not security. The backend enforces every permission; handle `401` and `403` properly.
+- **Okta groups (decided, the same in every environment):** `AAH_Editor` is the `editor` role and `AAH_Viewer` is the `viewer` role, matched exactly.
+  - An operator in both groups is an `editor`.
+  - An operator in neither group sees a "You do not have access to this service" page with a sign-out link, and nothing else.
+  - Map the groups to roles in **one place** in `src/auth/` (beside `permissions.ts`), with the group names as constants there. They do not differ by environment, so they are not in `config.json`. Which claim carries the groups is still open (`docs/open-questions.md` #1).
 - **Permission matrix (decided):**
   - **`editor`** can use every part of the service: User provisioning, User Role Manager and Check existing access to RP&S.
   - **`viewer`** can use **User Role Manager** (the whole journey, including changing a user's groups and submitting) and **Check existing access to RP&S**, but **not User provisioning**. Hide the provisioning tab and home page task from a viewer, and show the "You do not have permission to use this part of the service" page (`src/pages/NoPermissionPage.tsx`) if a viewer opens any provisioning address directly.

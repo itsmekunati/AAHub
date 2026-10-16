@@ -7,7 +7,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 
 /**
  * Mock operators for slice and integration tests. Sets authorities directly (bypasses the role converter);
- * keep one separate test of the converter with the real claim shape.
+ * keep one separate test of the converter with the real claim shape (Okta groups AAH_Editor and AAH_Viewer).
  */
 public final class MockOperators {
 

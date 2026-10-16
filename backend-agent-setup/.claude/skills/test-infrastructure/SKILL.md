@@ -30,7 +30,7 @@ Rules: `.claude/rules/testing.md`, `tdd.md`. Templates are in `templates/`. They
    - Unit tests: Mockito only; no containers.
    - Slice tests (`@WebMvcTest`): `MockOperators` + mocked services; no containers.
    - Integration tests (`@SpringBootTest` + `@Import(IntegrationTestContainers.class)`): real Futures Database, OpenDJ and S3.
-7. **Security:** `MockOperators` sets authorities directly, which bypasses the Okta role converter. Keep **one dedicated test** of the converter with a JWT in the real claim shape.
+7. **Security:** `MockOperators` sets authorities directly, which bypasses the Okta role converter. Keep **one dedicated test** of the converter with a JWT in the real claim shape: `AAH_Editor` → `ROLE_EDITOR`, `AAH_Viewer` → `ROLE_VIEWER`, both → `ROLE_EDITOR` only, neither or other groups → no authorities.
 8. **Failure paths:** `Outages.pause(container)` in integration tests, or a gateway mock that throws in unit tests. A paused container makes calls hang, so set short connect/read timeouts for LDAP, JDBC and S3 in the test configuration.
 9. **Run:** `./mvnw test` (unit + slice), `./mvnw verify` (with integration tests), `./mvnw spring-boot:test-run` (app with containers).
 
