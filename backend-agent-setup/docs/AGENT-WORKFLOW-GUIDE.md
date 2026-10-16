@@ -493,7 +493,7 @@ Type a short request. Focus on the outcome, not the implementation. For example:
 The Planner writes `specs/product-spec.json` and replies with:
 
 - a short summary of the features and how they are split into sprints (up to 8), and
-- a list of **open questions** that block the work. These come from `docs/open-questions.md`: the admin/editor permission matrix, internal email domains, LDAP and Futures Database schemas, Okta claim path, OpenDJ/Futures Database write order, and so on.
+- a list of **open questions** that block the work. These come from `docs/open-questions.md`: internal email domains, LDAP and Futures Database schemas, Okta claim path, OpenDJ/Futures Database write order, and so on.
 
 What to do:
 
@@ -565,7 +565,6 @@ This section is the practical walkthrough: how to start the backend, hand the fi
 
 1. **Set up** as in sections 4 and 5: install the prerequisites, add the files on a branch.
 2. **Settle the blocking open questions** in `docs/open-questions.md`, or be ready to answer them when the Planner asks. The most urgent are:
-   - #7: the permission matrix;
    - #8: Okta roles in the token;
    - #1: internal email domains;
    - #2 and #3: the LDAP and Futures Database schemas;
@@ -574,7 +573,7 @@ This section is the practical walkthrough: how to start the backend, hand the fi
    - #13: the Java code style.
 3. **Start the Planner** with `claude --agent planner` and ask for the foundation, for example:
 
-   > Set up the backend foundation: the shared test infrastructure, Okta resource-server security with admin, editor and read-only viewer roles, correlation IDs and structured audit logging, and a health endpoint.
+   > Set up the backend foundation: the shared test infrastructure, Okta resource-server security with editor and viewer roles, correlation IDs and structured audit logging, and a health endpoint.
 
 4. The Planner makes **Sprint 0: test infrastructure** the first sprint. Review the summary, answer its questions, and reply `good to go`.
 5. **Review each passed sprint** (Step 6.7) and finish the cycle (Step 6.8).
@@ -593,9 +592,9 @@ Every breaking change to the contract must be flagged. The agents do this in the
 1. **Create a branch**, for example `git checkout -b feature/list-users`.
 2. **Start the Planner** and describe the behaviour, who may use it, and what must be audited. For example:
 
-   > Add an endpoint to list provisioned users for admins and editors, with name, email, user type and roles. Editors must not see disabled users. Audit access denials.
+   > Add an endpoint to list provisioned users for editors and viewers, with name, email, user type and roles. Viewers must not see disabled users. Audit access denials.
 
-   > Add an endpoint for admins to provision a new internal user of the chosen user type (Government, Forestry or Nature): store the details in the Futures Database, assign roles in OpenDJ, compensate if the second write fails, and audit every step.
+   > Add an endpoint for editors to provision a new internal user of the chosen user type (Government, Forestry or Nature): store the details in the Futures Database, assign roles in OpenDJ, compensate if the second write fails, and audit every step.
 
 3. **The Planner:**
    - writes the spec and contract, including test scenarios, audit events and API contract impact;
@@ -606,7 +605,7 @@ Every breaking change to the contract must be flagged. The agents do this in the
 ### Tips
 
 - **One endpoint or flow per sprint.** Provisioning flows that touch both OpenDJ and the Futures Database are usually a sprint on their own.
-- **Always say who may call it** (`admin`, `editor`, `viewer`; a `viewer` may only read) until the permission matrix is agreed.
+- **Always say who may call it** (`editor`, `viewer`), following the permission matrix in `.claude/rules/security-okta.md`.
 - **Build what the UI needs first.** When the UI Planner reports a backend dependency, it tells you exactly which operation and fields are missing; use that as your request here.
 
 ---

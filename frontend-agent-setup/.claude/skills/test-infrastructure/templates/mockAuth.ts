@@ -1,13 +1,12 @@
 // src/auth/mockAuth.ts: TESTS AND DEVELOPMENT ONLY. Never included in a production build.
 import type { AuthClient, Operator, OperatorRole } from "./AuthClient";
 
-export type Persona = "admin" | "editor" | "viewer" | "signed-out" | "session-expiring";
+export type Persona = "editor" | "viewer" | "signed-out" | "session-expiring";
 
 const OPERATORS: Record<Exclude<Persona, "signed-out">, Operator> = {
-  admin: { username: "mock.admin", displayName: "Mock Admin", roles: ["admin"] },
   editor: { username: "mock.editor", displayName: "Mock Editor", roles: ["editor"] },
   viewer: { username: "mock.viewer", displayName: "Mock Viewer", roles: ["viewer"] },
-  "session-expiring": { username: "mock.expiring", displayName: "Mock Expiring", roles: ["admin"] },
+  "session-expiring": { username: "mock.expiring", displayName: "Mock Expiring", roles: ["editor"] },
 };
 
 export function createMockAuth(persona: Persona): AuthClient {
@@ -27,7 +26,7 @@ export function createMockAuth(persona: Persona): AuthClient {
     currentOperator: () => operator,
     hasRole: (role: OperatorRole) => operator?.roles.includes(role) ?? false,
     async login() {
-      operator = OPERATORS.admin;
+      operator = OPERATORS.editor;
     },
     async logout() {
       endSession();

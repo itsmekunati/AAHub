@@ -262,7 +262,7 @@ A rare genuine exemption (for example, adding a dependency) is recorded as `"tdd
 | Component / page | Testing Library + axe, with a mocked auth interface and mocked services | Rendering, forms, validation, error summary focus, role visibility, `401`/`403` handling, screen states | Yes |
 | Service | Test runner with the generated client mocked | Mapping each API response to a typed result | Yes |
 | Browser (Evaluator) | Playwright MCP against the local app | Visual Design System fidelity, keyboard use, reflow | No: checked by the Evaluator |
-| E2E | Playwright against the deployed test environment | Full journeys for `admin`, `editor` and `viewer` | No: written with the feature, run in CI |
+| E2E | Playwright against the deployed test environment | Full journeys for `editor` and `viewer` | No: written with the feature, run in CI |
 
 ### How the Evaluator checks TDD
 
@@ -508,7 +508,7 @@ Type a short request. Focus on what the operator needs to do, not on the impleme
 The Planner reads `openapi/openapi.json`, writes `specs/product-spec.json`, and replies with:
 
 - a short summary of the features, the Design System components each uses, and how they are split into sprints (up to 8);
-- **open questions** that block the work, from `docs/open-questions.md`: the `admin`/`editor` permission matrix, Okta details and OIDC library, build tooling, how the app is served;
+- **open questions** that block the work, from `docs/open-questions.md`: Okta details and OIDC library, build tooling, how the app is served;
 - **backend dependencies**: anything the UI needs that is **not** in the API spec yet (a missing endpoint, field or error code).
 
 What to do:
@@ -592,15 +592,14 @@ The simplest plan is to run both repositories in parallel. The backend builds it
 
    | # | Question | Why it blocks |
    |---|---|---|
-   | 2 | OIDC library and Okta details | Needed for sign-in |
-   | 1 | What `admin` and `editor` may each do | Decides what each role sees |
+   | 1 | OIDC library and Okta details | Needed for sign-in |
 
 3. **Start the Planner** with `claude --agent planner` and ask for the foundation, for example:
 
-   > Set up the UI foundation: the chosen build tooling, the Scottish Government Design System package, an app shell with the Design System header, footer and a home page, sign-in with Okta SSO with MFA for admin, editor and read-only viewer operators, and the shared test infrastructure.
+   > Set up the UI foundation: the chosen build tooling, the Scottish Government Design System package, an app shell with the Design System header, footer and a home page, sign-in with Okta SSO with MFA for editor and viewer operators, and the shared test infrastructure.
 
 4. The Planner makes **Sprint 0: test infrastructure** the first sprint, followed by sprints such as "app shell" and "sign-in". Review the summary, answer its questions, and reply `good to go`.
-5. **Review each passed sprint** (Step 6.7). Then run the app with the mock API and try it as the `admin`, `editor` and `viewer` personas. The command is recorded in `CLAUDE.md` after Sprint 0.
+5. **Review each passed sprint** (Step 6.7). Then run the app with the mock API and try it as the `editor` and `viewer` personas. The command is recorded in `CLAUDE.md` after Sprint 0.
 6. **Finish the cycle** (Step 6.8): record the answered questions in their rule files, then push the branch and open a pull request yourself.
 
 ### Getting the first API contract into the UI
@@ -628,7 +627,7 @@ Open a pull request for it, and merge it before starting data pages.
    > Add a "Users" page that lists provisioned users in a table showing name, email, user type and roles. Admins see a "Create user" button; editors don't. Show a clear message when there are no users.
 
    **A form page** (the `form-with-server-errors` skill):
-   > Add a "Create user" page where an admin enters a new user's name and email and chooses their roles. Show server validation errors properly, and after success show a confirmation page with the user type returned by the server.
+   > Add a "Create user" page where an editor enters a new user's name and email and chooses their roles. Show server validation errors properly, and after success show a confirmation page with the user type returned by the server.
 
    **A detail page** (the `data-page` skill):
    > Add a user detail page, reached from the Users table, showing the user's details and roles in a summary list.
@@ -645,14 +644,14 @@ Open a pull request for it, and merge it before starting data pages.
 ### When a page needs something the API does not have
 
 1. The Planner (or the Generator, with `CONTRACT-MISMATCH`) pauses that page and says exactly what is missing.
-2. Ask for it in the backend repository, for example with its Planner: "Add an endpoint to list provisioned users, for admins and editors."
+2. Ask for it in the backend repository, for example with its Planner: "Add an endpoint to list provisioned users, for editors and viewers."
 3. When the updated spec arrives in a spec-sync pull request, ask the UI Planner to "Assess this spec-sync PR" (section 10), merge it, and ask the Planner to resume the page.
 
 ### Tips
 
 - **One page per sprint.** You can ask for several pages at once; the Planner still gives each its own sprint.
-- **Describe journeys, not components.** Say "an admin creates a user and sees confirmation", not "use a text input". The Planner maps journeys to Design System patterns.
-- **Always say who can do what** (`admin`, `editor`, `viewer`; a `viewer` can only read) until the permission matrix is agreed.
+- **Describe journeys, not components.** Say "an editor creates a user and sees confirmation", not "use a text input". The Planner maps journeys to Design System patterns.
+- **Always say who can do what** (`editor`, `viewer`), following the permission matrix in `.claude/rules/auth.md`.
 - **Check the accessibility yourself as well.** Automated checks catch a lot, but not everything. A keyboard-only run-through of each new page takes a minute.
 
 ---
@@ -718,7 +717,7 @@ Snyk checks for known vulnerabilities and security problems. The checks are buil
 |---|---|---|---|
 | Dependencies | `snyk test` | On commit, when `package.json` or `package-lock.json` is staged | On |
 | Infrastructure | `snyk iac test` | On commit, when `deploy/` manifests are staged | On |
-| Your own code | `snyk code test` | On push (`.githooks/pre-push`) | **Off.** It uploads your source code to Snyk, so it needs approval first (open question #6). |
+| Your own code | `snyk code test` | On push (`.githooks/pre-push`) | **Off.** It uploads your source code to Snyk, so it needs approval first (open question #5). |
 
 Only issues at **high** or **critical** severity block a commit or push. If Snyk can't run (not installed, not signed in, or no network), it **warns and lets the commit through**; CI remains the real gate.
 

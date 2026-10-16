@@ -25,7 +25,7 @@ Authentication is Okta (OIDC); this API is an OAuth2 resource server. The OpenAP
 - **OpenDJ and Futures Database writes cannot share one transaction.** Provisioning is an explicit ordered flow with compensation or a recorded failed state.
 - **Internal or external is decided server-side only,** from the email domain. Never accept it from the client. User type is a different thing. External user flows live in User Role Management only.
 - **Every transaction (create, change or remove) carries a mandatory JSM/Jira ticket** and gets its own server-generated transaction ID, which is never the ticket.
-- **Two kinds of roles:** operator roles (`admin`, `editor`, read-only `viewer`) come from Okta; provisioned user roles are what this API assigns in OpenDJ.
+- **Two kinds of roles:** operator roles (`editor`, and `viewer`, who cannot use User Provisioning) come from Okta; provisioned user roles are what this API assigns in OpenDJ.
 
 ## Non-negotiable rules
 

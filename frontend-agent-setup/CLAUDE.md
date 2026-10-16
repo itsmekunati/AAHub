@@ -12,7 +12,7 @@ React, strict TypeScript, Vite, React Router and Prettier (versions and scripts 
 
 - **UI:** the Scottish Government Design System, which is plain HTML/CSS/JS wrapped in our own React components.
 - **Mock API:** Mock Service Worker (MSW), for tests and for local development.
-- **Not built yet:** Okta SSO with MFA (OIDC with PKCE, operator roles `admin`, `editor` and read-only `viewer`), the generated OpenAPI client, Playwright E2E, CI and deployment.
+- **Not built yet:** Okta SSO with MFA (OIDC with PKCE, operator roles `editor` and `viewer`), the generated OpenAPI client, Playwright E2E, CI and deployment.
 - **One build for every environment**, configured at run time by a public `config.json`.
 
 ## Key principles

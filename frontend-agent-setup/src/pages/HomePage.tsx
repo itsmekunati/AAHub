@@ -1,4 +1,6 @@
 import { Link } from "react-router";
+import { useOperatorRole } from "../auth/OperatorRoleContext";
+import { canProvision } from "../auth/permissions";
 import { Page } from "../components/Page";
 import { getConfig } from "../config";
 import { paths } from "./provision/options";
@@ -8,21 +10,25 @@ const tasks = [
     title: "Provision user access to RP&S",
     summary: "Provision a new user with access to RP&S",
     to: paths.userType,
+    provisioning: true,
   },
   {
     title: "User Role Manager",
     summary: "Manage an existing user's LDAP group membership",
     to: "/role-manager",
+    provisioning: false,
   },
   {
     title: "Check user's existing RP&S access",
     summary: "Check a user's existing RP&S access using u/z number or email address",
     to: "/check-access",
+    provisioning: false,
   },
 ];
 
 export function HomePage() {
   const { environmentName, managedEnvironments, otherInstance } = getConfig();
+  const showProvisioning = canProvision(useOperatorRole());
 
   return (
     <Page title="Home" hideTitle layout="full-width">
@@ -42,16 +48,18 @@ export function HomePage() {
         </div>
       </div>
       <ul className="ds_category-list ds_category-list--grid app_category-list--two-columns">
-        {tasks.map((task) => (
-          <li className="ds_category-item" key={task.to}>
-            <h2 className="ds_category-item__title">
-              <Link className="ds_category-item__link" to={task.to}>
-                {task.title}
-              </Link>
-            </h2>
-            <p className="ds_category-item__summary">{task.summary}</p>
-          </li>
-        ))}
+        {tasks
+          .filter((task) => showProvisioning || !task.provisioning)
+          .map((task) => (
+            <li className="ds_category-item" key={task.to}>
+              <h2 className="ds_category-item__title">
+                <Link className="ds_category-item__link" to={task.to}>
+                  {task.title}
+                </Link>
+              </h2>
+              <p className="ds_category-item__summary">{task.summary}</p>
+            </li>
+          ))}
       </ul>
     </Page>
   );

@@ -1,11 +1,13 @@
 import { Link, Outlet } from "react-router";
 import scottishGovernmentLogo from "../assets/scottish-government.svg";
-import { currentOperatorRole } from "../auth/operator";
+import { useOperatorRole } from "../auth/OperatorRoleContext";
 import { serviceName } from "./Page";
 import { SiteFooter } from "./SiteFooter";
 import { SiteNavigation } from "./SiteNavigation";
 
 export function Layout() {
+  const role = useOperatorRole();
+
   return (
     <div className="ds_page">
       <div className="ds_page__top">
@@ -35,7 +37,7 @@ export function Layout() {
               </div>
               <p className="app_site-header__role">
                 <span className="visually-hidden">Signed in role:</span>{" "}
-                <strong className="ds_tag">{currentOperatorRole().toUpperCase()}</strong>
+                <strong className="ds_tag">{role.toUpperCase()}</strong>
               </p>
             </div>
           </div>

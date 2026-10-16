@@ -15,7 +15,7 @@ Relevant rules: `.claude/rules/forms-accessibility.md`, `design-system.md`. Chec
 - Routes: the argument, the screens in the sprint contract (Evaluator), or every route in `src/AppRoutes.tsx`, including the not-found page.
 - Scenarios: `success` for every route, plus each scenario in `src/mocks/scenarios.ts` that affects that page (for example `lookupServerError` and `lookupForbidden` on the user number step, `submitServerError` on the ticket step). Pick one with `?scenario=<name>` on the **first** page load; start a fresh page to change it.
 - Reach later journey steps by completing the earlier ones with valid mock data, as a user would.
-- Roles: when mock auth and personas (`admin`, `editor`, `viewer`) exist, repeat for each and check hidden actions are not focusable. Until then, report roles as **not built**.
+- Roles: when mock auth and personas (`editor`, `viewer`) exist, repeat for each and check hidden actions are not focusable. Until then, report roles as **not built**.
 
 ## 2. On each page and state
 - **axe:** run this in the page (`browser_evaluate` or `javascript_tool`). It loads the `axe-core` copy the dev server serves, so nothing comes from a CDN:

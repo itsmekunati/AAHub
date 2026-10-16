@@ -7,21 +7,17 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 
 /**
  * Mock operators for slice and integration tests. Sets authorities directly (bypasses the role converter);
- * keep one separate test of the converter with the real claim shape.
+ * keep one separate test of the converter with the real claim shape (Okta groups AAH_Editor and AAH_Viewer).
  */
 public final class MockOperators {
 
     private MockOperators() {}
 
-    public static JwtRequestPostProcessor admin() {
-        return operator("test-admin-subject", "test.admin", "ROLE_ADMIN");
-    }
-
     public static JwtRequestPostProcessor editor() {
         return operator("test-editor-subject", "test.editor", "ROLE_EDITOR");
     }
 
-    /** Read-only operator: must get 403 on every create, change or delete. */
+    /** May use User Role Management and Check existing access; must get 403 on every User Provisioning endpoint. */
     public static JwtRequestPostProcessor viewer() {
         return operator("test-viewer-subject", "test.viewer", "ROLE_VIEWER");
     }

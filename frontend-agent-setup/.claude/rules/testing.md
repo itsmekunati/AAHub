@@ -13,7 +13,7 @@ paths:
 Shared test helpers (mock API server, `renderApp` with scenario and route, plus persona once mock auth exists, mock auth, axe helper, typed fakes) are built and used with the `test-infrastructure` skill. All tests are written **before** the code they cover (see `.claude/rules/tdd.md` and the `tdd-cycle` skill). This file says **what** must be tested; `tdd.md` says **when and how**.
 
 - Test form validation and error states, including server validation errors shown as inline errors plus the error summary.
-- Test role-based visibility (`admin`, `editor` and read-only `viewer`) using a **mocked auth interface**, never a real Okta.
+- Test role-based visibility (`editor` and `viewer`, see `auth.md`) with `renderApp({ role })` (and the mocked auth interface once Okta sign-in exists), never a real Okta.
 - Test loading, empty, error and success states, and `401`/`403` handling.
 - Include automated accessibility checks (axe) for components and pages under test.
 - Use role/label-based queries (`getByRole`, `getByLabelText`) rather than CSS selectors or test IDs where possible.

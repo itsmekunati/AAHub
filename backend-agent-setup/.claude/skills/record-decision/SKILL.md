@@ -19,7 +19,7 @@ This is procedure A in `docs/AGENT-WORKFLOW-GUIDE.md`. Every file it changes is 
 
 ## 3. Update everything that waited on it
 - Grep `.claude/rules/`, `.claude/skills/`, `.claude/agents/`, `CLAUDE.md` and `docs/` for `open-questions` and `#<n>`.
-- Rewrite each "stop and ask", `NEEDS-DECISION` or "if not decided" step so it follows the decision, and remove the reference. Skills that often wait on questions: `provisioning-flow` (#9), `ldap-gateway` (#2), `futures-persistence` (#3), `test-infrastructure` and `log-shipping` (#4, #5, #6, #12), `add-endpoint` (#7).
+- Rewrite each "stop and ask", `NEEDS-DECISION` or "if not decided" step so it follows the decision, and remove the reference. Skills that often wait on questions: `provisioning-flow` (#9), `ldap-gateway` (#2), `futures-persistence` (#3), `test-infrastructure` and `log-shipping` (#4, #5, #6, #12).
 - If code or tests were built around a placeholder, list them as follow-up work; do not change code in this commit.
 
 ## 4. Remove the row
