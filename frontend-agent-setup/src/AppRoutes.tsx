@@ -1,6 +1,9 @@
 import { Navigate, Route, Routes } from "react-router";
+import { useOperatorRole } from "./auth/OperatorRoleContext";
+import { canProvision } from "./auth/permissions";
 import { Layout } from "./components/Layout";
 import { HomePage } from "./pages/HomePage";
+import { NoPermissionPage } from "./pages/NoPermissionPage";
 import { NotAvailablePage } from "./pages/NotAvailablePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProvisionLayout } from "./pages/provision/ProvisionLayout";
@@ -16,12 +19,17 @@ import { RoleUserDetailsPage } from "./pages/role-manager/RoleUserDetailsPage";
 import { SelectGroupsPage } from "./pages/role-manager/SelectGroupsPage";
 import { SubmittedPage } from "./pages/role-manager/SubmittedPage";
 
+// Every provisioning address, so a viewer who opens one directly sees the permission page.
+function ProvisionGuard() {
+  return canProvision(useOperatorRole()) ? <ProvisionLayout /> : <NoPermissionPage />;
+}
+
 export function AppRoutes() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
-        <Route path="provision" element={<ProvisionLayout />}>
+        <Route path="provision" element={<ProvisionGuard />}>
           <Route index element={<Navigate to="user-type" replace />} />
           <Route path="user-type" element={<UserTypePage />} />
           <Route path="user-number" element={<UserNumberPage />} />
