@@ -8,6 +8,7 @@ description: Test-first procedure for building or changing the Okta sign-in inte
 Relevant rules: `.claude/rules/auth.md`, `tdd.md`, `api-client.md`, `code-style.md`. Use the `tdd-cycle` loop and the `test-infrastructure` skill (mock auth, mock API, `renderPage`).
 
 ## 1. Check the open decisions
+- Sign-in is Okta SSO with MFA on Okta's hosted page (decided, `auth.md`). MFA and SSO happen in Okta, so they need no UI code or tests here.
 - The OIDC library (`@okta/okta-auth-js` or a standard OIDC client), which claim carries the roles, and the Okta issuer URL and client ID per environment are open (`docs/open-questions.md` #2). If the library is not decided, **stop and return `NEEDS-DECISION`**.
 - The permission matrix (#1) decides which roles see what. Until it is agreed, keep role checks behind named capabilities (e.g. `canAssignRoles(operator)`) in one module, so the rules change in one place.
 
@@ -45,4 +46,4 @@ Run until green, then the whole suite, type check and lint. Commit `feat(sprint-
 
 ## 5. Refactor and E2E
 - Tidy with tests green.
-- Add or update Playwright E2E tests for sign-in and sign-out with the dedicated `admin`, `editor` and `viewer` test users (they run against the test environment in CI, not locally).
+- Add or update Playwright E2E tests for sign-in and sign-out with the dedicated `admin`, `editor` and `viewer` test users (they run against the test environment in CI, not locally). The test users need an MFA factor that automation can satisfy, or a test-only sign-on policy (`docs/open-questions.md` #2); never use a real person's factor.

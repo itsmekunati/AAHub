@@ -1,4 +1,4 @@
-export type OperatorRole = "admin" | "editor";
+export type OperatorRole = "admin" | "editor" | "viewer";
 
 // TEMPORARY until Okta sign-in is built (open questions #1 and #2): every operator is shown
 // as an editor. This is display only and decides nothing; the backend enforces every permission.

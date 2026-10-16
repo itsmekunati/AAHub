@@ -12,7 +12,9 @@ There are **two different kinds of roles**. Do not confuse them:
 
 Rules:
 
-- Sign in through **Okta** using OIDC **Authorization Code flow with PKCE**, as a **public client with no client secret**. Use Okta's official `@okta/okta-auth-js` SDK or a standard OIDC library (choice TBC: see `docs/open-questions.md`). Never use the implicit flow or the password grant.
+- Operators sign in with **Okta SSO with MFA (decided)** on the **Okta-hosted sign-in page**, using OIDC **Authorization Code flow with PKCE** as a **public client with no client secret** (redirect only). Use Okta's official `@okta/okta-auth-js` SDK or a standard OIDC library (choice TBC: see `docs/open-questions.md`). Never use the implicit flow or the password grant, never embed the Okta Sign-In Widget, and never collect passwords or MFA codes in this app.
+- **Okta enforces MFA** through the app's sign-on policy. The UI never builds MFA screens and never decides anything from `amr` or `acr` claims; if MFA must be proven, the backend checks it when it validates the token.
+- **SSO needs no special handling:** an operator with an existing Okta session simply comes back signed in. The session can end at any time (MFA policies often mean shorter sessions), so always handle it by sending the operator back to sign in.
 - Keep the access token **in memory only**. Never put tokens in `localStorage` or `sessionStorage`, and never log them.
 - Attach the access token as a Bearer token in **one place** in `src/services/`, and handle token refresh and expiry there. Send the user back to sign in cleanly when the session ends.
 - Keep Okta-specific code in `src/auth/` behind a **small interface** (current user, roles, login, logout, get token), so the rest of the UI does not depend on Okta directly.

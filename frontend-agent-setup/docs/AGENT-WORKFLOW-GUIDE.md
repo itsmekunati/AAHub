@@ -77,7 +77,7 @@ The project rules are split into layers, so each agent reads only what the curre
 | `code-style.md` | Strict TypeScript and React conventions | `.ts`/`.tsx` files, `package.json`, ESLint and `tsconfig` files |
 | `design-system.md` | Using `@scottish-government/design-system`, markup, Sass, JS initialisation | `src/components/`, `src/pages/`, `src/styles/` |
 | `forms-accessibility.md` | WCAG 2.2 AA, forms, error summary, screen states, content | `src/components/`, `src/pages/` |
-| `auth.md` | Okta PKCE, tokens in memory, roles for visibility only | `src/auth/`, `src/services/` |
+| `auth.md` | Okta SSO with MFA, PKCE, tokens in memory, roles for visibility only | `src/auth/`, `src/services/` |
 | `api-client.md` | OpenAPI contract, generated client, spec-sync, user type | `src/services/`, `openapi/` |
 | `transactions.md` | Mandatory JSM/Jira ticket, separate transaction ID, mandatory provisioning fields, external users in URM | `src/pages/`, `src/services/`, `src/mocks/` |
 | `ui-audit.md` | Events the UI reports, no personal data, the local `logs/ui-audit.log` | `src/pages/`, `src/services/`, `src/mocks/`, `dev/` |
@@ -597,7 +597,7 @@ The simplest plan is to run both repositories in parallel. The backend builds it
 
 3. **Start the Planner** with `claude --agent planner` and ask for the foundation, for example:
 
-   > Set up the UI foundation: the chosen build tooling, the Scottish Government Design System package, an app shell with the Design System header, footer and a home page, sign-in with Okta for admin, editor and read-only viewer operators, and the shared test infrastructure.
+   > Set up the UI foundation: the chosen build tooling, the Scottish Government Design System package, an app shell with the Design System header, footer and a home page, sign-in with Okta SSO with MFA for admin, editor and read-only viewer operators, and the shared test infrastructure.
 
 4. The Planner makes **Sprint 0: test infrastructure** the first sprint, followed by sprints such as "app shell" and "sign-in". Review the summary, answer its questions, and reply `good to go`.
 5. **Review each passed sprint** (Step 6.7). Then run the app with the mock API and try it as the `admin`, `editor` and `viewer` personas. The command is recorded in `CLAUDE.md` after Sprint 0.
