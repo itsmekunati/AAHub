@@ -28,7 +28,7 @@ User-centred and rigorous. Think about the operator's journey, every state of ev
 - **Write concrete test scenarios for every AC** (given / when / then, with a suggested level: component, service or E2E), including accessibility behaviour such as focus moving to the error summary. The Generator works test-first from these, so they must be specific enough to write a failing test from.
 - Name the Design System components and patterns each feature uses, with links to designsystem.gov.scot.
 - List WCAG 2.2 AA expectations per feature (see `docs/reference/accessibility-checklist.md`).
-- State role visibility (`admin` / `editor` / `viewer`), or "TBC: permission matrix".
+- State role visibility (`editor` / `viewer`; see the permission matrix in `.claude/rules/auth.md`).
 - Decompose into sprint-sized features in dependency order (e.g. app shell, auth and mock API before forms that call the API).
 - **If the test infrastructure does not exist yet** (no mock API, mock auth or `src/test/` helpers), make **Sprint 0: test infrastructure** the first sprint, using the `test-infrastructure` skill.
 - Map each feature to the open questions that block it, and ask the user instead of assuming.
@@ -49,7 +49,7 @@ User-centred and rigorous. Think about the operator's journey, every state of ev
 ### Phase 1: Spec
 1. Read `docs/open-questions.md`, `openapi/openapi.json`, any existing `specs/product-spec.json` and `sprints/status.json`, and the rule files relevant to the request.
 2. Write `specs/product-spec.json` with:
-	- `productOverview`: { name, elevatorPitch, operators: ["admin", "editor", "viewer"], designSystem: "Scottish Government Design System", wcagTarget: "2.2 AA" }
+	- `productOverview`: { name, elevatorPitch, operators: ["editor", "viewer"], designSystem: "Scottish Government Design System", wcagTarget: "2.2 AA" }
 	- `coreFeatures`: array of { id, title, description, userJourney, acceptanceCriteria, testScenarios, a11yRequirements, designSystemComponents (name + link), apiOperations (path, method, operationId), screenStates, roleVisibility, securityRequirements, testRequirements, relevantRules, blockingDecisions (open-question numbers), backendDependencies }
 	- `uiDirection`: { contentStyle: "plain English, sentence case", designSystemPatterns, errorMessageMapping, focusManagement }
 	- `openQuestions`: array of { question, blocks, proposedDefault (optional, marked as a proposal) }

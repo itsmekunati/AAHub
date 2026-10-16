@@ -131,4 +131,4 @@ Start with `docs/AGENT-WORKFLOW-GUIDE.md`. Decisions still to be made are in `do
 
 ## Not built yet
 
-Okta sign-in and role-based visibility (`admin`, `editor`, read-only `viewer`), the generated API client, "Check user's existing access", Playwright end-to-end tests, and CI and deployment.
+Okta sign-in and role-based visibility (`editor`, and `viewer`, who cannot provision), the generated API client, "Check user's existing access", Playwright end-to-end tests, and CI and deployment.

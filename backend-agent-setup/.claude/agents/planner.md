@@ -44,7 +44,7 @@ Clear-sighted and rigorous. Think about the whole provisioning lifecycle, failur
 ### Phase 1: Spec
 1. Read `docs/open-questions.md`, any existing `specs/product-spec.json` and `sprints/status.json`, and the rule files relevant to the request.
 2. Write `specs/product-spec.json` with:
-	- `productOverview`: { name, elevatorPitch, operators: ["admin", "editor", "viewer"], managedUserTypes: ["INTERNAL", "EXTERNAL"], systemsOfRecord: { roles: "OpenDJ", userDetailsAndProvisioning: "Futures Database" } }
+	- `productOverview`: { name, elevatorPitch, operators: ["editor", "viewer"], managedUserTypes: ["INTERNAL", "EXTERNAL"], systemsOfRecord: { roles: "OpenDJ", userDetailsAndProvisioning: "Futures Database" } }
 	- `coreFeatures`: array of { id, title, description, acceptanceCriteria, testScenarios, securityRequirements, auditEvents, apiContractImpact ({ endpoints, breakingChange, notes }), testRequirements, dataOwnership, relevantRules (rule file names), blockingDecisions (open-question numbers) }
 	- `architectureDirection`: { layering, provisioningFlow (order + compensation or "TBC"), configurationKeys (names only), observabilityNotes }
 	- `openQuestions`: array of { question, blocks, proposedDefault (optional, marked as a proposal) }

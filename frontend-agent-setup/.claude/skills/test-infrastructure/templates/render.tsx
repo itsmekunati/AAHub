@@ -15,7 +15,7 @@ interface RenderOptions {
 }
 
 export function renderPage(ui: ReactElement, options: RenderOptions = {}) {
-  const { persona = "admin", scenario = "success", route = "/" } = options;
+  const { persona = "editor", scenario = "success", route = "/" } = options;
   server.use(...scenarios[scenario]);
   const auth = createMockAuth(persona);
   const user = userEvent.setup();

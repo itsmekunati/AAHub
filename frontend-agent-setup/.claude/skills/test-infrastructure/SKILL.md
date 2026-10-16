@@ -12,7 +12,7 @@ Rules: `.claude/rules/testing.md`, `tdd.md`, `api-client.md`, `auth.md`. Templat
 | File | Purpose |
 |---|---|
 | `src/auth/AuthClient.ts` | The small auth interface the whole UI depends on (if it does not exist yet). |
-| `src/auth/mockAuth.ts` | Mock implementation with personas: `admin`, `editor`, `viewer`, `signed-out`, `session-expiring`. |
+| `src/auth/mockAuth.ts` | Mock implementation with personas: `editor`, `viewer`, `signed-out`, `session-expiring`. |
 | `src/mocks/data.ts` | Typed fake data builders (from the generated API types). |
 | `src/mocks/handlers.ts` | Default mock handlers, one per API operation the UI uses, typed from the generated types. |
 | `src/mocks/scenarios.ts` | Named overrides: `success`, `empty`, `validationError`, `unauthorised`, `forbidden`, `conflict`, `serverError`, `slow`, `offline`. |
@@ -25,7 +25,7 @@ Rules: `.claude/rules/testing.md`, `tdd.md`, `api-client.md`, `auth.md`. Templat
 ## Steps
 
 1. **Red:** write tests for the helpers themselves:
-   - `renderPage` with `persona: "editor"` hides an admin-only element;
+   - `renderPage` with `persona: "viewer"` hides the User provisioning tab;
    - `scenario: "forbidden"` shows the permission message;
    - an unhandled request fails the test;
    - `expectNoAxeViolations` fails on a deliberately unlabelled input;

@@ -40,7 +40,7 @@ The UI reports things this API cannot see for itself (a journey started, cancell
 - Mark them as client-reported: `eventCategory` is `UI` and `component` is `ui`. They are supplementary and best-effort; never treat one as proof that something did or did not happen.
 - Accept only the event types on a fixed allow-list (`JOURNEY_STARTED`, `JOURNEY_CANCELLED`, `VALIDATION_BLOCKED`, `SCREEN_ERROR`, `JOURNEY_COMPLETED`, `TAB_SELECTED`) and only the expected fields (`eventType`, `journey`, `step`, `reasonCode`, `fields`, `userType`, `transactionId`, `outcome`, `tab`). `outcome` must be `SUCCESS` or `FAILURE`; `tab` is a short name such as `role-management`, never a URL. Anything else is a `400`. Drop unexpected fields; never log the raw body.
 - Take the operator identity, timestamp, source IP and correlation ID from the request and the validated token, never from the body.
-- The endpoint requires authentication and is open to `admin`, `editor` and `viewer`. It is not a transaction: no JSM/Jira ticket is required and no transaction ID is generated.
+- The endpoint requires authentication and is open to `editor` and `viewer`. It is not a transaction: no JSM/Jira ticket is required and no transaction ID is generated.
 - Limit the body size, strip line breaks so the record stays on one line, and rate-limit per operator so the log cannot be flooded.
 - UI events must not carry personal data. Reject or drop it if it arrives.
 

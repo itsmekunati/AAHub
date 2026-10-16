@@ -11,8 +11,7 @@ When a question is answered: record the decision in the matching rule file under
 | 4 | Which S3 bucket/prefix, and which AWS account? Do audit and application log files share one prefix (told apart by file name) or have a prefix each? | Shipping job | `log-shipping.md` |
 | 5 | How often does the S3 shipping scheduler run (once shortly after each cutover, or more frequently as a safety margin)? | Shipping job | `log-shipping.md` |
 | 6 | Does the local log directory need a persistent volume, given pods can be rescheduled before that day's file is shipped? | Shipping, deployment | `log-shipping.md`, `deploy.md` |
-| 7 | What may `admin` and `editor` each do (permission matrix)? Can an `editor` create external users, or assign roles? (`viewer` is decided: read-only, see `security-okta.md`.) | Every endpoint | `security-okta.md` |
-| 8 | Okta: org and authorization server (issuer), client ID and audience, and which claim carries the `admin`/`editor`/`viewer` roles (for example a `groups` claim or a custom claim)? Who manages the Okta configuration? | Security config | `security-okta.md` |
+| 8 | Okta: org and authorization server (issuer), client ID and audience, and which claim carries the `editor`/`viewer` roles (for example a `groups` claim or a custom claim)? Who manages the Okta configuration? | Security config | `security-okta.md` |
 | 9 | Failure strategy when one of OpenDJ/Futures Database succeeds and the other fails: which is written first? | Provisioning flow | `provisioning.md` |
 | 10 | What credential does the spec-sync workflow use to trigger the frontend repo (a GitHub App installation scoped to that repo is preferred)? Who reviews the resulting frontend PRs? | CI | `deploy.md`, `api-contract.md` |
 | 11 | Do the UI and API share an origin through OpenShift routes, or are they on different origins (needing CORS)? How is the UI served in ROSA? | CORS, routing | `api-contract.md`, `security-okta.md` |

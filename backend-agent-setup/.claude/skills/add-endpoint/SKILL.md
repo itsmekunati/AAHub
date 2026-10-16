@@ -9,7 +9,7 @@ Relevant rules: `.claude/rules/tdd.md`, `api-contract.md`, `transactions.md`, `s
 
 ## 1. Check the contract and permissions
 - Confirm the operation and its `testScenarios` are in the sprint contract.
-- Decide which operator role(s) may call it. If the permission matrix does not say, **stop and ask** (see `docs/open-questions.md` #7). Never make an endpoint public.
+- Decide which operator role(s) may call it from the permission matrix in `.claude/rules/security-okta.md`: User Provisioning is `editor` only; everything else is `editor` and `viewer`. If a new endpoint fits neither, **stop and ask**. Never make an endpoint public.
 - Decide whether this is a **breaking change** for the frontend (renamed/removed field, changed status code, error shape or validation). Prefer an additive change.
 
 ## 2. Red: write the failing tests first
@@ -23,7 +23,7 @@ Run them, confirm they fail for the right reason, record the red evidence, and c
 
 ## 3. Green: implement the minimum
 - **DTOs:** Java records in `api/`, with Bean Validation on every request field that needs it. Never expose JPA entities or LDAP objects. Never accept an internal/external classification, operator identity or operator role from the request body. Provisioning requests carry a `userType` that is validated as `user-classification.md` describes.
-- **Controller:** thin. Validate (`@Valid`), call one service method, map to a response DTO. Method security on the method, e.g. `@PreAuthorize("hasRole('ADMIN')")`. Errors go through the global exception handler, with no stack traces.
+- **Controller:** thin. Validate (`@Valid`), call one service method, map to a response DTO. Method security on the method, e.g. `@PreAuthorize("hasRole('EDITOR')")`. Errors go through the global exception handler, with no stack traces.
 - **Service and gateways:** business logic in `service/`; OpenDJ only through `ldap/`, Futures Database only through `futures/`. If the endpoint writes to both, use the `provisioning-flow` skill. The acting operator comes from the validated JWT via the security layer.
 - **Audit:** emit records for success and failure (`add-audit-event` skill).
 
