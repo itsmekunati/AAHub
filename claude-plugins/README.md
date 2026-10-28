@@ -1,11 +1,14 @@
 # Team agent kits
 
-Two Claude Code plugins that give a repository a test-first sprint workflow: a Planner, Generator and Evaluator agent, step-by-step skills, and a hook that protects secrets and critical files.
+Three Claude Code plugins that give a repository a test-first sprint workflow: a Planner, Generator and Evaluator agent, step-by-step skills, and a hook that protects secrets and critical files.
 
 | Plugin | For | Install in |
 |---|---|---|
 | `springboot-api-kit` | Spring Boot APIs (Java, Maven, JPA, OpenAPI) | the backend repository |
 | `react-ui-kit` | React UIs (TypeScript, Vite, Vitest, MSW, Playwright) | the frontend repository |
+| `angularjs-micronaut-kit` | One repository with an AngularJS 1.x UI in `av-ui/` (Karma, Jasmine, angular-mocks, Playwright) and a Micronaut 4 / Java 21 API in `av-service/` (Maven, Micronaut Data, Flyway, Testcontainers) | the combined repository |
+
+`angularjs-micronaut-kit` has no sign-in, roles, generated API client, OpenAPI spec-sync, or audit logging and S3 log shipping: the UI and the API live in one repository and change together. Teams that need sign-in add their own rule for it.
 
 They carry no application's business rules. Each team adds its own in the files that setup copies into the repository.
 
@@ -14,7 +17,7 @@ They carry no application's business rules. Each team adds its own in the files 
 - Claude Code, and Git.
 - `bash` on your `PATH`. On Windows this is Git Bash, which comes with Git for Windows.
 - `jq` (recommended) or `python3`. The protect-files hook needs one of them to read tool calls; without either it blocks every call and says so. `jq` is much faster.
-- `react-ui-kit` only: Node.js, because the Evaluator drives a browser through the Playwright MCP server (`npx @playwright/mcp`). That server is started for every session in which the plugin is enabled.
+- `react-ui-kit` and `angularjs-micronaut-kit`: Node.js, because the Evaluator drives a browser through the Playwright MCP server (`npx @playwright/mcp`). That server is started for every session in which the plugin is enabled.
 
 ## Install
 
@@ -24,6 +27,7 @@ Add this marketplace once, then install the plugin that matches the repository y
 claude plugin marketplace add <owner>/<repo>            # or a Git URL, or a local path to this folder
 claude plugin install springboot-api-kit@team-agent-kits --scope local   # in a backend repository
 claude plugin install react-ui-kit@team-agent-kits --scope local         # in a frontend repository
+claude plugin install angularjs-micronaut-kit@team-agent-kits --scope local   # in an AngularJS + Micronaut repository
 ```
 
 Use `--scope local`, which enables the plugin for you in this repository only:
@@ -36,7 +40,7 @@ Use `--scope local`, which enables the plugin for you in this repository only:
 A plugin can supply skills, agents and hooks. It cannot supply rules, `CLAUDE.md`, permission settings or Git hooks, so those are copied into the repository once:
 
 ```
-/springboot-api-kit:setup          (or /react-ui-kit:setup)
+/springboot-api-kit:setup          (or /react-ui-kit:setup, or /angularjs-micronaut-kit:setup)
 ```
 
 Setup asks which optional packs apply, shows what it will write, and copies:
@@ -68,6 +72,7 @@ Every other developer on the repository then adds the marketplace, installs the 
 | `springboot-api-kit` | `audit-s3` | Rules and skills for a structured audit log and application log, rotated daily and shipped to S3, plus the audit record schema |
 | `react-ui-kit` | `okta` | Rule and skill for Okta sign-in with PKCE |
 | `react-ui-kit` | `sg-design-system` | Rule and skills for the Scottish Government Design System, including building pages from Figma exports |
+| `angularjs-micronaut-kit` | `sg-design-system` | The Scottish Government Design System rule and skills, for AngularJS components (`figma-to-angularjs`) |
 
 Add a pack later by running setup again with its name, for example `/springboot-api-kit:setup audit-s3`.
 
@@ -115,6 +120,8 @@ The same hook checks what is being written and who is writing it:
 
 A subagent cannot answer a confirmation, so "you confirm" stops the Generator and Evaluator outright.
 
+In `angularjs-micronaut-kit` the legacy JSF application in `av-ui-jsf/` can be read but never edited; `/angularjs-micronaut-kit:port-from-jsf all` migrates it page by page, tracking progress in `migration/`. Run `/angularjs-micronaut-kit:modernise-service all` first if `av-service/` has existing code: it adds characterisation tests, then refactors the code to Micronaut 4 and Java 21 standards without changing behaviour. The same tiers apply by folder: `av-service/` gets the API rules (Maven wrapper, merged migrations under `av-service/src/main/resources/db/migration/`, `pom.xml` and `application*.yml`), `av-ui/` gets the UI rules (`package-lock.json`, `package.json`, ESLint, Karma and Playwright configuration), and the test guard also catches Jasmine's `pending(`. There is no API spec or generated client to protect.
+
 ### When a sprint agent finishes
 
 While a sprint is in progress, the Generator is sent back if `self-eval.json` is missing (unless it recorded `needs-decision` or `contract-mismatch`), and the Evaluator is sent back if its newest evaluation file has no `PASS` or `FAIL` verdict. Each is sent back once, then allowed to finish, so a broken sprint cannot loop.
@@ -139,4 +146,5 @@ You are told if neither `jq` nor `python3` is installed, if the repository has n
 - Each plugin is a folder under `plugins/`: `agents/`, `skills/`, `hooks/hooks.json`, `scripts/` (the three hook scripts and the setup script) and `templates/` (everything setup copies, with packs under `templates/packs/`).
 - Keep application-specific content out. If something only fits one application, it belongs in that repository's own rules or skills.
 - After any change, run `claude plugin validate . --strict` here, and bump `version` in the plugin's `.claude-plugin/plugin.json` so users receive it.
+- There are two catalogs with the same plugins: `.claude-plugin/marketplace.json` at the root of the repository (what `claude plugin marketplace add itsmekunati/AAHub` reads; sources start `./claude-plugins/plugins/`) and `claude-plugins/.claude-plugin/marketplace.json` (for adding this folder as a local path while developing). When you add, remove or describe a plugin, change both, and run `claude plugin validate . --strict` at the repository root too.
 - Shell scripts must keep LF line endings; `.gitattributes` enforces this.

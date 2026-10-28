@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Pre-push hook: Snyk code check (static analysis of your own code). OFF by default.
+# It uploads source code to Snyk, so it also needs SNYK_CODE / hooks.snyk.code turned on.
+# Settings: .githooks/snyk.conf (team default) and git config hooks.snyk* (personal). See the guide.
+# Never bypass it with --no-verify.
+
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/snyk-lib.sh"
+
+if snyk_check_on code; then
+  snyk_run "code check" code test || exit 1
+fi
+exit 0

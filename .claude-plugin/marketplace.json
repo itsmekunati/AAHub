@@ -1,0 +1,24 @@
+{
+  "name": "team-agent-kits",
+  "description": "Sprint workflow plugins for Spring Boot APIs, React UIs, and AngularJS + Micronaut applications",
+  "owner": {
+    "name": "Ark"
+  },
+  "plugins": [
+    {
+      "name": "springboot-api-kit",
+      "source": "./claude-plugins/plugins/springboot-api-kit",
+      "description": "Test-first sprint workflow, skills, agents and a protect-files hook for Spring Boot APIs"
+    },
+    {
+      "name": "react-ui-kit",
+      "source": "./claude-plugins/plugins/react-ui-kit",
+      "description": "Test-first sprint workflow, skills, agents and a protect-files hook for React UIs"
+    },
+    {
+      "name": "angularjs-micronaut-kit",
+      "source": "./claude-plugins/plugins/angularjs-micronaut-kit",
+      "description": "Test-first sprint workflow, skills, agents and a protect-files hook for one repository with an AngularJS UI (av-ui/) and a Micronaut / Java 21 API (av-service/), with commands to port a JSF app and modernise existing Micronaut code"
+    }
+  ]
+}
