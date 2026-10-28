@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+# Pre-commit hook (plain Git hook, no hook manager): LINT, plus optional SNYK checks (off by default).
+# Monorepo: the AngularJS UI is in av-ui/ and the Micronaut API in av-service/.
+# Turn it on once per clone:   git config core.hooksPath .githooks
+# Run it by hand:              bash .githooks/pre-commit          (files staged for commit)
+#                              bash .githooks/pre-commit --all    (all tracked files)
+# Lint always runs. Snyk runs only if turned on (.githooks/snyk.conf or git config hooks.snyk true).
+# Tests do not run here, because TDD commits failing tests on purpose.
+# Never bypass it (no --no-verify or -n): fix what it reports.
+# Note: files are linted as they are in the working tree.
+
+files=()
+if [ "${1:-}" = "--all" ]; then
+  while IFS= read -r f; do files+=("$f"); done < <(git ls-files)
+else
+  while IFS= read -r f; do files+=("$f"); done < <(git diff --cached --name-only --diff-filter=ACMR)
+fi
+[ "${#files[@]}" -eq 0 ] && exit 0
+
+js=(); java=0; yaml=(); docker=()
+for f in "${files[@]}"; do
+  case "$f" in
+    av-ui/node_modules/*|av-ui/dist/*) ;;
+    av-ui/*.js|av-ui/*.mjs|av-ui/*.cjs) js+=("${f#av-ui/}") ;;
+    av-service/*.java) java=1 ;;
+    *.yml|*.yaml) yaml+=("$f") ;;
+    *Dockerfile*) docker+=("$f") ;;
+  esac
+done
+
+status=0
+
+# JavaScript (av-ui/): ESLint with the frontend's config. No warnings allowed.
+# --no-warn-ignored: files the ESLint config deliberately ignores are skipped silently.
+if [ "${#js[@]}" -gt 0 ]; then
+  if [ -x av-ui/node_modules/.bin/eslint ]; then
+    echo "• Frontend lint (ESLint)"
+    (cd av-ui && node_modules/.bin/eslint --max-warnings=0 --no-warn-ignored -- "${js[@]}") || status=1
+  else
+    echo "• Frontend lint skipped: ESLint is not installed yet (run npm install in av-ui/)."
+  fi
+fi
+
+# Java (av-service/): Checkstyle, once it is configured in av-service/pom.xml.
+if [ "$java" -eq 1 ]; then
+  if grep -q "maven-checkstyle-plugin" av-service/pom.xml 2>/dev/null; then
+    echo "• Backend lint (Checkstyle)"
+    (cd av-service && ./mvnw -q checkstyle:check) || status=1
+  else
+    echo "• Backend lint skipped: no Java linter configured in av-service/pom.xml yet."
+  fi
+fi
+
+# YAML (application*.yml, deploy/ manifests, workflows): yamllint, if installed.
+if [ "${#yaml[@]}" -gt 0 ]; then
+  if command -v yamllint >/dev/null 2>&1; then
+    echo "• YAML lint (yamllint)"
+    yamllint -s "${yaml[@]}" || status=1
+  else
+    echo "• YAML lint skipped: yamllint not installed (it still runs in CI)."
+  fi
+fi
+
+# Dockerfiles: Hadolint, if installed.
+if [ "${#docker[@]}" -gt 0 ]; then
+  if command -v hadolint >/dev/null 2>&1; then
+    echo "• Dockerfile lint (Hadolint)"
+    hadolint "${docker[@]}" || status=1
+  else
+    echo "• Dockerfile lint skipped: hadolint not installed (it still runs in CI)."
+  fi
+fi
+
+# ---------- Snyk security checks (OFF by default; see .githooks/snyk.conf) ----------
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/snyk-lib.sh"
+deps=0; iac=()
+for f in "${files[@]}"; do
+  case "$f" in
+    av-ui/package.json|av-ui/package-lock.json|av-service/pom.xml|av-service/*/pom.xml) deps=1 ;;
+    deploy/*.yml|deploy/*.yaml|deploy/*/*.yml|deploy/*/*.yaml|deploy/*/*/*.yml|deploy/*/*/*.yaml) iac+=("$f") ;;
+  esac
+done
+if [ "$deps" -eq 1 ] || [ "${#iac[@]}" -gt 0 ]; then
+  if [ "$SNYK_ON" = true ]; then
+    if [ "$deps" -eq 1 ] && snyk_check_on dependencies; then
+      # --all-projects finds both av-ui/package.json and av-service/pom.xml.
+      snyk_run "dependency check" test --all-projects || status=1   # VERIFY: Snyk resolves Maven dependencies with the Maven wrapper
+    fi
+    if [ "${#iac[@]}" -gt 0 ] && snyk_check_on iac; then
+      snyk_run "infrastructure check" iac test "${iac[@]}" || status=1
+    fi
+  else
+    snyk_off_note
+  fi
+fi
+
+if [ "$status" -ne 0 ]; then
+  echo "✖ Pre-commit checks failed. Fix the problems above (ESLint can fix many with: cd av-ui && npx eslint --fix <file>), then git add and commit again." >&2
+fi
+exit $status

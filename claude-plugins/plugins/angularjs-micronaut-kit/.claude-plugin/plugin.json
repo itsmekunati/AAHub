@@ -1,0 +1,8 @@
+{
+  "name": "angularjs-micronaut-kit",
+  "displayName": "AngularJS + Micronaut kit",
+  "version": "0.1.0",
+  "description": "Test-first sprint workflow for a repository with an AngularJS 1.x UI in av-ui/ and a Micronaut 4 / Java 21 API in av-service/: planner, generator and evaluator agents, procedure skills for endpoints, persistence, pages, forms and accessibility, a protect-files hook, and a setup skill that copies rules, CLAUDE.md, permissions and Git hooks into the repository.",
+  "author": { "name": "Ark" },
+  "keywords": ["angularjs", "micronaut", "java21", "tdd", "accessibility", "workflow"]
+}
